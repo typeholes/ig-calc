@@ -50,6 +50,10 @@ onMounted(() => {
   const params = new URLSearchParams(search);
   if (params.has("shared")) {
     const shareStr = params.get("shared") ?? "";
+    if (shareStr === "") {
+      load("Default");
+      return;
+    }
     const uncompressed = decompressFromEncodedURIComponent(shareStr) ?? "";
     console.log({ shareStr, uncompressed });
     const saveRep = JSON.parse(uncompressed) as SaveObjectRep;
