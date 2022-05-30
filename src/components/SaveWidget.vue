@@ -76,7 +76,7 @@ const emit = defineEmits<{
 }>();
 
 function baseUrl(): string {
-  return window.location.host + window.location.pathname;
+  return window.location.protocol + window.location.host + window.location.pathname;
 }
 
 function mkSaveObject(name: string, description: string): SaveObjectRep {
