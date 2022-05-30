@@ -46,25 +46,29 @@ const state = reactive({
 });
 
 onMounted(() => {
-const search = window.location.search.slice(1);
-const params = new URLSearchParams(search);
-if (params.has("shared")) {
-  const shareStr = params.get("shared") ?? "";
-  const uncompressed = decompressFromEncodedURIComponent(shareStr) ?? "";
-  console.log({ shareStr, uncompressed });
-  const saveRep = JSON.parse(uncompressed) as SaveObjectRep;
-  console.log(saveRep);
+  const search = window.location.search.slice(1);
+  const params = new URLSearchParams(search);
+  if (params.has("shared")) {
+    const shareStr = params.get("shared") ?? "";
+    if (shareStr === "") {
+      load("Default");
+      return;
+    }
+    const uncompressed = decompressFromEncodedURIComponent(shareStr) ?? "";
+    console.log({ shareStr, uncompressed });
+    const saveRep = JSON.parse(uncompressed) as SaveObjectRep;
+    console.log(saveRep);
 
-  const saveName = "shared/" + saveRep.saveName;
-  state.currentSave = saveName;
-  saveMetaData[saveName] = saveRep.saveDescription;
-  writeSaveMetadata(saveMetaData);
-  writeSave(saveName, saveRep.saveDescription, uncompressed);
-  load(saveName);
-} else {
-  console.log("not shared");
-  load("Default");
-}
+    const saveName = "shared/" + saveRep.saveName;
+    state.currentSave = saveName;
+    saveMetaData[saveName] = saveRep.saveDescription;
+    writeSaveMetadata(saveMetaData);
+    writeSave(saveName, saveRep.saveDescription, uncompressed);
+    load(saveName);
+  } else {
+    console.log("not shared");
+    load("Default");
+  }
 });
 
 const props = defineProps<Props>();
@@ -76,7 +80,9 @@ const emit = defineEmits<{
 }>();
 
 function baseUrl(): string {
-  return window.location.protocol + window.location.host + window.location.pathname;
+  return (
+    window.location.protocol + window.location.host + window.location.pathname
+  );
 }
 
 function mkSaveObject(name: string, description: string): SaveObjectRep {

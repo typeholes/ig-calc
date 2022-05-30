@@ -95,7 +95,7 @@ export function writeSave(name: string, description: string, saveStr: string) {
   window.localStorage.setItem(StorageKey + "/" + name, saveStr);
 }
 
-export function readSave(name: string) {
+export function readSave(name: string): Errorable<string> {
   return errorable(() => {
     if (name === "Empty") {
       return '{"saveName":"Default","saveDescription":"Loaded on page refresh","ExprEnvSaveRep":"{}","ExpressionUiState":"{}"}';
@@ -103,6 +103,9 @@ export function readSave(name: string) {
 
     const saveStr = window.localStorage.getItem(StorageKey + "/" + name);
     if (!defined(saveStr)) {
+      if (name === "Default") {
+        return '{"saveName":"Default","saveDescription":"Loaded on page refresh","ExprEnvSaveRep":"{}","ExpressionUiState":"{}"}';
+      }
       throw new Error("Save " + name + " not found");
     }
     return saveStr;
