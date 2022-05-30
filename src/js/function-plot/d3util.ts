@@ -14,9 +14,11 @@ import {
   reverseInterval,
   unInterval,
 } from "./types";
-import { FunctionPlotOptions } from "../FunctionPlotOptions";
+import { FunctionPlotOptions } from "./FunctionPlotOptions";
 import { Rect } from "../Rect";
 import { isValidNumber, isValidPoint, onNan } from "./utils";
+import { i } from "mathjs";
+import { Expand } from "../util";
 
 const margins = { left: 10, right: 20, top: 30, bottom: 10 };
 
@@ -184,8 +186,9 @@ export function mkGraph(options: FunctionPlotOptions) {
     return ds;
   }
 
+  options.data ??= {};
   const graph = {
-    data: options.data ?? {},
+    options: options ?? { data: {} },
     updateTitle: () => {
       root()
         .select("text.title")
@@ -244,7 +247,7 @@ export function mkGraph(options: FunctionPlotOptions) {
             if (isValidPoint(p)) {
               lastValid = p;
             } else {
-//              delete ps[i];
+              //              delete ps[i];
               // ps[i][0] =  onNan(ps[i][0], lastValid[0])
               // ps[i][1] =  onNan(ps[i][1], lastValid[1])
             }
@@ -263,4 +266,4 @@ export function mkGraph(options: FunctionPlotOptions) {
   return graph;
 }
 
-export type Graph = ReturnType<typeof mkGraph>;
+export type Graph = Expand<ReturnType<typeof mkGraph>>;

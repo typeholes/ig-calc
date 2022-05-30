@@ -50,25 +50,25 @@ function getDatum(show?: boolean, color?: string) {
 
 
 function getColor() {
-  return graph.data[props.expr.name]?.color;
+  return graph.options.data[props.expr.name]?.color;
 }
 
 function updateColor(event) {
   const id = props.expr.name;
   const color = event.target.value;
-  graph.data[id].color = color;
+  graph.options.data[id].color = color;
   drawLines();
 }
 
 function getShow() {
-  return graph.data[props.expr.name]?.show;
+  return graph.options.data[props.expr.name]?.show;
 }
 
 function updateShow(event) {
   const id = props.expr.name;
   const checked = event.target.checked;
-  graph.data[id] ??= getDatum();
-  graph.data[id].show = checked;
+  graph.options.data[id] ??= getDatum();
+  graph.options.data[id].show = checked;
   drawLines();
 }
 
@@ -109,11 +109,11 @@ function refreshTex() {
 }
 
 function drawGraph() {
-  graph.data[props.expr.name] ??= getDatum();
+  graph.options.data[props.expr.name] ??= getDatum();
   addTexElement("tex_" + props.expr.name, props.tex ?? props.expr.node.toTex());
   typeset();
   const newDatum = getDatum(getShow(),getColor());
-  graph.data[props.expr.name]= newDatum;
+  graph.options.data[props.expr.name]= newDatum;
   drawLines();
 }
 

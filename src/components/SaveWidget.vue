@@ -16,12 +16,13 @@ import {
 import { ExprEnv, toSaveRep, SaveRep } from "./expressions";
 import { getExpressionUiState, ExpressionUiState } from "./expressionUiState";
 import { defined } from "../js/util";
+import { Graph } from "../js/function-plot/d3util";
+import { graph } from "./uiUtil";
 
 import {
   compressToEncodedURIComponent,
   decompressFromEncodedURIComponent,
 } from "lz-string";
-import { graph } from "./uiUtil";
 
 type SaveObjectRep = SaveObject & Record<"ExprEnvSaveRep", string>;
 
@@ -131,6 +132,8 @@ function load(name: string) {
       });
 
       state.currentSave = name;
+      graph.options.title = name;
+      graph.updateTitle();
       graph.drawLines();
     },
   });

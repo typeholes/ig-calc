@@ -103,3 +103,16 @@ export function isBoolean(x: unknown): x is boolean {
 export function isString(x: unknown): x is string {
   return typeof x === "string";
 }
+
+export type Expand<T> = T extends
+  | string
+  | number
+  | boolean
+  | bigint
+  | null
+  | void
+  | symbol
+  | Function
+  | Date
+  ? T
+  : { [K in keyof T]: T[K] };

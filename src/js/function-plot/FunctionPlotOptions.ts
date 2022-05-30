@@ -1,5 +1,5 @@
-import { FunctionPlotData } from "../js/function-plot/FunctionPlotDatum";
-import { Interval } from "../js/function-plot/types";
+import { FunctionPlotData } from "./FunctionPlotDatum";
+import { Interval } from "./types";
 
 export interface FunctionPlotOptions {
   /**
@@ -66,7 +66,7 @@ export interface FunctionPlotOptions {
   /**
    * The functions to plot
    */
-  data?: FunctionPlotData;
+  data: FunctionPlotData;
 
   /**
    * The annotations displayed in the graph

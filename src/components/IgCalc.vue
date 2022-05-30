@@ -89,18 +89,18 @@ function addToEnv(s: string) {
       state.parseResult = undefined;
     },
     Right: ([env, _]) => {
-      const oldDatum = graph.data[name];
-      graph.data[name] = { ...graph.data["__tmp"] };
+      const oldDatum = graph.options.data[name];
+      graph.options.data[name] = { ...graph.options.data["__tmp"] };
       state.error = undefined;
       state.env = env.delete("__tmp");
       state.parseResult = undefined;
 
       if (defined(oldExpr)) {
         state.newExpr = oldExpr.node.toString();
-        graph.data["__tmp"] = { ...oldDatum };
+        graph.options.data["__tmp"] = { ...oldDatum };
       } else {
         state.newExpr = "";
-        delete graph.data["__tmp"];
+        delete graph.options.data["__tmp"];
       }
       checkNewExpr();
       state.modified = true;
@@ -130,13 +130,13 @@ function refresh(args: { saveRep: SaveRep }) {
     state.newExpr = rep.expr;
     checkNewExpr();
     addToEnv(rep.expr);
-    graph.data[name].color = rep.color;
+    graph.options.data[name].color = rep.color;
   }
 
   // set show after all expressions are added so we don't try to show one that has unloaded dependencies
   for (const name in args.saveRep) {
     const rep = args.saveRep[name];
-    graph.data[name].show = rep.show;
+    graph.options.data[name].show = rep.show;
   }
 
   state.newExpr = "";
