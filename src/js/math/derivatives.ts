@@ -1,6 +1,7 @@
 import * as M from "mathjs";
 import { MathNode } from "mathjs";
 import { transformNode, tx, always, C0, C1, C2, op, fn } from "./mathUtil";
+import { simplify as _simplify } from "./simplify";
 
 const deriveTransforms = (by: string) => {
   const go = <T extends M.MathNode>(n: T) =>
@@ -112,6 +113,7 @@ const functionDerivatives: Record<string, (...args: MathNode[]) => MathNode> = {
   cos: (n) => op("-", C0, fn("sin", n)),
   tan: (n) => op("^", fn("sec", n), C2),
   sec: (n) => op("*", n, fn("tan", n)),
+  log: (n) => op("/", C1, n),
 };
 
 export function derive(
@@ -120,5 +122,5 @@ export function derive(
   simplify = true
 ): M.MathNode {
   const d = transformNode(node, deriveTransforms(by));
-  return simplify ? M.simplify(d) : d;
+  return simplify ? _simplify(d) : d;
 }
