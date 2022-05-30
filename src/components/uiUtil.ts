@@ -20,12 +20,14 @@ export function pickColor(): string {
   return unused;
 }
 
-export let graph : Graph;
+export let graph: Graph;
 
-export function initGraph() { graph =  mkGraph({
-  target: "#graph",
-  data: {},
-  width: 800,
-  height: 600,
-})
-};
+export function initGraph() {
+  graph = mkGraph({
+    target: "#graph",
+    title: "Default",
+    data: {},
+    width: 800,
+    height: 600,
+  });
+}
