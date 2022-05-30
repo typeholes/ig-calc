@@ -205,8 +205,8 @@ export type SaveRep = Record<
 export function toSaveRep(env: ExprEnv): SaveRep {
   const saveRep = env.map((v, k) => ({
     expr: v.node.toString(),
-    color: graph.data[k].color,
-    show: graph.data[k].show,
+    color: graph.options.data[k].color,
+    show: graph.options.data[k].show,
   }));
   return saveRep.toObject();
 }
