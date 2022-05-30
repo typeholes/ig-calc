@@ -240,20 +240,12 @@ export function mkGraph(options: FunctionPlotOptions) {
         .attr("fill", "none")
         .attr("stroke-width", "1")
         .attr("d", (ps) => {
-          let lastValid: Point = [0, 0];
-          ps.forEach((p, i) => {
-            if (isValidPoint(p)) {
-              lastValid = p;
-            } else {
-              //              delete ps[i];
-              // ps[i][0] =  onNan(ps[i][0], lastValid[0])
-              // ps[i][1] =  onNan(ps[i][1], lastValid[1])
-            }
-          });
           return line(
             (p) => xScale(p[0]),
-            (p) => yScale(p[1])
-          )(ps.filter(isValidPoint));
+            (p) => yScale(p[1]),
+          ).defined( isValidPoint )(ps)
+
+
         });
     },
   };
