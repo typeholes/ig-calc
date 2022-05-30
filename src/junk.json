@@ -1,0 +1,51 @@
+{
+    "default": {
+        "vars": {
+            "t": {
+                "value": 9.845777299999996,
+                "cost": null,
+                "sellCost": null,
+                "total": null
+            },
+            "money": {
+                "value": 0.9776346183910833,
+                "cost": 0.9776346183910833,
+                "sellCost": 0.9776346183910833,
+                "total": 0
+            },
+            "stability": {
+                "value": 2,
+                "cost": 4.5,
+                "sellCost": 4.5,
+                "total": 2
+            },
+            "marketScale": {
+                "value": 0,
+                "cost": 2,
+                "sellCost": 2,
+                "total": 0
+            },
+            "smoother": {
+                "value": 0.02,
+                "cost": null,
+                "sellCost": null,
+                "total": null
+            },
+            "marketValue": {
+                "value": 0.5745642754459613,
+                "cost": null,
+                "sellCost": null,
+                "total": null
+            },
+            "shares": {
+                "value": 11,
+                "cost": 0.5745642754459613,
+                "sellCost": 0.5745642754459613,
+                "total": 24
+            }
+        },
+        "milestones": {
+            "startStory": true
+        }
+    }
+}

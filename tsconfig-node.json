@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "skipLibCheck": true,
+    "type: "module",
+    "target": "esnext",
+    "module": "esnext",
+    "moduleResolution": "node",
+    "importHelpers": true,
+    "noEmit": true,
+    "experimentalDecorators": true,
+    "esModuleInterop": true
+    , "noImplicitAny": false
+    , "strict": true
+    , "alwaysStrict": true
+  }
+}

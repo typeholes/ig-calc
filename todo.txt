@@ -1,0 +1,14 @@
+documentation
+graph sonification
+hightlight/list dependencies/dependants on click
+milestones
+options
+accesibility
+writeup accessibility how-to
+replace provide/inject with reactive vars in uiUtils.tx like I do for uiState
+milestone list sorting options. maybe filters by variable
+todo recognize swipe controls for mobile.
+
+graph not updated on load
+
+add temporary effects so I can demo premium features of jankymarkettrader like dependencies and graphs

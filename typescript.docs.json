@@ -1,0 +1,23 @@
+
+
+{
+  "compilerOptions": {
+    "target": "esnext",
+    "module": "esnext",
+    "moduleResolution": "node",
+    "importHelpers": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "experimentalDecorators": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true
+  },
+	"typedocOptions": {
+        "entryPoints": [
+            "src/js/GameState.ts"
+        ],
+        "out": "docs",
+	"sort": [ "static-first", "visibility", "source-order" ]
+
+    }
+}

@@ -1,0 +1,240 @@
+import * as M from "mathjs";
+
+import { unique, defined, hasProp } from "../util";
+import {
+  ConstantNode,
+  FunctionAssignmentNode,
+  FunctionNode,
+  isFunctionAssignmentNode,
+  isFunctionNode,
+  isSymbolNode,
+  MathNode,
+} from "mathjs";
+import { Either, errorable } from "../Either";
+
+import { knownSymbols } from "./symbols";
+
+export { getDerivative, getDependencies };
+
+export function parse(s: string): Either<Error, MathNode> {
+  return errorable(() => M.parse(s));
+}
+
+//simplify.rules.push({ l: 'n1*n2/(n1*n3)', r: 'n2/n3' });
+//
+function getDerivative(
+  node: M.MathNode,
+  by: string,
+  args: Record<string, MathNode> = {}
+): M.MathNode {
+  var expanded: M.MathNode = inline(node, args);
+  var derived = M.derivative(expanded, by);
+  return derived;
+}
+
+export function freeVars(
+  env: Record<string, MathNode | number>,
+  node: MathNode
+) {
+  const free = node.filter(
+    (x) => isSymbolNode(x) && !hasProp(env, x.name) && !knownSymbols.has(x.name)
+  ) as M.SymbolNode[];
+  return free.map((x) => x.name);
+}
+
+export function inline(
+  node: MathNode,
+  env: Record<string, MathNode | number>,
+  depth = 0,
+  maxDepth = 100
+): MathNode {
+  //   console.log({ depth: depth, node: node.toString() })
+  if (depth > maxDepth) {
+    return node;
+  }
+
+  if (isFunctionNode(node)) {
+    const name = node.fn.name;
+    const to = env[name];
+    if (isFunctionAssignmentNode(to)) {
+      const subbed = subs(to, node);
+      // console.log({
+      //   to: to.toString(),
+      //   n: n.toString(),
+      //   subbed: subbed.toString(),
+      // })
+      return inline(subbed, env, depth + 1);
+    }
+  }
+  return node.transform((n) => {
+    if (isFunctionNode(n)) {
+      const name = n.fn.name;
+      const to = env[name];
+      if (isFunctionAssignmentNode(to)) {
+        const subbed = subs(to, n);
+        // console.log({
+        //   to: to.toString(),
+        //   n: n.toString(),
+        //   subbed: subbed.toString(),
+        // })
+        return inline(subbed, env, depth + 1);
+      }
+    }
+    if (isSymbolNode(n)) {
+      const name = n.name;
+      const value = env[name];
+      const to =
+        defined(value) && typeof value === "number"
+          ? new M.ConstantNode(value)
+          : value;
+      if (defined(to)) {
+        const subbed = n.transform((s) =>
+          isSymbolNode(s) && s.name === name ? to : s
+        );
+        // console.log({
+        //   to: to.toString(),
+        //   n: n.toString(),
+        //   subbed: subbed.toString(),
+        // })
+        return inline(subbed, env, depth + 1);
+      }
+    }
+    return n;
+  });
+}
+
+function texExpr(
+  expr: string,
+  doExpand: boolean,
+  replaceConstants: boolean,
+  args = {}
+) {
+  let parenthesis = "keep";
+  let implicit = "hide";
+
+  return function () {
+    let node = M.parse(expr);
+    let expanded = doExpand ? inline(node, args) : node;
+    let simplified = M.simplify(expanded);
+    return (
+      simplified
+        //         .transform(addHandlers)
+        .toTex({ parenthesis: parenthesis, implicit: implicit })
+    );
+  };
+}
+
+function texDerivative(expr: string, selectedVar: string, args = {}) {
+  let parenthesis = "keep";
+  let implicit = "hide";
+  return function () {
+    const node = M.parse(expr);
+    let derivative = getDerivative(node, selectedVar, args);
+    return (
+      derivative
+        //         .transform(addHandlers)
+        .toTex({ parenthesis: parenthesis, implicit: implicit })
+    );
+  };
+}
+
+function getDependencies(expr: string | M.MathNode, args = {}): string[] {
+  const node = typeof expr === "string" ? M.parse(expr) : expr;
+
+  const expanded = inline(node, args);
+
+  const body: M.MathNode = M.isAssignmentNode(expanded)
+    ? expanded.value
+    : expanded;
+
+  const filtered = body.filter(
+    (node) => M.isSymbolNode(node) && !knownSymbols.has(node.name)
+  ) as M.SymbolNode[];
+
+  const dependencies = unique(filtered.map((x) => x.name ?? ""));
+
+  return dependencies;
+}
+
+export function subs(
+  def: FunctionAssignmentNode,
+  call: FunctionNode
+): MathNode {
+  const ret = call.transform((n) => {
+    if (isFunctionNode(n)) {
+      if (n.fn.name === def.name || def.name === "#dummy#") {
+        const env = Object.fromEntries(
+          def.params.map((p, i) => [p, n.args[i] ?? new ConstantNode(0)])
+        );
+        const ret = def.expr.transform((s) =>
+          isSymbolNode(s) && s.name in env ? (env[s.name] as MathNode) : s
+        );
+        return ret;
+      }
+      return n;
+    } else {
+      return n;
+    }
+  });
+
+  return ret;
+  //return new M.ParenthesisNode(ret);
+}
+
+export type NodeTransform<T, U> = {
+  is: (node: unknown) => node is T;
+  when: (node: T) => boolean | [boolean, U];
+  then: <T extends MathNode>(node: T, u?: U) => MathNode;
+};
+
+export function transformNode<U>(
+  node: MathNode,
+  transforms: NodeTransform<MathNode, U>[]
+): MathNode {
+  return node.transform((n) => {
+    for (const t of transforms) {
+      if (t.is(n)) {
+        const check = t.when(n);
+        const matched = typeof check === "boolean" ? check : check[0];
+        const val = typeof check === "boolean" ? undefined : check[1];
+
+        if (matched) {
+          return t.then(n, val);
+        }
+      }
+    }
+    return n;
+  });
+}
+
+export function tx<T extends MathNode, U>(
+  is: (n: unknown) => n is T,
+  when: (n: T) => boolean | [boolean, U],
+  then: (n: T, u: U) => MathNode
+) {
+  return { is, when, then };
+}
+export const always = () => true;
+
+export const [C0, C1, C2] = [0, 1, 2].map((x) => new ConstantNode(x));
+
+export function fn(name: string, ...args: MathNode[]) {
+  return new M.FunctionNode(
+    name,
+    args.map((x) => x.clone())
+  );
+}
+
+export function op(
+  op: "+" | "-" | "*" | "/" | "^",
+  ...[left, right]: MathNode[]
+) {
+  const name = {
+    "+": "add",
+    "-": "subtract",
+    "*": "multiply",
+    "/": "divide",
+    "^": "pow",
+  }[op];
+  return new M.OperatorNode(op, name, [left, right]);
+}

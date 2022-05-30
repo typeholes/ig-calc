@@ -1,0 +1,479 @@
+2022-05-13T23:49:04.844Z vite:config bundled config file loaded in 189.95ms
+2022-05-13T23:49:04.861Z vite:config using resolved config: {
+  base: '/ig-calc/',
+  optimizeDeps: {
+    include: [ 'function-plot' ],
+    esbuildOptions: { keepNames: undefined, preserveSymlinks: undefined }
+  },
+  plugins: [
+    'vite:pre-alias',
+    'alias',
+    'vite:modulepreload-polyfill',
+    'vite:resolve',
+    'vite:optimized-deps',
+    'vite:html-inline-proxy',
+    'vite:css',
+    'vite:esbuild',
+    'vite:json',
+    'vite:wasm',
+    'vite:worker',
+    'vite:asset',
+    'vite:vue',
+    'vite:define',
+    'vite:css-post',
+    'vite:worker-import-meta-url',
+    'vite:client-inject',
+    'vite:import-analysis'
+  ],
+  define: {
+    global: {},
+    __VUE_OPTIONS_API__: true,
+    __VUE_PROD_DEVTOOLS__: false
+  },
+  build: {
+    target: 'esnext',
+    polyfillModulePreload: true,
+    outDir: 'dist',
+    assetsDir: 'assets',
+    assetsInlineLimit: 4096,
+    cssCodeSplit: true,
+    cssTarget: 'esnext',
+    sourcemap: true,
+    rollupOptions: {},
+    minify: 'esbuild',
+    terserOptions: {},
+    write: true,
+    emptyOutDir: null,
+    manifest: false,
+    lib: false,
+    ssr: false,
+    ssrManifest: false,
+    reportCompressedSize: true,
+    chunkSizeWarningLimit: 500,
+    watch: null,
+    commonjsOptions: { include: [Array], extensions: [Array] },
+    dynamicImportVarsOptions: { warnOnError: true, exclude: [Array] }
+  },
+  server: {
+    preTransformRequests: true,
+    fs: { strict: true, allow: [Array], deny: [Array] }
+  },
+  ssr: { external: [ 'vue', '@vue/server-renderer' ] },
+  configFile: 'C:/Users/hw/projects/ig-calc/vite.config.js',
+  configFileDependencies: [ 'C:/Users/hw/projects/ig-calc/vite.config.js' ],
+  inlineConfig: {
+    root: undefined,
+    base: undefined,
+    mode: undefined,
+    configFile: undefined,
+    logLevel: undefined,
+    clearScreen: undefined,
+    server: {}
+  },
+  root: 'C:/Users/hw/projects/ig-calc',
+  resolve: { dedupe: undefined, alias: [ [Object], [Object] ] },
+  publicDir: 'C:\\Users\\hw\\projects\\ig-calc\\public',
+  cacheDir: 'C:\\Users\\hw\\projects\\ig-calc\\node_modules\\.vite',
+  command: 'serve',
+  mode: 'development',
+  isWorker: false,
+  isProduction: false,
+  preview: {
+    port: undefined,
+    strictPort: undefined,
+    host: undefined,
+    https: undefined,
+    open: undefined,
+    proxy: undefined,
+    cors: undefined,
+    headers: undefined
+  },
+  env: {
+    BASE_URL: '/ig-calc/',
+    MODE: 'development',
+    DEV: true,
+    PROD: false
+  },
+  assetsInclude: [Function: assetsInclude],
+  logger: {
+    hasWarned: false,
+    info: [Function: info],
+    warn: [Function: warn],
+    warnOnce: [Function: warnOnce],
+    error: [Function: error],
+    clearScreen: [Function: clearScreen],
+    hasErrorLogged: [Function: hasErrorLogged]
+  },
+  packageCache: Map(0) {},
+  createResolver: [Function: createResolver],
+  worker: {
+    format: 'iife',
+    plugins: [
+      [Object], [Object],
+      [Object], [Object],
+      [Object], [Object],
+      [Object], [Object],
+      [Object], [Object],
+      [Object], [Object],
+      [Object], [Object],
+      [Object], [Object],
+      [Object]
+    ],
+    rollupOptions: {}
+  }
+}
+2022-05-13T23:49:04.879Z vite:deps Hash is consistent. Skipping. Use --force to override.
+[36m
+  vite v2.9.9[39m[32m dev server running at:
+[39m
+  > Local: [36mhttp://localhost:[1m3000[22m/ig-calc/[39m
+  > Network: [2muse `--host` to expose[22m
+
+  [36mready in 380ms.[39m
+
+2022-05-13T23:49:04.924Z vite:time [32m1.45ms[39m [2m/[22m
+2022-05-13T23:49:04.956Z vite:hmr [file change] [2mdebug.log[22m
+2022-05-13T23:49:04.956Z vite:hmr [no modules matched] [2mdebug.log[22m
+2022-05-13T23:49:04.964Z vite:spa-fallback Rewriting GET / to /index.html
+2022-05-13T23:49:04.992Z vite:resolve [32m2.79ms[39m [36m/index.html?html-proxy&direct&index=0.css[39m -> [2mC:/Users/hw/projects/ig-calc/index.html?html-proxy&direct&index=0.css[22m
+2022-05-13T23:49:05.057Z vite:import-analysis [2m[skipped] [2mindex.html?html-proxy&direct&index=0.css[22m[2m[22m
+2022-05-13T23:49:05.059Z vite:time [31m97.63ms[39m [2m/index.html[22m
+2022-05-13T23:49:05.079Z vite:resolve [32m1.29ms[39m [36mC:\Users\hw\projects\ig-calc\node_modules\vite\dist\client\client.mjs[39m -> [2mC:/Users/hw/projects/ig-calc/node_modules/vite/dist/client/client.mjs[22m
+2022-05-13T23:49:05.079Z vite:resolve [32m2.02ms[39m [36m/@vite/client[39m -> [2mC:/Users/hw/projects/ig-calc/node_modules/vite/dist/client/client.mjs[22m
+2022-05-13T23:49:05.087Z vite:load [32m5.28ms[39m [fs] [2m/@vite/client[22m
+2022-05-13T23:49:05.097Z vite:resolve [32m0.96ms[39m [36mC:\Users\hw\projects\ig-calc\node_modules\vite\dist\client\env.mjs[39m -> [2mC:/Users/hw/projects/ig-calc/node_modules/vite/dist/client/env.mjs[22m
+2022-05-13T23:49:05.097Z vite:resolve [32m1.14ms[39m [36m@vite/env[39m -> [2mC:/Users/hw/projects/ig-calc/node_modules/vite/dist/client/env.mjs[22m
+2022-05-13T23:49:05.098Z vite:resolve [32m0.81ms[39m [36m/node_modules/vite/dist/client/env.mjs[39m -> [2mC:/Users/hw/projects/ig-calc/node_modules/vite/dist/client/env.mjs[22m
+2022-05-13T23:49:05.110Z vite:import-analysis [33m20.39ms[39m [2m[1 imports rewritten] [2mnode_modules\vite\dist\client\client.mjs[22m[2m[22m
+2022-05-13T23:49:05.114Z vite:transform [33m24.92ms[39m [2m/@vite/client[22m
+2022-05-13T23:49:05.115Z vite:time [33m38.77ms[39m [2m/@vite/client[22m
+2022-05-13T23:49:05.118Z vite:load [32m1.91ms[39m [fs] [2m/node_modules/vite/dist/client/env.mjs[22m
+2022-05-13T23:49:05.120Z vite:import-analysis [32m0.11ms[39m [2m[no imports] [2mnode_modules\vite\dist\client\env.mjs[22m[2m[22m
+2022-05-13T23:49:05.120Z vite:transform [32m0.49ms[39m [2m/node_modules/vite/dist/client/env.mjs[22m
+2022-05-13T23:49:05.123Z vite:resolve [32m0.74ms[39m [36m/src/main.js[39m -> [2mC:/Users/hw/projects/ig-calc/src/main.js[22m
+2022-05-13T23:49:05.126Z vite:load [32m1.09ms[39m [fs] [2m/src/main.js[22m
+2022-05-13T23:49:05.127Z vite:resolve [32m0.10ms[39m [36mvue[39m -> [2mC:/Users/hw/projects/ig-calc/node_modules/.vite/deps/vue.js?v=31605bca[22m
+2022-05-13T23:49:05.127Z vite:resolve [32m0.07ms[39m [36m/node_modules/.vite/deps/vue.js?v=31605bca[39m -> [2mC:/Users/hw/projects/ig-calc/node_modules/.vite/deps/vue.js?v=31605bca[22m
+2022-05-13T23:49:05.128Z vite:resolve [32m0.93ms[39m [36m./components/App.vue[39m -> [2mC:/Users/hw/projects/ig-calc/src/components/App.vue[22m
+2022-05-13T23:49:05.129Z vite:resolve [32m0.68ms[39m [36m/src/components/App.vue[39m -> [2mC:/Users/hw/projects/ig-calc/src/components/App.vue[22m
+2022-05-13T23:49:05.130Z vite:import-analysis [32m3.71ms[39m [2m[2 imports rewritten] [2msrc\main.js[22m[2m[22m
+2022-05-13T23:49:05.132Z vite:transform [32m5.25ms[39m [2m/src/main.js[22m
+2022-05-13T23:49:05.132Z vite:time [33m10.07ms[39m [2m/src/main.js[22m
+2022-05-13T23:49:05.133Z vite:optimize-deps load [36mC:/Users/hw/projects/ig-calc/node_modules/.vite/deps/vue.js[39m
+2022-05-13T23:49:05.134Z vite:load [32m1.07ms[39m [plugin] [2m/node_modules/.vite/deps/vue.js?v=31605bca[22m
+2022-05-13T23:49:05.135Z vite:resolve [32m0.41ms[39m [36m./chunk-7L2T7Q44.js[39m -> [2mC:/Users/hw/projects/ig-calc/node_modules/.vite/deps/chunk-7L2T7Q44.js?v=31605bca[22m
+2022-05-13T23:49:05.136Z vite:resolve [32m0.07ms[39m [36m/node_modules/.vite/deps/chunk-7L2T7Q44.js?v=31605bca[39m -> [2mC:/Users/hw/projects/ig-calc/node_modules/.vite/deps/chunk-7L2T7Q44.js?v=31605bca[22m
+2022-05-13T23:49:05.136Z vite:resolve [32m0.12ms[39m [36m./chunk-6ZWPTV5A.js[39m -> [2mC:/Users/hw/projects/ig-calc/node_modules/.vite/deps/chunk-6ZWPTV5A.js?v=31605bca[22m
+2022-05-13T23:49:05.136Z vite:resolve [32m0.05ms[39m [36m/node_modules/.vite/deps/chunk-6ZWPTV5A.js?v=31605bca[39m -> [2mC:/Users/hw/projects/ig-calc/node_modules/.vite/deps/chunk-6ZWPTV5A.js?v=31605bca[22m
+2022-05-13T23:49:05.136Z vite:resolve [32m0.16ms[39m [36m./chunk-ZEMLDH7I.js[39m -> [2mC:/Users/hw/projects/ig-calc/node_modules/.vite/deps/chunk-ZEMLDH7I.js?v=31605bca[22m
+2022-05-13T23:49:05.136Z vite:resolve [32m0.06ms[39m [36m/node_modules/.vite/deps/chunk-ZEMLDH7I.js?v=31605bca[39m -> [2mC:/Users/hw/projects/ig-calc/node_modules/.vite/deps/chunk-ZEMLDH7I.js?v=31605bca[22m
+2022-05-13T23:49:05.137Z vite:import-analysis [32m2.45ms[39m [2m[3 imports rewritten] [2mnode_modules\.vite\deps\vue.js?v=31605bca[22m[2m[22m
+2022-05-13T23:49:05.137Z vite:transform [32m3.52ms[39m [2m/node_modules/.vite/deps/vue.js?v=31605bca[22m
+2022-05-13T23:49:05.138Z vite:optimize-deps load [36mC:/Users/hw/projects/ig-calc/node_modules/.vite/deps/chunk-7L2T7Q44.js[39m
+2022-05-13T23:49:05.138Z vite:optimize-deps load [36mC:/Users/hw/projects/ig-calc/node_modules/.vite/deps/chunk-6ZWPTV5A.js[39m
+2022-05-13T23:49:05.138Z vite:optimize-deps load [36mC:/Users/hw/projects/ig-calc/node_modules/.vite/deps/chunk-ZEMLDH7I.js[39m
+2022-05-13T23:49:05.138Z vite:load [32m5.53ms[39m [fs] [2m/src/components/App.vue[22m
+2022-05-13T23:49:05.215Z vite:load [31m77.02ms[39m [plugin] [2m/node_modules/.vite/deps/chunk-ZEMLDH7I.js?v=31605bca[22m
+2022-05-13T23:49:05.216Z vite:import-analysis [32m0.32ms[39m [2m[no imports] [2mnode_modules\.vite\deps\chunk-ZEMLDH7I.js?v=31605bca[22m[2m[22m
+2022-05-13T23:49:05.216Z vite:transform [32m0.66ms[39m [2m/node_modules/.vite/deps/chunk-ZEMLDH7I.js?v=31605bca[22m
+2022-05-13T23:49:05.216Z vite:load [31m78.16ms[39m [plugin] [2m/node_modules/.vite/deps/chunk-6ZWPTV5A.js?v=31605bca[22m
+2022-05-13T23:49:05.218Z vite:import-analysis [32m1.19ms[39m [2m[1 imports rewritten] [2mnode_modules\.vite\deps\chunk-6ZWPTV5A.js?v=31605bca[22m[2m[22m
+2022-05-13T23:49:05.220Z vite:transform [32m3.38ms[39m [2m/node_modules/.vite/deps/chunk-6ZWPTV5A.js?v=31605bca[22m
+2022-05-13T23:49:05.221Z vite:cache [memory] [2m/node_modules/.vite/deps/chunk-ZEMLDH7I.js?v=31605bca[22m
+2022-05-13T23:49:05.231Z vite:load [31m93.71ms[39m [plugin] [2m/node_modules/.vite/deps/chunk-7L2T7Q44.js?v=31605bca[22m
+2022-05-13T23:49:05.244Z vite:import-analysis [33m11.59ms[39m [2m[2 imports rewritten] [2mnode_modules\.vite\deps\chunk-7L2T7Q44.js?v=31605bca[22m[2m[22m
+2022-05-13T23:49:05.255Z vite:transform [33m23.04ms[39m [2m/node_modules/.vite/deps/chunk-7L2T7Q44.js?v=31605bca[22m
+2022-05-13T23:49:05.256Z vite:cache [memory] [2m/node_modules/.vite/deps/chunk-6ZWPTV5A.js?v=31605bca[22m
+2022-05-13T23:49:05.256Z vite:cache [memory] [2m/node_modules/.vite/deps/chunk-ZEMLDH7I.js?v=31605bca[22m
+2022-05-13T23:49:05.271Z vite:resolve [32m1.67ms[39m [36m./IgCalc.vue[39m -> [2mC:/Users/hw/projects/ig-calc/src/components/IgCalc.vue[22m
+2022-05-13T23:49:05.272Z vite:resolve [32m1.30ms[39m [36m/src/components/IgCalc.vue[39m -> [2mC:/Users/hw/projects/ig-calc/src/components/IgCalc.vue[22m
+2022-05-13T23:49:05.275Z vite:resolve [32m2.21ms[39m [36m../js/theme[39m -> [2mC:/Users/hw/projects/ig-calc/src/js/theme.ts[22m
+2022-05-13T23:49:05.276Z vite:resolve [32m0.95ms[39m [36m/src/js/theme.ts[39m -> [2mC:/Users/hw/projects/ig-calc/src/js/theme.ts[22m
+2022-05-13T23:49:05.279Z vite:resolve [32m1.67ms[39m [36m/src/components/App.vue?vue&type=style&index=0&scoped=true&lang.css[39m -> [2mC:/Users/hw/projects/ig-calc/src/components/App.vue?vue&type=style&index=0&scoped=true&lang.css[22m
+2022-05-13T23:49:05.282Z vite:resolve [32m1.07ms[39m [36m/src/components/App.vue?vue&type=style&index=1&lang.css[39m -> [2mC:/Users/hw/projects/ig-calc/src/components/App.vue?vue&type=style&index=1&lang.css[22m
+2022-05-13T23:49:05.286Z vite:resolve [32m0.93ms[39m [36m/@id/plugin-vue:export-helper[39m -> [2mnull[22m
+2022-05-13T23:49:05.286Z vite:hmr [self-accepts] [2msrc\components\App.vue[22m
+2022-05-13T23:49:05.292Z vite:import-analysis [33m23.99ms[39m [2m[6 imports rewritten] [2msrc\components\App.vue[22m[2m[22m
+2022-05-13T23:49:05.299Z vite:cache [memory] [2m/node_modules/.vite/deps/vue.js?v=31605bca[22m
+2022-05-13T23:49:05.303Z vite:transform [31m164.28ms[39m [2m/src/components/App.vue[22m
+2022-05-13T23:49:05.304Z vite:load [32m1.11ms[39m [plugin] [2m/src/components/App.vue?vue&type=style&index=0&scoped=true&lang.css[22m
+2022-05-13T23:49:05.304Z vite:load [32m1.19ms[39m [plugin] [2m/src/components/App.vue?vue&type=style&index=1&lang.css[22m
+2022-05-13T23:49:05.330Z vite:load [33m22.00ms[39m [plugin] [2mplugin-vue:export-helper[22m
+2022-05-13T23:49:05.331Z vite:hmr [self-accepts] [2msrc\components\App.vue?vue&type=style&index=1&lang.css[22m
+2022-05-13T23:49:05.331Z vite:import-analysis [32m0.23ms[39m [2m[0 imports rewritten] [2msrc\components\App.vue?vue&type=style&index=1&lang.css[22m[2m[22m
+2022-05-13T23:49:05.332Z vite:hmr [self-accepts] [2msrc\components\App.vue?vue&type=style&index=0&scoped=true&lang.css[22m
+2022-05-13T23:49:05.332Z vite:import-analysis [32m1.46ms[39m [2m[0 imports rewritten] [2msrc\components\App.vue?vue&type=style&index=0&scoped=true&lang.css[22m[2m[22m
+2022-05-13T23:49:05.333Z vite:transform [33m24.45ms[39m [2m/src/components/App.vue?vue&type=style&index=1&lang.css[22m
+2022-05-13T23:49:05.333Z vite:transform [33m25.57ms[39m [2m/src/components/App.vue?vue&type=style&index=0&scoped=true&lang.css[22m
+2022-05-13T23:49:05.333Z vite:import-analysis [32m0.07ms[39m [2m[no imports] [2mplugin-vue:export-helper[22m[2m[22m
+2022-05-13T23:49:05.340Z vite:transform [32m7.11ms[39m [2mplugin-vue:export-helper[22m
+2022-05-13T23:49:05.343Z vite:load [33m40.15ms[39m [fs] [2m/src/components/IgCalc.vue[22m
+2022-05-13T23:49:05.596Z vite:load [31m293.02ms[39m [fs] [2m/src/js/theme.ts[22m
+2022-05-13T23:49:05.602Z vite:cache [304] [2m/node_modules/vite/dist/client/env.mjs[22m
+2022-05-13T23:49:05.602Z vite:time [32m1.36ms[39m [2m/node_modules/vite/dist/client/env.mjs[22m
+2022-05-13T23:49:05.609Z vite:cache [304] [2m/src/components/App.vue[22m
+2022-05-13T23:49:05.609Z vite:time [32m6.62ms[39m [2m/src/components/App.vue[22m
+2022-05-13T23:49:05.631Z vite:resolve [32m0.95ms[39m [36m./Vsplitter.vue[39m -> [2mC:/Users/hw/projects/ig-calc/src/components/Vsplitter.vue[22m
+2022-05-13T23:49:05.632Z vite:resolve [32m0.84ms[39m [36m/src/components/Vsplitter.vue[39m -> [2mC:/Users/hw/projects/ig-calc/src/components/Vsplitter.vue[22m
+2022-05-13T23:49:05.633Z vite:resolve [32m1.09ms[39m [36m./Hsplitter.vue[39m -> [2mC:/Users/hw/projects/ig-calc/src/components/Hsplitter.vue[22m
+2022-05-13T23:49:05.634Z vite:resolve [32m0.66ms[39m [36m/src/components/Hsplitter.vue[39m -> [2mC:/Users/hw/projects/ig-calc/src/components/Hsplitter.vue[22m
+2022-05-13T23:49:05.635Z vite:resolve [32m0.82ms[39m [36m./GraphExpr.vue[39m -> [2mC:/Users/hw/projects/ig-calc/src/components/GraphExpr.vue[22m
+2022-05-13T23:49:05.635Z vite:resolve [32m0.68ms[39m [36m/src/components/GraphExpr.vue[39m -> [2mC:/Users/hw/projects/ig-calc/src/components/GraphExpr.vue[22m
+2022-05-13T23:49:05.637Z vite:resolve [32m1.13ms[39m [36m./expressions[39m -> [2mC:/Users/hw/projects/ig-calc/src/components/expressions.ts[22m
+2022-05-13T23:49:05.638Z vite:resolve [32m0.66ms[39m [36m/src/components/expressions.ts[39m -> [2mC:/Users/hw/projects/ig-calc/src/components/expressions.ts[22m
+2022-05-13T23:49:05.638Z vite:resolve [32m0.03ms[39m [36mmathjs[39m -> [2mC:/Users/hw/projects/ig-calc/node_modules/.vite/deps/mathjs.js?v=31605bca[22m
+2022-05-13T23:49:05.638Z vite:resolve [32m0.07ms[39m [36m/node_modules/.vite/deps/mathjs.js?v=31605bca[39m -> [2mC:/Users/hw/projects/ig-calc/node_modules/.vite/deps/mathjs.js?v=31605bca[22m
+2022-05-13T23:49:05.639Z vite:resolve [32m0.91ms[39m [36m../js/util[39m -> [2mC:/Users/hw/projects/ig-calc/src/js/util.ts[22m
+2022-05-13T23:49:05.640Z vite:resolve [32m0.64ms[39m [36m/src/js/util.ts[39m -> [2mC:/Users/hw/projects/ig-calc/src/js/util.ts[22m
+2022-05-13T23:49:05.640Z vite:resolve [32m0.84ms[39m [36m../js/Either[39m -> [2mC:/Users/hw/projects/ig-calc/src/js/Either.ts[22m
+2022-05-13T23:49:05.643Z vite:resolve [32m2.82ms[39m [36m/src/js/Either.ts[39m -> [2mC:/Users/hw/projects/ig-calc/src/js/Either.ts[22m
+2022-05-13T23:49:05.644Z vite:resolve [32m0.90ms[39m [36m./expressionUiState[39m -> [2mC:/Users/hw/projects/ig-calc/src/components/expressionUiState.ts[22m
+2022-05-13T23:49:05.645Z vite:resolve [32m0.68ms[39m [36m/src/components/expressionUiState.ts[39m -> [2mC:/Users/hw/projects/ig-calc/src/components/expressionUiState.ts[22m
+2022-05-13T23:49:05.646Z vite:resolve [32m0.64ms[39m [36m./SaveWidget.vue[39m -> [2mC:/Users/hw/projects/ig-calc/src/components/SaveWidget.vue[22m
+2022-05-13T23:49:05.647Z vite:resolve [32m0.61ms[39m [36m/src/components/SaveWidget.vue[39m -> [2mC:/Users/hw/projects/ig-calc/src/components/SaveWidget.vue[22m
+2022-05-13T23:49:05.651Z vite:resolve [32m2.39ms[39m [36m../js/math/symbols[39m -> [2mC:/Users/hw/projects/ig-calc/src/js/math/symbols.ts[22m
+2022-05-13T23:49:05.652Z vite:resolve [32m0.77ms[39m [36m/src/js/math/symbols.ts[39m -> [2mC:/Users/hw/projects/ig-calc/src/js/math/symbols.ts[22m
+2022-05-13T23:49:05.652Z vite:resolve [32m0.03ms[39m [36mfunction-plot[39m -> [2mC:/Users/hw/projects/ig-calc/node_modules/.vite/deps/function-plot.js?v=31605bca[22m
+2022-05-13T23:49:05.653Z vite:resolve [32m0.07ms[39m [36m/node_modules/.vite/deps/function-plot.js?v=31605bca[39m -> [2mC:/Users/hw/projects/ig-calc/node_modules/.vite/deps/function-plot.js?v=31605bca[22m
+2022-05-13T23:49:05.657Z vite:resolve [32m1.00ms[39m [36m/src/components/IgCalc.vue?vue&type=style&index=0&scoped=true&lang.css[39m -> [2mC:/Users/hw/projects/ig-calc/src/components/IgCalc.vue?vue&type=style&index=0&scoped=true&lang.css[22m
+2022-05-13T23:49:05.661Z vite:hmr [self-accepts] [2msrc\components\IgCalc.vue[22m
+2022-05-13T23:49:05.674Z vite:import-analysis [33m44.74ms[39m [2m[15 imports rewritten] [2msrc\components\IgCalc.vue[22m[2m[22m
+2022-05-13T23:49:05.684Z vite:cache [memory] [2m/node_modules/.vite/deps/vue.js?v=31605bca[22m
+2022-05-13T23:49:05.694Z vite:optimize-deps load [36mC:/Users/hw/projects/ig-calc/node_modules/.vite/deps/mathjs.js[39m
+2022-05-13T23:49:05.694Z vite:optimize-deps load [36mC:/Users/hw/projects/ig-calc/node_modules/.vite/deps/function-plot.js[39m
+2022-05-13T23:49:05.694Z vite:cache [memory] [2mplugin-vue:export-helper[22m
+2022-05-13T23:49:05.696Z vite:load [32m3.25ms[39m [plugin] [2m/src/components/IgCalc.vue?vue&type=style&index=0&scoped=true&lang.css[22m
+2022-05-13T23:49:05.697Z vite:import-analysis /ig-calc/node_modules/.vite/deps/function-plot.js?v=31605bca needs interop
+2022-05-13T23:49:05.702Z vite:transform [31m357.35ms[39m [2m/src/components/IgCalc.vue[22m
+2022-05-13T23:49:05.704Z vite:hmr [self-accepts] [2msrc\components\IgCalc.vue?vue&type=style&index=0&scoped=true&lang.css[22m
+2022-05-13T23:49:05.705Z vite:import-analysis [32m0.29ms[39m [2m[0 imports rewritten] [2msrc\components\IgCalc.vue?vue&type=style&index=0&scoped=true&lang.css[22m[2m[22m
+2022-05-13T23:49:05.705Z vite:transform [32m2.85ms[39m [2m/src/components/IgCalc.vue?vue&type=style&index=0&scoped=true&lang.css[22m
+2022-05-13T23:49:05.713Z vite:cache [304] [2m/src/components/App.vue?vue&type=style&index=0&scoped=true&lang.css[22m
+2022-05-13T23:49:05.713Z vite:time [32m1.37ms[39m [2m/src/components/App.vue?vue&type=style&index=0&scoped=true&lang.css[22m
+2022-05-13T23:49:05.715Z vite:import-analysis [32m0.36ms[39m [2m[1 imports rewritten] [2msrc\js\theme.ts[22m[2m[22m
+2022-05-13T23:49:05.716Z vite:transform [31m117.60ms[39m [2m/src/js/theme.ts[22m
+2022-05-13T23:49:05.716Z vite:cache [memory] [2m/node_modules/.vite/deps/vue.js?v=31605bca[22m
+2022-05-13T23:49:05.716Z vite:time [32m6.71ms[39m [2m/src/js/theme.ts[22m
+2022-05-13T23:49:05.720Z vite:cache [304] [2m/src/components/App.vue?vue&type=style&index=1&lang.css[22m
+2022-05-13T23:49:05.720Z vite:time [32m2.09ms[39m [2m/src/components/App.vue?vue&type=style&index=1&lang.css[22m
+2022-05-13T23:49:05.723Z vite:cache [304] [2mplugin-vue:export-helper[22m
+2022-05-13T23:49:05.723Z vite:time [32m1.51ms[39m [2m/@id/plugin-vue:export-helper[22m
+2022-05-13T23:49:05.725Z vite:load [33m30.80ms[39m [fs] [2m/src/components/Vsplitter.vue[22m
+2022-05-13T23:49:05.779Z vite:load [31m85.97ms[39m [fs] [2m/src/components/Hsplitter.vue[22m
+2022-05-13T23:49:05.815Z vite:load [31m121.60ms[39m [fs] [2m/src/components/GraphExpr.vue[22m
+2022-05-13T23:49:05.852Z vite:load [31m158.74ms[39m [fs] [2m/src/components/expressions.ts[22m
+2022-05-13T23:49:05.854Z vite:load [31m160.76ms[39m [fs] [2m/src/js/util.ts[22m
+2022-05-13T23:49:05.855Z vite:load [31m162.13ms[39m [fs] [2m/src/js/Either.ts[22m
+2022-05-13T23:49:05.857Z vite:load [31m163.45ms[39m [fs] [2m/src/components/expressionUiState.ts[22m
+2022-05-13T23:49:05.859Z vite:load [31m165.95ms[39m [fs] [2m/src/components/SaveWidget.vue[22m
+2022-05-13T23:49:05.881Z vite:load [31m188.17ms[39m [fs] [2m/src/js/math/symbols.ts[22m
+2022-05-13T23:49:05.895Z vite:resolve [32m0.88ms[39m [36m/src/components/Vsplitter.vue?vue&type=style&index=0&scoped=true&lang.css[39m -> [2mC:/Users/hw/projects/ig-calc/src/components/Vsplitter.vue?vue&type=style&index=0&scoped=true&lang.css[22m
+2022-05-13T23:49:05.897Z vite:hmr [self-accepts] [2msrc\components\Vsplitter.vue[22m
+2022-05-13T23:49:05.902Z vite:import-analysis [33m13.62ms[39m [2m[4 imports rewritten] [2msrc\components\Vsplitter.vue[22m[2m[22m
+2022-05-13T23:49:05.906Z vite:cache [memory] [2m/node_modules/.vite/deps/vue.js?v=31605bca[22m
+2022-05-13T23:49:05.906Z vite:cache [memory] [2m/src/js/theme.ts[22m
+2022-05-13T23:49:05.910Z vite:transform [31m183.59ms[39m [2m/src/components/Vsplitter.vue[22m
+2022-05-13T23:49:05.910Z vite:cache [memory] [2mplugin-vue:export-helper[22m
+2022-05-13T23:49:05.911Z vite:load [32m0.33ms[39m [plugin] [2m/src/components/Vsplitter.vue?vue&type=style&index=0&scoped=true&lang.css[22m
+2022-05-13T23:49:05.913Z vite:hmr [self-accepts] [2msrc\components\Vsplitter.vue?vue&type=style&index=0&scoped=true&lang.css[22m
+2022-05-13T23:49:05.914Z vite:import-analysis [32m0.14ms[39m [2m[0 imports rewritten] [2msrc\components\Vsplitter.vue?vue&type=style&index=0&scoped=true&lang.css[22m[2m[22m
+2022-05-13T23:49:05.914Z vite:transform [32m2.13ms[39m [2m/src/components/Vsplitter.vue?vue&type=style&index=0&scoped=true&lang.css[22m
+2022-05-13T23:49:05.914Z vite:time [31m208.51ms[39m [2m/src/components/IgCalc.vue[22m
+2022-05-13T23:49:05.966Z vite:import-analysis [32m0.27ms[39m [2m[no imports] [2msrc\js\util.ts[22m[2m[22m
+2022-05-13T23:49:05.966Z vite:transform [31m111.05ms[39m [2m/src/js/util.ts[22m
+2022-05-13T23:49:05.968Z vite:resolve [32m2.07ms[39m [36mimmutable[39m -> [2mC:/Users/hw/projects/ig-calc/node_modules/.vite/deps/immutable.js?v=31605bca[22m
+2022-05-13T23:49:05.968Z vite:resolve [32m2.30ms[39m [36m./util[39m -> [2mC:/Users/hw/projects/ig-calc/src/js/util.ts[22m
+2022-05-13T23:49:05.970Z vite:resolve [32m1.02ms[39m [36m/node_modules/.vite/deps/immutable.js?v=31605bca[39m -> [2mC:/Users/hw/projects/ig-calc/node_modules/.vite/deps/immutable.js?v=31605bca[22m
+2022-05-13T23:49:05.971Z vite:resolve [32m0.96ms[39m [36m@vue/runtime-dom[39m -> [2mC:/Users/hw/projects/ig-calc/node_modules/.vite/deps/@vue_runtime-dom.js?v=31605bca[22m
+2022-05-13T23:49:05.973Z vite:resolve [32m1.47ms[39m [36m/node_modules/.vite/deps/@vue_runtime-dom.js?v=31605bca[39m -> [2mC:/Users/hw/projects/ig-calc/node_modules/.vite/deps/@vue_runtime-dom.js?v=31605bca[22m
+2022-05-13T23:49:05.973Z vite:import-analysis [32m7.79ms[39m [2m[1 imports rewritten] [2msrc\js\Either.ts[22m[2m[22m
+2022-05-13T23:49:05.974Z vite:transform [31m117.85ms[39m [2m/src/js/Either.ts[22m
+2022-05-13T23:49:05.974Z vite:resolve [32m0.90ms[39m [36mts-functional-pipe[39m -> [2mC:/Users/hw/projects/ig-calc/node_modules/.vite/deps/ts-functional-pipe.js?v=31605bca[22m
+2022-05-13T23:49:05.981Z vite:cache [memory] [2m/src/js/util.ts[22m
+2022-05-13T23:49:05.981Z vite:resolve [32m7.04ms[39m [36m../js/math/mathUtil[39m -> [2mC:/Users/hw/projects/ig-calc/src/js/math/mathUtil.ts[22m
+2022-05-13T23:49:05.982Z vite:resolve [32m3.96ms[39m [36m/node_modules/.vite/deps/ts-functional-pipe.js?v=31605bca[39m -> [2mC:/Users/hw/projects/ig-calc/node_modules/.vite/deps/ts-functional-pipe.js?v=31605bca[22m
+2022-05-13T23:49:05.986Z vite:resolve [32m4.35ms[39m [36m/src/js/math/mathUtil.ts[39m -> [2mC:/Users/hw/projects/ig-calc/src/js/math/mathUtil.ts[22m
+2022-05-13T23:49:05.990Z vite:resolve [32m3.38ms[39m [36m../js/typeset[39m -> [2mC:/Users/hw/projects/ig-calc/src/js/typeset.js[22m
+2022-05-13T23:49:05.999Z vite:resolve [32m4.14ms[39m [36m/src/components/Hsplitter.vue?vue&type=style&index=0&scoped=true&lang.css[39m -> [2mC:/Users/hw/projects/ig-calc/src/components/Hsplitter.vue?vue&type=style&index=0&scoped=true&lang.css[22m
+2022-05-13T23:49:05.999Z vite:resolve [32m4.18ms[39m [36m/src/js/typeset.js[39m -> [2mC:/Users/hw/projects/ig-calc/src/js/typeset.js[22m
+2022-05-13T23:49:06.004Z vite:import-analysis [33m38.75ms[39m [2m[2 imports rewritten] [2msrc\js\math\symbols.ts[22m[2m[22m
+2022-05-13T23:49:06.004Z vite:resolve [32m2.12ms[39m [36m../js/SaveManager[39m -> [2mC:/Users/hw/projects/ig-calc/src/js/SaveManager.ts[22m
+2022-05-13T23:49:06.009Z vite:resolve [32m4.07ms[39m [36m/src/js/SaveManager.ts[39m -> [2mC:/Users/hw/projects/ig-calc/src/js/SaveManager.ts[22m
+2022-05-13T23:49:06.009Z vite:transform [31m127.15ms[39m [2m/src/js/math/symbols.ts[22m
+2022-05-13T23:49:06.012Z vite:resolve [32m2.78ms[39m [36m../js/plot[39m -> [2mC:/Users/hw/projects/ig-calc/src/js/plot.ts[22m
+2022-05-13T23:49:06.012Z vite:optimize-deps load [36mC:/Users/hw/projects/ig-calc/node_modules/.vite/deps/immutable.js[39m
+2022-05-13T23:49:06.014Z vite:resolve [32m1.34ms[39m [36m/src/js/plot.ts[39m -> [2mC:/Users/hw/projects/ig-calc/src/js/plot.ts[22m
+2022-05-13T23:49:06.014Z vite:hmr [self-accepts] [2msrc\components\Hsplitter.vue[22m
+2022-05-13T23:49:06.017Z vite:import-analysis [31m51.81ms[39m [2m[4 imports rewritten] [2msrc\components\expressionUiState.ts[22m[2m[22m
+2022-05-13T23:49:06.021Z vite:cache [memory] [2m/node_modules/.vite/deps/vue.js?v=31605bca[22m
+2022-05-13T23:49:06.021Z vite:cache [memory] [2m/src/js/Either.ts[22m
+2022-05-13T23:49:06.021Z vite:cache [memory] [2m/src/js/util.ts[22m
+2022-05-13T23:49:06.021Z vite:transform [31m163.58ms[39m [2m/src/components/expressionUiState.ts[22m
+2022-05-13T23:49:06.023Z vite:resolve [32m2.52ms[39m [36m../js/math/derivatives[39m -> [2mC:/Users/hw/projects/ig-calc/src/js/math/derivatives.ts[22m
+2022-05-13T23:49:06.030Z vite:resolve [32m1.71ms[39m [36m/src/js/math/derivatives.ts[39m -> [2mC:/Users/hw/projects/ig-calc/src/js/math/derivatives.ts[22m
+2022-05-13T23:49:06.031Z vite:import-analysis [31m67.10ms[39m [2m[3 imports rewritten] [2msrc\components\Hsplitter.vue[22m[2m[22m
+2022-05-13T23:49:06.035Z vite:resolve [32m3.54ms[39m [36m../js/math/integrals[39m -> [2mC:/Users/hw/projects/ig-calc/src/js/math/integrals.ts[22m
+2022-05-13T23:49:06.037Z vite:cache [memory] [2m/node_modules/.vite/deps/vue.js?v=31605bca[22m
+2022-05-13T23:49:06.040Z vite:resolve [32m1.89ms[39m [36m/src/js/math/integrals.ts[39m -> [2mC:/Users/hw/projects/ig-calc/src/js/math/integrals.ts[22m
+2022-05-13T23:49:06.043Z vite:transform [31m263.22ms[39m [2m/src/components/Hsplitter.vue[22m
+2022-05-13T23:49:06.043Z vite:resolve [32m4.83ms[39m [36m/src/components/SaveWidget.vue?vue&type=style&index=0&lang.css[39m -> [2mC:/Users/hw/projects/ig-calc/src/components/SaveWidget.vue?vue&type=style&index=0&lang.css[22m
+2022-05-13T23:49:06.044Z vite:cache [memory] [2mplugin-vue:export-helper[22m
+2022-05-13T23:49:06.045Z vite:load [32m5.12ms[39m [plugin] [2m/src/components/Hsplitter.vue?vue&type=style&index=0&scoped=true&lang.css[22m
+2022-05-13T23:49:06.054Z vite:hmr [self-accepts] [2msrc\components\SaveWidget.vue[22m
+2022-05-13T23:49:06.054Z vite:hmr [self-accepts] [2msrc\components\Hsplitter.vue?vue&type=style&index=0&scoped=true&lang.css[22m
+2022-05-13T23:49:06.054Z vite:import-analysis [32m0.16ms[39m [2m[0 imports rewritten] [2msrc\components\Hsplitter.vue?vue&type=style&index=0&scoped=true&lang.css[22m[2m[22m
+2022-05-13T23:49:06.054Z vite:transform [32m5.72ms[39m [2m/src/components/Hsplitter.vue?vue&type=style&index=0&scoped=true&lang.css[22m
+2022-05-13T23:49:06.054Z vite:import-analysis [31m88.93ms[39m [2m[6 imports rewritten] [2msrc\components\expressions.ts[22m[2m[22m
+2022-05-13T23:49:06.057Z vite:cache [memory] [2m/src/js/math/symbols.ts[22m
+2022-05-13T23:49:06.057Z vite:cache [memory] [2m/src/js/util.ts[22m
+2022-05-13T23:49:06.057Z vite:cache [memory] [2m/src/js/Either.ts[22m
+2022-05-13T23:49:06.060Z vite:transform [31m207.05ms[39m [2m/src/components/expressions.ts[22m
+2022-05-13T23:49:06.062Z vite:resolve [32m1.44ms[39m [36m/src/components/GraphExpr.vue?vue&type=style&index=0&scoped=true&lang.css[39m -> [2mC:/Users/hw/projects/ig-calc/src/components/GraphExpr.vue?vue&type=style&index=0&scoped=true&lang.css[22m
+2022-05-13T23:49:06.066Z vite:hmr [self-accepts] [2msrc\components\GraphExpr.vue[22m
+2022-05-13T23:49:06.068Z vite:import-analysis [31m103.56ms[39m [2m[9 imports rewritten] [2msrc\components\SaveWidget.vue[22m[2m[22m
+2022-05-13T23:49:06.072Z vite:cache [memory] [2m/node_modules/.vite/deps/vue.js?v=31605bca[22m
+2022-05-13T23:49:06.072Z vite:cache [memory] [2m/src/js/Either.ts[22m
+2022-05-13T23:49:06.072Z vite:cache [memory] [2m/src/components/expressions.ts[22m
+2022-05-13T23:49:06.072Z vite:cache [memory] [2m/src/components/expressionUiState.ts[22m
+2022-05-13T23:49:06.075Z vite:optimize-deps load [36mC:/Users/hw/projects/ig-calc/node_modules/.vite/deps/@vue_runtime-dom.js[39m
+2022-05-13T23:49:06.075Z vite:optimize-deps load [36mC:/Users/hw/projects/ig-calc/node_modules/.vite/deps/ts-functional-pipe.js[39m
+2022-05-13T23:49:06.075Z vite:cache [memory] [2mplugin-vue:export-helper[22m
+2022-05-13T23:49:06.076Z vite:transform [31m216.39ms[39m [2m/src/components/SaveWidget.vue[22m
+2022-05-13T23:49:06.077Z vite:load [32m1.58ms[39m [plugin] [2m/src/components/SaveWidget.vue?vue&type=style&index=0&lang.css[22m
+2022-05-13T23:49:06.079Z vite:hmr [self-accepts] [2msrc\components\SaveWidget.vue?vue&type=style&index=0&lang.css[22m
+2022-05-13T23:49:06.080Z vite:import-analysis [32m0.14ms[39m [2m[0 imports rewritten] [2msrc\components\SaveWidget.vue?vue&type=style&index=0&lang.css[22m[2m[22m
+2022-05-13T23:49:06.080Z vite:transform [32m2.17ms[39m [2m/src/components/SaveWidget.vue?vue&type=style&index=0&lang.css[22m
+2022-05-13T23:49:06.085Z vite:import-analysis [31m121.28ms[39m [2m[12 imports rewritten] [2msrc\components\GraphExpr.vue[22m[2m[22m
+2022-05-13T23:49:06.093Z vite:cache [memory] [2m/node_modules/.vite/deps/vue.js?v=31605bca[22m
+2022-05-13T23:49:06.093Z vite:cache [memory] [2m/src/components/expressions.ts[22m
+2022-05-13T23:49:06.093Z vite:cache [memory] [2m/src/components/expressionUiState.ts[22m
+2022-05-13T23:49:06.093Z vite:cache [memory] [2m/src/js/Either.ts[22m
+2022-05-13T23:49:06.097Z vite:cache [memory] [2mplugin-vue:export-helper[22m
+2022-05-13T23:49:06.100Z vite:load [32m2.95ms[39m [plugin] [2m/src/components/GraphExpr.vue?vue&type=style&index=0&scoped=true&lang.css[22m
+2022-05-13T23:49:06.101Z vite:transform [31m285.55ms[39m [2m/src/components/GraphExpr.vue[22m
+2022-05-13T23:49:06.103Z vite:hmr [self-accepts] [2msrc\components\GraphExpr.vue?vue&type=style&index=0&scoped=true&lang.css[22m
+2022-05-13T23:49:06.104Z vite:import-analysis [32m0.20ms[39m [2m[0 imports rewritten] [2msrc\components\GraphExpr.vue?vue&type=style&index=0&scoped=true&lang.css[22m[2m[22m
+2022-05-13T23:49:06.104Z vite:transform [32m2.29ms[39m [2m/src/components/GraphExpr.vue?vue&type=style&index=0&scoped=true&lang.css[22m
+2022-05-13T23:49:06.119Z vite:cache [304] [2m/src/components/expressions.ts[22m
+2022-05-13T23:49:06.119Z vite:time [32m1.50ms[39m [2m/src/components/expressions.ts[22m
+2022-05-13T23:49:06.122Z vite:cache [304] [2m/src/js/util.ts[22m
+2022-05-13T23:49:06.122Z vite:time [32m1.84ms[39m [2m/src/js/util.ts[22m
+2022-05-13T23:49:06.124Z vite:cache [304] [2m/src/js/Either.ts[22m
+2022-05-13T23:49:06.124Z vite:time [32m1.47ms[39m [2m/src/js/Either.ts[22m
+2022-05-13T23:49:06.129Z vite:cache [304] [2m/src/components/expressionUiState.ts[22m
+2022-05-13T23:49:06.129Z vite:time [32m1.80ms[39m [2m/src/components/expressionUiState.ts[22m
+2022-05-13T23:49:06.131Z vite:time [33m26.02ms[39m [2m/src/components/Vsplitter.vue[22m
+2022-05-13T23:49:06.132Z vite:load [31m72.98ms[39m [fs] [2m/src/js/math/mathUtil.ts[22m
+2022-05-13T23:49:06.142Z vite:load [31m67.23ms[39m [plugin] [2m/node_modules/.vite/deps/@vue_runtime-dom.js?v=31605bca[22m
+2022-05-13T23:49:06.147Z vite:import-analysis [32m2.51ms[39m [2m[3 imports rewritten] [2mnode_modules\.vite\deps\@vue_runtime-dom.js?v=31605bca[22m[2m[22m
+2022-05-13T23:49:06.148Z vite:transform [32m3.95ms[39m [2m/node_modules/.vite/deps/@vue_runtime-dom.js?v=31605bca[22m
+2022-05-13T23:49:06.148Z vite:cache [memory] [2m/node_modules/.vite/deps/chunk-7L2T7Q44.js?v=31605bca[22m
+2022-05-13T23:49:06.148Z vite:cache [memory] [2m/node_modules/.vite/deps/chunk-6ZWPTV5A.js?v=31605bca[22m
+2022-05-13T23:49:06.148Z vite:cache [memory] [2m/node_modules/.vite/deps/chunk-ZEMLDH7I.js?v=31605bca[22m
+2022-05-13T23:49:06.148Z vite:load [31m73.05ms[39m [plugin] [2m/node_modules/.vite/deps/ts-functional-pipe.js?v=31605bca[22m
+2022-05-13T23:49:06.149Z vite:import-analysis [32m0.37ms[39m [2m[1 imports rewritten] [2mnode_modules\.vite\deps\ts-functional-pipe.js?v=31605bca[22m[2m[22m
+2022-05-13T23:49:06.149Z vite:transform [32m0.73ms[39m [2m/node_modules/.vite/deps/ts-functional-pipe.js?v=31605bca[22m
+2022-05-13T23:49:06.149Z vite:cache [memory] [2m/node_modules/.vite/deps/chunk-ZEMLDH7I.js?v=31605bca[22m
+2022-05-13T23:49:06.149Z vite:load [31m51.96ms[39m [fs] [2m/src/js/typeset.js[22m
+2022-05-13T23:49:06.150Z vite:import-analysis [32m0.03ms[39m [2m[no imports] [2msrc\js\typeset.js[22m[2m[22m
+2022-05-13T23:49:06.150Z vite:transform [32m0.19ms[39m [2m/src/js/typeset.js[22m
+2022-05-13T23:49:06.151Z vite:load [31m75.54ms[39m [fs] [2m/src/js/SaveManager.ts[22m
+2022-05-13T23:49:06.152Z vite:load [31m54.82ms[39m [fs] [2m/src/js/plot.ts[22m
+2022-05-13T23:49:06.153Z vite:load [31m56.04ms[39m [fs] [2m/src/js/math/derivatives.ts[22m
+2022-05-13T23:49:06.155Z vite:load [31m57.38ms[39m [fs] [2m/src/js/math/integrals.ts[22m
+2022-05-13T23:49:06.156Z vite:time [33m45.98ms[39m [2m/src/components/Hsplitter.vue[22m
+2022-05-13T23:49:06.163Z vite:cache [304] [2m/src/components/SaveWidget.vue[22m
+2022-05-13T23:49:06.163Z vite:time [32m6.05ms[39m [2m/src/components/SaveWidget.vue[22m
+2022-05-13T23:49:06.167Z vite:cache [304] [2m/src/js/math/symbols.ts[22m
+2022-05-13T23:49:06.169Z vite:time [32m5.02ms[39m [2m/src/js/math/symbols.ts[22m
+2022-05-13T23:49:06.174Z vite:cache [304] [2m/src/components/IgCalc.vue?vue&type=style&index=0&scoped=true&lang.css[22m
+2022-05-13T23:49:06.175Z vite:time [32m5.66ms[39m [2m/src/components/IgCalc.vue?vue&type=style&index=0&scoped=true&lang.css[22m
+2022-05-13T23:49:06.179Z vite:resolve [32m0.95ms[39m [36m../util[39m -> [2mC:/Users/hw/projects/ig-calc/src/js/util.ts[22m
+2022-05-13T23:49:06.181Z vite:resolve [32m0.94ms[39m [36m../Either[39m -> [2mC:/Users/hw/projects/ig-calc/src/js/Either.ts[22m
+2022-05-13T23:49:06.183Z vite:resolve [32m0.93ms[39m [36m./symbols[39m -> [2mC:/Users/hw/projects/ig-calc/src/js/math/symbols.ts[22m
+2022-05-13T23:49:06.185Z vite:import-analysis [32m7.61ms[39m [2m[4 imports rewritten] [2msrc\js\math\mathUtil.ts[22m[2m[22m
+2022-05-13T23:49:06.187Z vite:cache [memory] [2m/src/js/util.ts[22m
+2022-05-13T23:49:06.187Z vite:cache [memory] [2m/src/js/Either.ts[22m
+2022-05-13T23:49:06.187Z vite:cache [memory] [2m/src/js/math/symbols.ts[22m
+2022-05-13T23:49:06.188Z vite:transform [33m48.93ms[39m [2m/src/js/math/mathUtil.ts[22m
+2022-05-13T23:49:06.188Z vite:time [31m75.36ms[39m [2m/src/components/GraphExpr.vue[22m
+2022-05-13T23:49:06.194Z vite:cache [304] [2m/src/js/math/mathUtil.ts[22m
+2022-05-13T23:49:06.194Z vite:time [32m6.13ms[39m [2m/src/js/math/mathUtil.ts[22m
+2022-05-13T23:49:06.197Z vite:cache [304] [2m/src/components/Vsplitter.vue?vue&type=style&index=0&scoped=true&lang.css[22m
+2022-05-13T23:49:06.197Z vite:time [32m2.48ms[39m [2m/src/components/Vsplitter.vue?vue&type=style&index=0&scoped=true&lang.css[22m
+2022-05-13T23:49:06.201Z vite:cache [304] [2m/src/components/Hsplitter.vue?vue&type=style&index=0&scoped=true&lang.css[22m
+2022-05-13T23:49:06.201Z vite:time [32m2.60ms[39m [2m/src/components/Hsplitter.vue?vue&type=style&index=0&scoped=true&lang.css[22m
+2022-05-13T23:49:06.206Z vite:resolve [32m1.07ms[39m [36m./Either[39m -> [2mC:/Users/hw/projects/ig-calc/src/js/Either.ts[22m
+2022-05-13T23:49:06.210Z vite:resolve [32m3.31ms[39m [36m./mathUtil[39m -> [2mC:/Users/hw/projects/ig-calc/src/js/math/mathUtil.ts[22m
+2022-05-13T23:49:06.220Z vite:import-analysis [33m14.79ms[39m [2m[2 imports rewritten] [2msrc\js\math\derivatives.ts[22m[2m[22m
+2022-05-13T23:49:06.220Z vite:import-analysis [33m14.91ms[39m [2m[2 imports rewritten] [2msrc\js\plot.ts[22m[2m[22m
+2022-05-13T23:49:06.220Z vite:import-analysis [33m15.01ms[39m [2m[2 imports rewritten] [2msrc\js\SaveManager.ts[22m[2m[22m
+2022-05-13T23:49:06.220Z vite:import-analysis /ig-calc/node_modules/.vite/deps/function-plot.js?v=31605bca needs interop
+2022-05-13T23:49:06.223Z vite:transform [31m71.98ms[39m [2m/src/js/SaveManager.ts[22m
+2022-05-13T23:49:06.224Z vite:transform [31m69.45ms[39m [2m/src/js/math/derivatives.ts[22m
+2022-05-13T23:49:06.224Z vite:transform [31m70.84ms[39m [2m/src/js/plot.ts[22m
+2022-05-13T23:49:06.224Z vite:cache [memory] [2m/src/js/math/mathUtil.ts[22m
+2022-05-13T23:49:06.224Z vite:cache [memory] [2m/src/js/Either.ts[22m
+2022-05-13T23:49:06.224Z vite:time [33m22.66ms[39m [2m/src/js/SaveManager.ts[22m
+2022-05-13T23:49:06.224Z vite:cache [memory] [2m/src/js/util.ts[22m
+2022-05-13T23:49:06.231Z vite:import-analysis [33m26.08ms[39m [2m[3 imports rewritten] [2msrc\js\math\integrals.ts[22m[2m[22m
+2022-05-13T23:49:06.233Z vite:cache [memory] [2m/src/js/util.ts[22m
+2022-05-13T23:49:06.233Z vite:cache [memory] [2m/src/js/math/mathUtil.ts[22m
+2022-05-13T23:49:06.233Z vite:transform [31m77.33ms[39m [2m/src/js/math/integrals.ts[22m
+2022-05-13T23:49:06.234Z vite:cache [304] [2m/src/components/SaveWidget.vue?vue&type=style&index=0&lang.css[22m
+2022-05-13T23:49:06.234Z vite:time [32m1.10ms[39m [2m/src/components/SaveWidget.vue?vue&type=style&index=0&lang.css[22m
+2022-05-13T23:49:06.237Z vite:cache [304] [2m/src/js/typeset.js[22m
+2022-05-13T23:49:06.237Z vite:time [32m2.18ms[39m [2m/src/js/typeset.js[22m
+2022-05-13T23:49:06.244Z vite:cache [304] [2m/src/js/plot.ts[22m
+2022-05-13T23:49:06.244Z vite:time [32m6.24ms[39m [2m/src/js/plot.ts[22m
+2022-05-13T23:49:06.248Z vite:cache [304] [2m/src/js/math/derivatives.ts[22m
+2022-05-13T23:49:06.248Z vite:time [32m3.77ms[39m [2m/src/js/math/derivatives.ts[22m
+2022-05-13T23:49:06.252Z vite:cache [304] [2m/src/js/math/integrals.ts[22m
+2022-05-13T23:49:06.252Z vite:time [32m2.82ms[39m [2m/src/js/math/integrals.ts[22m
+2022-05-13T23:49:06.256Z vite:cache [304] [2m/src/components/GraphExpr.vue?vue&type=style&index=0&scoped=true&lang.css[22m
+2022-05-13T23:49:06.256Z vite:time [32m3.24ms[39m [2m/src/components/GraphExpr.vue?vue&type=style&index=0&scoped=true&lang.css[22m
+2022-05-13T23:49:06.261Z vite:load [31m251.67ms[39m [plugin] [2m/node_modules/.vite/deps/immutable.js?v=31605bca[22m
+2022-05-13T23:49:06.264Z vite:import-analysis [32m2.09ms[39m [2m[1 imports rewritten] [2mnode_modules\.vite\deps\immutable.js?v=31605bca[22m[2m[22m
+2022-05-13T23:49:06.265Z vite:transform [32m3.97ms[39m [2m/node_modules/.vite/deps/immutable.js?v=31605bca[22m
+2022-05-13T23:49:06.266Z vite:cache [memory] [2m/node_modules/.vite/deps/chunk-ZEMLDH7I.js?v=31605bca[22m
+2022-05-13T23:49:06.269Z vite:load [31m575.77ms[39m [plugin] [2m/node_modules/.vite/deps/function-plot.js?v=31605bca[22m
+2022-05-13T23:49:06.276Z vite:resolve [32m0.17ms[39m [36m./chunk-SLKPMNTU.js[39m -> [2mC:/Users/hw/projects/ig-calc/node_modules/.vite/deps/chunk-SLKPMNTU.js?v=31605bca[22m
+2022-05-13T23:49:06.276Z vite:resolve [32m0.05ms[39m [36m/node_modules/.vite/deps/chunk-SLKPMNTU.js?v=31605bca[39m -> [2mC:/Users/hw/projects/ig-calc/node_modules/.vite/deps/chunk-SLKPMNTU.js?v=31605bca[22m
+2022-05-13T23:49:06.279Z vite:import-analysis [32m9.48ms[39m [2m[2 imports rewritten] [2mnode_modules\.vite\deps\function-plot.js?v=31605bca[22m[2m[22m
+2022-05-13T23:49:06.286Z vite:transform [33m16.55ms[39m [2m/node_modules/.vite/deps/function-plot.js?v=31605bca[22m
+2022-05-13T23:49:06.287Z vite:cache [memory] [2m/node_modules/.vite/deps/chunk-ZEMLDH7I.js?v=31605bca[22m
+2022-05-13T23:49:06.287Z vite:optimize-deps load [36mC:/Users/hw/projects/ig-calc/node_modules/.vite/deps/chunk-SLKPMNTU.js[39m
+2022-05-13T23:49:06.288Z vite:load [32m0.56ms[39m [plugin] [2m/node_modules/.vite/deps/chunk-SLKPMNTU.js?v=31605bca[22m
+2022-05-13T23:49:06.289Z vite:import-analysis [32m0.48ms[39m [2m[1 imports rewritten] [2mnode_modules\.vite\deps\chunk-SLKPMNTU.js?v=31605bca[22m[2m[22m
+2022-05-13T23:49:06.289Z vite:transform [32m1.03ms[39m [2m/node_modules/.vite/deps/chunk-SLKPMNTU.js?v=31605bca[22m
+2022-05-13T23:49:06.289Z vite:cache [memory] [2m/node_modules/.vite/deps/chunk-ZEMLDH7I.js?v=31605bca[22m
+2022-05-13T23:49:06.297Z vite:time [32m1.57ms[39m [2m/node_modules/.vite/deps/vue.js.map[22m
+2022-05-13T23:49:06.314Z vite:time [32m2.91ms[39m [2m/node_modules/.vite/deps/chunk-ZEMLDH7I.js.map[22m
+2022-05-13T23:49:06.315Z vite:load [31m621.78ms[39m [plugin] [2m/node_modules/.vite/deps/mathjs.js?v=31605bca[22m
+2022-05-13T23:49:06.369Z vite:import-analysis [31m51.52ms[39m [2m[1 imports rewritten] [2mnode_modules\.vite\deps\mathjs.js?v=31605bca[22m[2m[22m
+2022-05-13T23:49:06.426Z vite:transform [31m110.75ms[39m [2m/node_modules/.vite/deps/mathjs.js?v=31605bca[22m
+2022-05-13T23:49:06.432Z vite:cache [memory] [2m/node_modules/.vite/deps/chunk-ZEMLDH7I.js?v=31605bca[22m
+2022-05-13T23:49:06.432Z vite:time [31m121.47ms[39m [2m/node_modules/.vite/deps/chunk-6ZWPTV5A.js.map[22m
+2022-05-13T23:49:06.436Z vite:time [32m2.07ms[39m [2m/node_modules/.vite/deps/chunk-SLKPMNTU.js.map[22m
+2022-05-13T23:49:06.463Z vite:time [33m19.13ms[39m [2m/node_modules/.vite/deps/@vue_runtime-dom.js.map[22m
+2022-05-13T23:49:06.469Z vite:time [33m35.00ms[39m [2m/node_modules/.vite/deps/immutable.js.map[22m
+2022-05-13T23:49:06.474Z vite:time [33m16.18ms[39m [2m/node_modules/.vite/deps/ts-functional-pipe.js.map[22m
+2022-05-13T23:49:06.482Z vite:time [31m176.90ms[39m [2m/node_modules/.vite/deps/chunk-7L2T7Q44.js.map[22m
+2022-05-13T23:49:06.493Z vite:time [31m58.84ms[39m [2m/node_modules/.vite/deps/function-plot.js.map[22m
+2022-05-13T23:49:06.601Z vite:time [31m167.65ms[39m [2m/node_modules/.vite/deps/mathjs.js.map[22m
+2022-05-13T23:49:06.933Z vite:resolve [32m0.83ms[39m [36m/node_modules/function-plot/src/globals.ts[39m -> [2mnull[22m
+2022-05-13T23:49:06.935Z vite:spa-fallback Not rewriting GET /node_modules/function-plot/src/globals.ts because the client did not send an HTTP accept header.
+2022-05-13T23:49:06.935Z vite:time [32m2.95ms[39m [2m/node_modules/function-plot/src/globals.ts[22m
+2022-05-13T23:49:06.936Z vite:resolve [32m0.79ms[39m [36m/node_modules/function-plot/src/utils.ts[39m -> [2mnull[22m
+2022-05-13T23:49:06.938Z vite:spa-fallback Not rewriting GET /node_modules/function-plot/src/utils.ts because the client did not send an HTTP accept header.
+2022-05-13T23:49:06.938Z vite:time [32m2.72ms[39m [2m/node_modules/function-plot/src/utils.ts[22m
+2022-05-13T23:49:06.940Z vite:resolve [32m0.82ms[39m [36m/node_modules/function-plot/src/helpers/eval.ts[39m -> [2mnull[22m
+2022-05-13T23:49:06.941Z vite:spa-fallback Not rewriting GET /node_modules/function-plot/src/helpers/eval.ts because the client did not send an HTTP accept header.
+2022-05-13T23:49:06.941Z vite:time [32m2.61ms[39m [2m/node_modules/function-plot/src/helpers/eval.ts[22m
+2022-05-13T23:49:06.943Z vite:resolve [32m1.08ms[39m [36m/node_modules/function-plot/src/samplers/builtIn.ts[39m -> [2mnull[22m
+2022-05-13T23:49:06.944Z vite:spa-fallback Not rewriting GET /node_modules/function-plot/src/samplers/builtIn.ts because the client did not send an HTTP accept header.
+2022-05-13T23:49:06.944Z vite:time [32m2.99ms[39m [2m/node_modules/function-plot/src/samplers/builtIn.ts[22m
+2022-05-13T23:49:06.946Z vite:resolve [32m0.81ms[39m [36m/node_modules/function-plot/src/index.ts[39m -> [2mnull[22m
+2022-05-13T23:49:06.949Z vite:spa-fallback Not rewriting GET /node_modules/function-plot/src/index.ts because the client did not send an HTTP accept header.
+2022-05-13T23:49:06.949Z vite:time [32m4.02ms[39m [2m/node_modules/function-plot/src/index.ts[22m
+2022-05-13T23:49:26.117Z vite:time [32m2.17ms[39m [2m/favicon.ico[22m
