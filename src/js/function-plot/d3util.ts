@@ -48,6 +48,31 @@ export function mkGraph(options: FunctionPlotOptions) {
 
   const yAxis = axisLeft(yScale).tickSize(canvasRect.width());
 
+  //hold the original scales as zoom transforms are from the original scale
+  //  not the modified scale
+  const zoomScaleX = xScale.copy();
+  const zoomScaleY = yScale.copy();
+
+  //  const dragBox = () => canvas().select(".dragbox");
+
+  const zoomer = d3Zoom().on("zoom", function (event) {
+    if ("type" in event && event.type === "zoom") {
+      //      console.log(event);
+      const ze = event as D3ZoomEvent<SVGElement, unknown>;
+      const newX = ze.transform
+        .rescaleX(zoomScaleX)
+        .interpolate(interpolateRound);
+      const newY = ze.transform
+        .rescaleY(zoomScaleY)
+        .interpolate(interpolateRound);
+
+      xScale.domain(newX.domain()).range(newX.range());
+      yScale.domain(newY.domain()).range(newY.range());
+
+      graph.drawAxis();
+      graph.drawLines();
+    }
+  });
   const root = () => select(options.target).selectAll("svg").data([options]);
   root()
     .enter()
@@ -95,54 +120,27 @@ export function mkGraph(options: FunctionPlotOptions) {
     .style("pointer-events", "all")
     .append("rect")
     .attr("class", "dragbox")
+    // @ts-ignore
+    .call(zoomer)
     .attr("x", "10")
     .attr("width", canvasRect.width())
     .attr("height", canvasRect.height())
     .style("fill", "blue")
     .style("fill-opacity", "0")
-    .style("pointer-events", "all")
-    //   .on("mousemove", function (event) {
-    //     if ("buttons" in event && event.buttons === 1) {
-    //       const p = pointer(event);
-    //       console.log(p);
-    //     }
-    //   })
-    .on("mouseover", function (event) {
-      console.log("moved");
-    })
-    .on("mouseout", function (event) {
-      select(this).attr("fill", "green");
-      console.log(event);
-    });
-
-  const dragBox = () => canvas().select(".dragbox");
-
-  //hold the original scales as zoom transforms are from the original scale
-  //  not the modified scale
-  const zoomScaleX = xScale.copy();
-  const zoomScaleY = yScale.copy();
-
-  const zoomer = d3Zoom().on("zoom", function (event) {
-    if ("type" in event && event.type === "zoom") {
-      //      console.log(event);
-      const ze = event as D3ZoomEvent<SVGElement, unknown>;
-      const newX = ze.transform
-        .rescaleX(zoomScaleX)
-        .interpolate(interpolateRound);
-      const newY = ze.transform
-        .rescaleY(zoomScaleY)
-        .interpolate(interpolateRound);
-
-      xScale.domain(newX.domain()).range(newX.range());
-      yScale.domain(newY.domain()).range(newY.range());
-
-      graph.drawAxis();
-      graph.drawLines();
-    }
-  });
-
-  //@ts-ignore
-  dragBox().call(zoomer);
+    .style("pointer-events", "all");
+  //   .on("mousemove", function (event) {
+  //     if ("buttons" in event && event.buttons === 1) {
+  //       const p = pointer(event);
+  //       console.log(p);
+  //     }
+  //   })
+  // .on("mouseover", function (event) {
+  //   console.log("moved");
+  // })
+  // .on("mouseout", function (event) {
+  //   select(this).attr("fill", "green");
+  //   console.log(event);
+  // });
 
   function buildClip() {
     // (so that the functions don't overflow on zoom or drag)
