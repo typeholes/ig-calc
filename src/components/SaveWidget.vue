@@ -46,25 +46,25 @@ const state = reactive({
 });
 
 onMounted(() => {
-const search = window.location.search.slice(1);
-const params = new URLSearchParams(search);
-if (params.has("shared")) {
-  const shareStr = params.get("shared") ?? "";
-  const uncompressed = decompressFromEncodedURIComponent(shareStr) ?? "";
-  console.log({ shareStr, uncompressed });
-  const saveRep = JSON.parse(uncompressed) as SaveObjectRep;
-  console.log(saveRep);
+  const search = window.location.search.slice(1);
+  const params = new URLSearchParams(search);
+  if (params.has("shared")) {
+    const shareStr = params.get("shared") ?? "";
+    const uncompressed = decompressFromEncodedURIComponent(shareStr) ?? "";
+    console.log({ shareStr, uncompressed });
+    const saveRep = JSON.parse(uncompressed) as SaveObjectRep;
+    console.log(saveRep);
 
-  const saveName = "shared/" + saveRep.saveName;
-  state.currentSave = saveName;
-  saveMetaData[saveName] = saveRep.saveDescription;
-  writeSaveMetadata(saveMetaData);
-  writeSave(saveName, saveRep.saveDescription, uncompressed);
-  load(saveName);
-} else {
-  console.log("not shared");
-  load("Default");
-}
+    const saveName = "shared/" + saveRep.saveName;
+    state.currentSave = saveName;
+    saveMetaData[saveName] = saveRep.saveDescription;
+    writeSaveMetadata(saveMetaData);
+    writeSave(saveName, saveRep.saveDescription, uncompressed);
+    load(saveName);
+  } else {
+    console.log("not shared");
+    load("Default");
+  }
 });
 
 const props = defineProps<Props>();
@@ -76,7 +76,9 @@ const emit = defineEmits<{
 }>();
 
 function baseUrl(): string {
-  return window.location.protocol + window.location.host + window.location.pathname;
+  return (
+    window.location.protocol + window.location.host + window.location.pathname
+  );
 }
 
 function mkSaveObject(name: string, description: string): SaveObjectRep {
@@ -178,6 +180,10 @@ function hasDeletedSaves(): boolean {
   return Object.keys(state.deletedSaves).length > 0;
 }
 
+function purgeDeletedSaves(): void {
+  state.deletedSaves = {};
+}
+
 function cancel() {
   state.copying = undefined;
   state.newName = undefined;
@@ -235,9 +241,12 @@ function restore(name: string, descr: string) {
         <button class="share" @click="cancel()">cancel</button>
       </template>
 
-      <span v-if="hasDeletedSaves()" style="grid-column: 1/8">
-        Deleted Saves
-      </span>
+      <template v-if="hasDeletedSaves()">
+        <span style="grid-column: 1/8"> Deleted Saves
+        <button  @click="purgeDeletedSaves()">
+          Purge
+        </button> </span>
+      </template>
       <template v-for="(description, name) of state.deletedSaves">
         <span class="name">{{ name }}:</span>
         <span class="descr">{{ description }}</span>
