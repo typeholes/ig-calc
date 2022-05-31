@@ -2,7 +2,8 @@ let partPromises = {};
 
 export function addTexElement(elementId, tex) {
   partPromises[elementId] = 
-      MathJax.tex2chtmlPromise(tex, { em: 64, ex: 16, display: false, scale: 2 }).then(
+//    MathJax.tex2svgPromise(tex, {  display: true, scale: 1, lineWidth:5 }).then(
+    MathJax.tex2chtmlPromise(tex, {  display: true, scale: 1, lineWidth:5 }).then(
         nodeHtml => {
           const el = document.getElementById(elementId);
           if (el) {

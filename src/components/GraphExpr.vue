@@ -16,10 +16,9 @@ import { inline } from "../js/math/mathUtil";
 import { Errorable, errorable } from "../js/Either";
 import { Graph } from "../js/function-plot/d3util";
 import { Datum, EvalFn } from "../js/function-plot/FunctionPlotDatum";
-import { getFunctionBody, getBody as getDeclarationBody} from './expressions';
+import { getFunctionBody, getBody as getDeclarationBody } from "./expressions";
 import { defined } from "../js/util";
 import { pickColor, graph } from "./uiUtil";
-
 
 interface Props {
   expr: ValidExpr;
@@ -29,8 +28,7 @@ interface Props {
 
 const props = defineProps<Props>();
 
-const getBody =  (x: MathNode) => getDeclarationBody(getFunctionBody(x));
-
+const getBody = (x: MathNode) => getDeclarationBody(getFunctionBody(x));
 
 const emit = defineEmits<{
   (e: "new:expr", value: string): void;
@@ -38,16 +36,13 @@ const emit = defineEmits<{
   (e: "error", value: Error): void;
 }>();
 
-
-
 function getDatum(show?: boolean, color?: string) {
   const body = getBody(props.expr.node);
   const inlined = inline(body, envToMathEnv(props.env));
-  const firstFree = getDependencies(props.env, props.expr, 'free').first('x');
-  const evalFn = (x: number) => inlined.compile().evaluate({[firstFree]: x}) 
-  return Datum( evalFn, {show, color: color ?? pickColor()})
+  const firstFree = getDependencies(props.env, props.expr, "free").first("x");
+  const evalFn = (x: number) => inlined.compile().evaluate({ [firstFree]: x });
+  return Datum(evalFn, { show, color: color ?? pickColor() });
 }
-
 
 function getColor() {
   return graph.options.data[props.expr.name]?.color;
@@ -112,43 +107,48 @@ function drawGraph() {
   graph.options.data[props.expr.name] ??= getDatum();
   addTexElement("tex_" + props.expr.name, props.tex ?? props.expr.node.toTex());
   typeset();
-  const newDatum = getDatum(getShow(),getColor());
-  graph.options.data[props.expr.name]= newDatum;
+  const newDatum = getDatum(getShow(), getColor());
+  graph.options.data[props.expr.name] = newDatum;
   drawLines();
 }
 
 function drawLines() {
-  Errorable.catch(errorable(graph.drawLines), (error) => { emit('error', error)})
+  Errorable.catch(errorable(graph.drawLines), (error) => {
+    emit("error", error);
+  });
 }
 onUpdated(drawGraph);
 onMounted(drawGraph);
-
 </script>
 
 <template>
+  <button class="closeButton" @click="remove()">x</button>
   <div class="GraphExpr">
-    <button class="closeButton" @click="remove()">x</button>
-    <div v-if="isGraphable(env, expr)">
+    <template v-if="isGraphable(env, expr)">
       <input
+        class="gridCheck"
         type="checkbox"
         :checked="getShow()"
         :value="getShow()"
         v-on:change="updateShow"
       />
       <input
+        class="colorPicker"
         type="color"
         :value="getColor()"
         v-on:change="updateColor"
       />
-      {{ z(expr) }}
-    </div>
-    <div><span class="tex" :id="'tex_' + expr.name">{{ expr.toString() }} </span></div>
-    <div v-for="free in getDependencies(env, expr, 'free')">
-      {{ free }}
-      <button @click="derive(free)">dx</button>
+      <span class="fullRow">{{ z(expr) }}</span>
+    </template>
+    <span class="tex" :id="'tex_' + expr.name">{{ expr.toString() }} </span>
+    <template v-for="free in getDependencies(env, expr, 'free')">
+      <span class="free">
+        {{ free }}
+      </span>
+      <button class="dx" @click="derive(free)">dx</button>
       <!-- <button @click="integrate(free)">&#x222B</button>  integration is broken :(-->
       <!-- <input type="number" /> -->
-    </div>
+    </template>
     <!-- {{ derive(expr.node).toString() }} -->
   </div>
 </template>
@@ -156,6 +156,12 @@ onMounted(drawGraph);
 <style scoped>
 .GraphExpr {
   border: 1px solid bisque;
+  display: grid;
+  grid-template-columns: 8fr min-content min-content 3fr 8fr;
+}
+
+.fullRow {
+  grid-column: 1/6;
 }
 
 .closeButton {
@@ -167,8 +173,28 @@ onMounted(drawGraph);
 
 :deep(mjx-container) {
   background: none;
-  top: 1px
-
+  top: 1px;
 }
-/* .tex { } */
+.tex {
+  grid-column: 1/6;
+  overflow:auto ;
+}
+
+.gridCheck {
+  grid-column: 3;
+  width: 15px;
+  align-self: center;
+}
+
+.colorPicker {
+  grid-column: 4;
+}
+
+.dx {
+  grid-column: 3;
+}
+
+.free {
+  grid-column: 2;
+}
 </style>
