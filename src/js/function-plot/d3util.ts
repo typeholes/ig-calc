@@ -238,14 +238,13 @@ export function mkGraph(options: FunctionPlotOptions) {
         .attr("stroke", (d) => d.color ?? "#ff00ff")
         .attr("transform", `translate(0,-${canvasRect.top()}) `)
         .selectAll("path.line")
-        .data(
-          (d) =>
-            d.sample(
-              Interval(...xScale.domain()),
-              Interval(...yScale.range()),
-              "linear",
-              10000
-            ) // TODO: linear and nSamples should not need to be specified here
+        .data((d) =>
+          d.sample(
+            Interval(...xScale.domain()),
+            Interval(...yScale.range()),
+            "linear",
+            d.nSamples
+          )
         )
         .join("path")
         .attr("class", "line")
