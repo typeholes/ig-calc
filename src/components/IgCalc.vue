@@ -122,7 +122,11 @@ function onSave() {
 function refresh(args: { saveRep: SaveRep }) {
   state.loading = true;
   state.env = state.env.clear();
-  initGraph();
+  if (!defined(graph)) {
+    initGraph();
+  } else {
+    graph.options.data = {};
+  }
   state.parseResult = undefined;
   state.newExpr = "";
   checkNewExpr();
@@ -220,7 +224,7 @@ function graphOptions() {
             <pre color="red" v-if="defined(state.error)">
               {{ state.error }}
             </pre>
-            <div v-if="state.parseResult" >
+            <div v-if="state.parseResult">
               <GraphExpr
                 v-if="!state.loading"
                 :env="state.env"

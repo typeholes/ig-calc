@@ -23,6 +23,7 @@ import {
   compressToEncodedURIComponent,
   decompressFromEncodedURIComponent,
 } from "lz-string";
+import { Interval } from "../js/function-plot/types";
 
 type SaveObjectRep = SaveObject & Record<"ExprEnvSaveRep", string>;
 
@@ -139,8 +140,7 @@ function load(name: string) {
 
       state.currentSave = name;
       graph.options.title = name;
-      graph.updateTitle();
-      graph.drawLines();
+      graph.resetZoom(Interval(-10, 10), 0);
     },
   });
 }
@@ -246,10 +246,9 @@ function restore(name: string, descr: string) {
       </template>
 
       <template v-if="hasDeletedSaves()">
-        <span style="grid-column: 1/8"> Deleted Saves
-        <button  @click="purgeDeletedSaves()">
-          Purge
-        </button> </span>
+        <span style="grid-column: 1/8">
+          Deleted Saves <button @click="purgeDeletedSaves()">Purge</button>
+        </span>
       </template>
       <template v-for="(description, name) of state.deletedSaves">
         <span class="name">{{ name }}:</span>
