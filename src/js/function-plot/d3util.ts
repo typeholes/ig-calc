@@ -272,7 +272,7 @@ export function mkGraph(options: FunctionPlotOptions) {
       zoomer.translateTo(
         dragBox as never,
         zoomScaleX(xCenter),
-        zoomScaleY(xCenter + yCenter)
+        zoomScaleY(yCenter)
       );
       zoomer.scaleBy(dragBox as never, 1 / scale);
       //      xScale.domain(unInterval(xDomain)).range(canvasRect.xA());
