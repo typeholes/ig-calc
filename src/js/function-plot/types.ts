@@ -8,10 +8,21 @@ export interface Interval {
   hi: number;
 }
 
+
 // should use a tuple arg here but too many things return arrays instead of tuples
 export function Interval(...args: number[]) {
   return { lo: args[0], hi: args[1] };
 }
+
+Interval.span = (i: Interval) => i.hi - i.lo;
+
+// should use a tuple arg here but too many things return arrays instead of tuples
+Interval.update = (i: Interval, vals: number[]): Interval => {
+  [i.lo, i.hi] = vals;
+  return i;
+}
+
+Interval.midpoint = (i:Interval) : number => i.lo + (i.hi-i.lo)/2;
 
 export function unInterval(i: Interval): [number, number] {
   return [i.lo, i.hi];
@@ -24,3 +35,4 @@ export function reverseInterval(i: Interval): Interval {
 export function offsetInterval(i: Interval, by): Interval {
   return { lo: i.lo + by, hi: i.hi + by };
 }
+

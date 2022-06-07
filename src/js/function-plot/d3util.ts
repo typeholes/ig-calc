@@ -2,8 +2,12 @@ import { pointer, select, selectAll } from "d3-selection";
 import { line } from "d3-shape";
 import { axisBottom, axisLeft } from "d3-axis";
 import { scaleLinear } from "d3-scale";
-import { isConstructorDeclaration } from "typescript";
-import { zoom as d3Zoom, D3ZoomEvent } from "d3-zoom";
+import {
+  zoom as d3Zoom,
+  D3ZoomEvent,
+  zoomIdentity,
+  zoomTransform,
+} from "d3-zoom";
 import { interpolateRound } from "d3-interpolate";
 import { FunctionPlotData, FunctionPlotDatum } from "./FunctionPlotDatum";
 import {
@@ -50,14 +54,14 @@ export function mkGraph(options: FunctionPlotOptions) {
 
   //hold the original scales as zoom transforms are from the original scale
   //  not the modified scale
-  const zoomScaleX = xScale.copy();
-  const zoomScaleY = yScale.copy();
+  let zoomScaleX = xScale.copy();
+  let zoomScaleY = yScale.copy();
 
   //  const dragBox = () => canvas().select(".dragbox");
 
   const zoomer = d3Zoom().on("zoom", function (event) {
     if ("type" in event && event.type === "zoom") {
-      //      console.log(event);
+      console.log(event.transform, zoomScaleX(1), xScale(1));
       const ze = event as D3ZoomEvent<SVGElement, unknown>;
       const newX = ze.transform
         .rescaleX(zoomScaleX)
@@ -66,8 +70,13 @@ export function mkGraph(options: FunctionPlotOptions) {
         .rescaleY(zoomScaleY)
         .interpolate(interpolateRound);
 
-      xScale.domain(newX.domain()).range(newX.range());
-      yScale.domain(newY.domain()).range(newY.range());
+      const xDomain = newX.domain();
+      const yDomain = newY.domain();
+      xScale.domain(xDomain).range(newX.range());
+      yScale.domain(yDomain).range(newY.range());
+
+      Interval.update(options.xDomain, xDomain);
+      Interval.update(options.yDomain, yDomain);
 
       graph.drawAxis();
       graph.drawLines();
@@ -119,7 +128,11 @@ export function mkGraph(options: FunctionPlotOptions) {
   canvas()
     .style("pointer-events", "all")
     .append("rect")
-    .attr("class", "dragbox")
+    .attr("class", "dragbox");
+
+  const dragBox = canvas().select(".dragbox");
+
+  dragBox
     // @ts-ignore
     .call(zoomer)
     .attr("x", "10")
@@ -242,11 +255,27 @@ export function mkGraph(options: FunctionPlotOptions) {
         .attr("d", (ps) => {
           return line(
             (p) => xScale(p[0]),
-            (p) => yScale(p[1]),
-          ).defined( isValidPoint )(ps)
-
-
+            (p) => yScale(p[1])
+          ).defined(isValidPoint)(ps);
         });
+    },
+    resetZoom: (xDomain: Interval, yCenter: number) => {
+      const xDiff = Interval.span(xDomain);
+      const scale = Math.abs(xDiff || 1);
+
+      console.log({ xDomain, xDiff, yCenter });
+
+      //@ts-ignore
+      dragBox.call(zoomer.transform, zoomIdentity);
+      //      zoomer.scaleTo(dragBox as never, 1)
+      const xCenter = Interval.midpoint(xDomain);
+      zoomer.translateTo(
+        dragBox as never,
+        zoomScaleX(xCenter),
+        zoomScaleY(xCenter + yCenter)
+      );
+      zoomer.scaleBy(dragBox as never, 1 / scale);
+      //      xScale.domain(unInterval(xDomain)).range(canvasRect.xA());
     },
   };
 

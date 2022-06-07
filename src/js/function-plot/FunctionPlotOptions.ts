@@ -41,12 +41,12 @@ export interface FunctionPlotOptions {
   /**
    * The x-axis domain, internally state used to preserve the x-domain across multiple calls to function plot
    */
-  xDomain?: Interval;
+  xDomain: Interval;
 
   /**
    * The y-axis domain, internally state used to preserve the y-domain across multiple calls to function plot
    */
-  yDomain?: Interval;
+  yDomain: Interval;
 
   /**
    * The tip configuration

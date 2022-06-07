@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import HelpScreen from "./HelpScreen.vue";
+import GridOptions from "./GridOptions.vue";
 import Vsplitter from "./Vsplitter.vue";
 import Hsplitter from "./Hsplitter.vue";
 
@@ -53,6 +54,7 @@ const state = reactive({
   showHelp: false,
   loading: false,
   modified: false,
+  showGraphOptions: false,
 });
 
 function showError(e: Error) {
@@ -148,12 +150,15 @@ function refresh(args: { saveRep: SaveRep }) {
 function help() {
   state.showHelp = !state.showHelp;
 }
+
+function graphOptions() {
+  state.showGraphOptions = !state.showGraphOptions;
+}
 </script>
 
 <template>
   <div class="ig-calc">
-    <button class="helpButton" @click="help">?</button>
-    <HelpScreen v-if="state.showHelp"></HelpScreen>
+    <button class="graphOptionsButton" @click="graphOptions">?</button>
     <Hsplitter
       top-col-spec="1fr"
       bottom-col-spec="1fr"
@@ -166,6 +171,10 @@ function help() {
           v-model:collapsed="state.hideLeft"
         >
           <template #left>
+            <GridOptions
+              class="GridOptions"
+              v-if="state.showGraphOptions"
+            ></GridOptions>
             <div
               v-for="expr in state.env
                 .valueSeq()
@@ -211,7 +220,7 @@ function help() {
             <pre color="red" v-if="defined(state.error)">
               {{ state.error }}
             </pre>
-            <div v-if="state.parseResult" width="100px">
+            <div v-if="state.parseResult" >
               <GraphExpr
                 v-if="!state.loading"
                 :env="state.env"
@@ -265,7 +274,7 @@ function help() {
 </template>
 
 <style scoped>
-.helpButton {
+.graphOptionsButton {
   background-color: aquamarine;
   border-radius: 50%;
   transform: scale(1.5);
@@ -283,5 +292,15 @@ function help() {
   top: 50;
   overflow: auto;
   position: fixed;
+}
+
+.GridOptions {
+  height: 100%;
+  width: 100%;
+  z-index: 1;
+  left: 0;
+  top: 0;
+  overflow: auto;
+  position: relative;
 }
 </style>

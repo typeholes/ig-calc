@@ -1,6 +1,9 @@
 import { defined } from "../js/util";
 import { Map as IMap } from "immutable";
 import { Graph, mkGraph } from "../js/function-plot/d3util";
+import { reactive } from "vue";
+import { FunctionPlotOptions } from "../js/function-plot/FunctionPlotOptions";
+import { Interval } from "../js/function-plot/types";
 
 const colors = IMap(
   "ff0000 00ff00 0000ff ffff00 ff00ff 00ffff ffffff"
@@ -22,12 +25,17 @@ export function pickColor(): string {
 
 export let graph: Graph;
 
+export const graphOptions: FunctionPlotOptions = {
+  target: "#graph",
+  title: "Default",
+  data: {},
+  width: 800,
+  height: 600,
+  xDomain: reactive(Interval(0, 1)),
+  yDomain: reactive(Interval(0, 1)),
+};
+
 export function initGraph() {
-  graph = mkGraph({
-    target: "#graph",
-    title: "Default",
-    data: {},
-    width: 800,
-    height: 600,
-  });
+  graph = mkGraph(graphOptions);
+  graph.resetZoom(Interval(-10, 10), 0);
 }
