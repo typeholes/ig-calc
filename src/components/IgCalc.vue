@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import HelpScreen from "./HelpScreen.vue";
-import GridOptions from "./GridOptions.vue";
+import GraphOptions from "./GraphOptions.vue";
 import Vsplitter from "./Vsplitter.vue";
 import Hsplitter from "./Hsplitter.vue";
 
@@ -55,6 +55,7 @@ const state = reactive({
   loading: false,
   modified: false,
   showGraphOptions: false,
+  showMenuBar: false,
 });
 
 function showError(e: Error) {
@@ -152,17 +153,30 @@ function refresh(args: { saveRep: SaveRep }) {
 }
 
 function help() {
+  state.showGraphOptions = false;
   state.showHelp = !state.showHelp;
 }
 
 function graphOptions() {
+  state.showHelp = false;
   state.showGraphOptions = !state.showGraphOptions;
 }
+
+function showMenu() {
+  state.showMenuBar = !state.showMenuBar;
+}
+
 </script>
 
 <template>
   <div class="ig-calc">
-    <button class="graphOptionsButton" @click="graphOptions">?</button>
+    <div class="menuBar">
+    <button class="graphOptionsButton" @click="showMenu">&#9776</button>
+    <div v-if="state.showMenuBar"><br>
+    <div><button class="graphOptionsButton" @click="help">?</button></div>
+    <div><br><button class="graphOptionsButton" @click="graphOptions">&#128200</button></div>
+    </div>
+    </div>
     <Hsplitter
       top-col-spec="1fr"
       bottom-col-spec="1fr"
@@ -175,10 +189,14 @@ function graphOptions() {
           v-model:collapsed="state.hideLeft"
         >
           <template #left>
-            <GridOptions
-              class="GridOptions"
+            <HelpScreen
+              class="LeftPopover"
+              v-if="state.showHelp"
+            ></HelpScreen>
+            <GraphOptions
+              class="LeftPopover"
               v-if="state.showGraphOptions"
-            ></GridOptions>
+            ></GraphOptions>
             <div
               v-for="expr in state.env
                 .valueSeq()
@@ -278,14 +296,17 @@ function graphOptions() {
 </template>
 
 <style scoped>
+.menuBar {
+  z-index: 2;
+  position: absolute;
+  left: 96vw;
+}
+
 .graphOptionsButton {
   background-color: aquamarine;
   border-radius: 50%;
   transform: scale(1.5);
   color: rgb(76, 96, 45);
-  z-index: 2;
-  position: absolute;
-  left: 98vw;
 }
 
 .help {
@@ -298,7 +319,7 @@ function graphOptions() {
   position: fixed;
 }
 
-.GridOptions {
+.LeftPopover {
   height: 100%;
   width: 100%;
   z-index: 1;
