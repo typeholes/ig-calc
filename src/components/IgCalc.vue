@@ -198,6 +198,7 @@ function showMenu() {
               v-if="state.showGraphOptions"
             ></GraphOptions>
             <div
+              v-if="!(state.showGraphOptions || state.showHelp)"
               v-for="expr in state.env
                 .valueSeq()
                 .filter((x) => x.name !== '__tmp')"
