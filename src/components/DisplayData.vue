@@ -9,42 +9,53 @@ function names() {
 function nums() {
   return [1, 2, 3, 4, 5]; //TODO
 }
+
+function formatName(name: string) {
+  if (name === "__tmp") {
+    return "temp";
+  }
+  return name.replace(/^anon: /, "");
+}
+
+function formatNumber(n: number) {
+  return n; // TODO
+}
 </script>
 
 //TODO: make colors stay in sync
 
 <template>
-  <div style="overflow:scroll">
-  <div
-    class="dataGrid"
-    :style="{
-      gridTemplateColumns: `repeat( ${names().length + 2}, auto)`,
-    }"
-  >
-    <template v-for="(name, idx) of names()">
-      <div
-        :style="{
-          gridColumn: idx + 2,
-          border: `1px solid ${graph.options.data[name].color ?? 'white'}`,
-        }"
-      >
-        {{ name.replace(/^anon: /, "") }}
-      </div>
-    </template>
-    <template v-for="num in nums()">
-      <div style="gridColumn: 1"> {{ num }} </div>
-      <template v-for="(name, idx) of names()"> 
+  <div style="overflow: scroll">
+    <div
+      class="dataGrid"
+      :style="{
+        gridTemplateColumns: `repeat( ${names().length + 2}, auto)`,
+      }"
+    >
+      <template v-for="(name, idx) of names()">
         <div
           :style="{
             gridColumn: idx + 2,
             border: `1px solid ${graph.options.data[name].color ?? 'white'}`,
           }"
         >
-          {{ graph.options.data[name].evalFn(num) }}
+          {{ formatName(name) }}
         </div>
       </template>
-    </template>
-  </div>
+      <template v-for="num in nums()">
+        <div style="gridcolumn: 1">{{ num }}</div>
+        <template v-for="(name, idx) of names()">
+          <div
+            :style="{
+              gridColumn: idx + 2,
+              border: `1px solid ${graph.options.data[name].color ?? 'white'}`,
+            }"
+          >
+            {{ graph.options.data[name].evalFn(num) }}
+          </div>
+        </template>
+      </template>
+    </div>
   </div>
 </template>
 
