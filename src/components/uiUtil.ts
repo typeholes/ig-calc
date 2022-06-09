@@ -28,7 +28,7 @@ export let graph: Graph;
 export const graphOptions: FunctionPlotOptions = {
   target: "#graph",
   title: "Default",
-  data: reactive({}),
+  data: {}, //  reactive({}),  can't make this reactive without recursive vue updates
   width: 800,
   height: 600,
   xDomain: reactive(Interval(0, 1)),

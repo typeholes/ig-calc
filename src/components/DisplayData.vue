@@ -2,8 +2,10 @@
 import { reactive } from "vue";
 import { graph } from "./uiUtil";
 
+const props = defineProps<{ names: string[] }>();
+
 function names() {
-  return Object.keys(graph.options.data);
+  return props.names ?? [];
 }
 
 function nums() {
@@ -23,7 +25,9 @@ function formatNumber(n: number) {
 
 function runFn(name: string, n: number) {
   const fn = graph.options.data[name].evalFn;
-  if (typeof fn !== 'function') { return '' }
+  if (typeof fn !== "function") {
+    return "";
+  }
   return formatNumber(fn(n));
 }
 </script>

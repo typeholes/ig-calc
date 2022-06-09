@@ -187,6 +187,11 @@ function showMenu() {
   state.showMenuBar = !state.showMenuBar;
 }
 
+function exprNames() {
+  const names = Array.from(state.env.keys());
+  return names.filter( (name) => graph.options.data[name].show)
+}
+
 </script>
 
 <template>
@@ -242,7 +247,7 @@ function showMenu() {
           </template>
           <template #right> 
           <KeepAlive>
-            <component :is="displayComponents[state.displayComponent]" ></component>
+            <component :is="displayComponents[state.displayComponent]" :names="exprNames()" ></component>
           </KeepAlive>
           </template>
         </Vsplitter>
