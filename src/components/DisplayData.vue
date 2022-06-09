@@ -20,6 +20,12 @@ function formatName(name: string) {
 function formatNumber(n: number) {
   return n; // TODO
 }
+
+function runFn(name: string, n: number) {
+  const fn = graph.options.data[name].evalFn;
+  if (typeof fn !== 'function') { return '' }
+  return formatNumber(fn(n));
+}
 </script>
 
 //TODO: make colors stay in sync
@@ -51,7 +57,7 @@ function formatNumber(n: number) {
               border: `1px solid ${graph.options.data[name].color ?? 'white'}`,
             }"
           >
-            {{ graph.options.data[name].evalFn(num) }}
+            {{ runFn(name, num) }}
           </div>
         </template>
       </template>

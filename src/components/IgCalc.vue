@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { shallowRef } from "vue";
+import { nextTick, shallowRef, VueElement } from "vue";
 import HelpScreen from "./HelpScreen.vue";
 import GraphOptions from "./GraphOptions.vue";
 import Vsplitter from "./Vsplitter.vue";
@@ -131,34 +131,39 @@ function onSave() {
 
 function refresh(args: { saveRep: SaveRep }) {
   state.loading = true;
-  state.env = state.env.clear();
-  if (!defined(graph)) {
-    initGraph();
-  } else {
-    for (const key in graph.options.data) { delete graph.options.data[key] };
-  }
-  state.parseResult = undefined;
-  state.newExpr = "";
-  checkNewExpr();
-
-  for (const name in args.saveRep) {
-    const rep = args.saveRep[name];
-    state.newExpr = rep.expr;
+  const holdGraphOptions = state.showGraphOptions;
+  state.showGraphOptions = false;
+    state.env = state.env.clear();
+    if (!defined(graph)) {
+      initGraph();
+    } else {
+      for (const key in graph.options.data) { delete graph.options.data[key] };
+    }
+    state.parseResult = undefined;
+    state.newExpr = "";
     checkNewExpr();
-    addToEnv(rep.expr);
-    graph.options.data[name].color = rep.color;
-  }
 
-  // set show after all expressions are added so we don't try to show one that has unloaded dependencies
-  for (const name in args.saveRep) {
-    const rep = args.saveRep[name];
-    graph.options.data[name].show = rep.show;
-  }
+    for (const name in args.saveRep) {
+      const rep = args.saveRep[name];
+      state.newExpr = rep.expr;
+      checkNewExpr();
+      addToEnv(rep.expr);
+      graph.options.data[name].color = rep.color;
+    }
 
-  state.newExpr = "";
-  checkNewExpr();
-  state.loading = false;
-  state.modified = false;
+    // set show after all expressions are added so we don't try to show one that has unloaded dependencies
+    for (const name in args.saveRep) {
+      const rep = args.saveRep[name];
+      graph.options.data[name].show = rep.show;
+    }
+
+    state.newExpr = "";
+    checkNewExpr();
+    state.loading = false;
+  nextTick(function () {
+    state.showGraphOptions = holdGraphOptions
+  });
+    state.modified = false;
 }
 
 function help() {
@@ -215,7 +220,7 @@ function showMenu() {
               v-if="state.showGraphOptions"
             ></GraphOptions>
             <div
-              v-if="!(state.showGraphOptions || state.showHelp)"
+              v-if="!(state.showGraphOptions || state.showHelp) || state.loading"
               v-for="expr in state.env
                 .valueSeq()
                 .filter((x) => x.name !== '__tmp')"
