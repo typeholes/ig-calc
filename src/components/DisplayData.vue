@@ -42,6 +42,7 @@ function runFn(name: string, n: number) {
         gridTemplateColumns: `repeat( ${names().length + 2}, auto)`,
       }"
     >
+      <div style="gridcolumn: 1">free</div>
       <template v-for="(name, idx) of names()">
         <div
           :style="{
