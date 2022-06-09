@@ -242,7 +242,7 @@ function showMenu() {
           </template>
           <template #right> 
           <KeepAlive>
-            <component :is="displayComponents[state.displayComponent]" ></component>
+            <component :is="displayComponents[state.displayComponent]" :names="Array.from(state.env.keys())" ></component>
           </KeepAlive>
           </template>
         </Vsplitter>
