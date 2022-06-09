@@ -135,7 +135,7 @@ function refresh(args: { saveRep: SaveRep }) {
   if (!defined(graph)) {
     initGraph();
   } else {
-    graph.options.data = {};
+    for (const key in graph.options.data) { delete graph.options.data[key] };
   }
   state.parseResult = undefined;
   state.newExpr = "";
