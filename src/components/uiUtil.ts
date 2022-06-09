@@ -28,7 +28,7 @@ export let graph: Graph;
 export const graphOptions: FunctionPlotOptions = {
   target: "#graph",
   title: "Default",
-  data: {},
+  data: reactive({}),
   width: 800,
   height: 600,
   xDomain: reactive(Interval(0, 1)),

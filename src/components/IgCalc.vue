@@ -1,8 +1,13 @@
 <script setup lang="ts">
+import { shallowRef } from "vue";
 import HelpScreen from "./HelpScreen.vue";
 import GraphOptions from "./GraphOptions.vue";
 import Vsplitter from "./Vsplitter.vue";
 import Hsplitter from "./Hsplitter.vue";
+import DisplayData from "./DisplayData.vue";
+import DisplayGraph from "./DisplayGraph.vue";
+
+
 
 import { onMounted, reactive } from "vue";
 import GraphExpr from "./GraphExpr.vue";
@@ -41,6 +46,9 @@ const theme = globalTheme ?? {};
 
 const fns: FunctionPlotData = {};
 
+const displayComponents = { DisplayData, DisplayGraph };
+
+
 const state = reactive({
   hideBottom: false,
   hideLeft: false,
@@ -55,7 +63,8 @@ const state = reactive({
   loading: false,
   modified: false,
   showGraphOptions: false,
-  showMenuBar: false,
+showMenuBar: false,
+  displayComponent: 'DisplayGraph' as keyof typeof displayComponents
 });
 
 function showError(e: Error) {
@@ -160,6 +169,13 @@ function help() {
 function graphOptions() {
   state.showHelp = false;
   state.showGraphOptions = !state.showGraphOptions;
+  state.displayComponent = 'DisplayGraph'
+}
+
+function dataOptions() {
+  state.showHelp = false;
+  state.showGraphOptions = !state.showGraphOptions;
+  state.displayComponent = 'DisplayData'
 }
 
 function showMenu() {
@@ -171,10 +187,11 @@ function showMenu() {
 <template>
   <div class="ig-calc">
     <div class="menuBar">
-    <button class="graphOptionsButton" @click="showMenu">&#9776</button>
+    <button class="menuButton" @click="showMenu">&#9776</button>
     <div v-if="state.showMenuBar"><br>
-    <div><button class="graphOptionsButton" @click="help">?</button></div>
-    <div><br><button class="graphOptionsButton" @click="graphOptions">&#128200</button></div>
+    <div><button class="menuButton" @click="help">?</button></div>
+    <div><br><button class="menuButton" @click="graphOptions">&#128200</button></div>
+    <div><br><button class="menuButton" @click="dataOptions">&#8862</button></div>
     </div>
     </div>
     <Hsplitter
@@ -218,7 +235,11 @@ function showMenu() {
               ></GraphExpr>
             </div>
           </template>
-          <template #right> <div id="graph"></div> </template>>
+          <template #right> 
+          <KeepAlive>
+            <component :is="displayComponents[state.displayComponent]" ></component>
+          </KeepAlive>
+          </template>
         </Vsplitter>
       </template>
       <template #bottom>
@@ -303,7 +324,7 @@ function showMenu() {
   left: 96vw;
 }
 
-.graphOptionsButton {
+.menuButton {
   background-color: aquamarine;
   border-radius: 50%;
   transform: scale(1.5);
