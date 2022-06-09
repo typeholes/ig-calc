@@ -91,6 +91,7 @@ function integrate(by: string) {
 }
 
 function remove() {
+  delete graph.options.data[props.expr.name];
   emit("remove:expr", props.expr.name);
 }
 
