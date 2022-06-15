@@ -9,16 +9,13 @@ import {
 } from "./expressions";
 import { addTexElement, typeset } from "../js/typeset";
 import { onUpdated, onMounted } from "vue";
-import { expression, MathNode, simplify } from "mathjs";
+import { MathNode, simplify } from "mathjs";
 import { derive as _derive } from "../js/math/derivatives";
 import { integrate as _integrate } from "../js/math/integrals";
 import { inline } from "../js/math/mathUtil";
 import { Errorable, errorable } from "../js/Either";
-import { Graph } from "../js/function-plot/d3util";
-import { Datum, EvalFn } from "../js/function-plot/FunctionPlotDatum";
 import { getFunctionBody, getBody as getDeclarationBody } from "./expressions";
-import { defined } from "../js/util";
-import { pickColor, graph } from "./uiUtil";
+import { graph } from "./uiUtil";
 
 interface Props {
   expr: ValidExpr;
@@ -36,16 +33,8 @@ const emit = defineEmits<{
   (e: "error", value: Error): void;
 }>();
 
-function getDatum(show?: boolean, color?: string) {
-  const body = getBody(props.expr.node);
-  const inlined = inline(body, envToMathEnv(props.env));
-  const firstFree = getDependencies(props.env, props.expr, "free").first("x");
-  const evalFn = (x: number) => inlined.compile().evaluate({ [firstFree]: x });
-  return Datum(evalFn, { show, color: color ?? pickColor() });
-}
-
 function getColor() {
-  return graph.options.data[props.expr.name]?.color;
+  return graph.options.data[props.expr.name].color;
 }
 
 function updateColor(event) {
@@ -56,13 +45,12 @@ function updateColor(event) {
 }
 
 function getShow() {
-  return graph.options.data[props.expr.name]?.show;
+  return graph.options.data[props.expr.name].show;
 }
 
 function updateShow(event) {
   const id = props.expr.name;
   const checked = event.target.checked;
-  graph.options.data[id] ??= getDatum();
   graph.options.data[id].show = checked;
   drawLines();
 }
@@ -95,7 +83,7 @@ function remove() {
   emit("remove:expr", props.expr.name);
 }
 
-function z(x) {
+function graphFn(x) {
   return getGraphFn(props.env, x);
 }
 
@@ -105,11 +93,8 @@ function refreshTex() {
 }
 
 function drawGraph() {
-  graph.options.data[props.expr.name] ??= getDatum();
   addTexElement("tex_" + props.expr.name, props.tex ?? props.expr.node.toTex());
   typeset();
-  const newDatum = getDatum(getShow(), getColor());
-  graph.options.data[props.expr.name] = newDatum;
   drawLines();
 }
 
@@ -139,7 +124,7 @@ onMounted(drawGraph);
         :value="getColor()"
         v-on:change="updateColor"
       />
-      <span class="fullRow">{{ z(expr) }}</span>
+      <span class="fullRow">{{ graphFn(expr) }}</span>
     </template>
     <span class="tex" :id="'tex_' + expr.name">{{ expr.toString() }} </span>
     <template v-for="free in getDependencies(env, expr, 'free')">
@@ -178,7 +163,7 @@ onMounted(drawGraph);
 }
 .tex {
   grid-column: 1/6;
-  overflow:auto ;
+  overflow: auto;
 }
 
 .gridCheck {

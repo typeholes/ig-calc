@@ -12,11 +12,16 @@ const colors = IMap(
 );
 let usedColors = colors;
 
-export function pickColor(): string {
+export function currentColor(): string {
+  const unused = usedColors.findKey((x) => !x);
+  return unused ?? newColor();
+}
+
+export function newColor(): string {
   const unused = usedColors.findKey((x) => !x);
   if (!defined(unused)) {
     usedColors = colors;
-    return pickColor();
+    return newColor();
   }
 
   usedColors = usedColors.set(unused, true);

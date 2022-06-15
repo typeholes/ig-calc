@@ -33,6 +33,7 @@ import {
   raise,
 } from "../js/Either";
 import { graph } from "./uiUtil";
+import { Datum } from "../js/function-plot/FunctionPlotDatum";
 
 export type ExprEnv = IMap<string, ValidExpr>;
 export const emptyEnv: ExprEnv = IMap();
@@ -233,3 +234,14 @@ function fromSave(s: string): Errorable<SaveRep> {
     return saveRep;
   });
 }
+
+export const ValidExpr = {
+  toDatum: (expr: ValidExpr, env: ExprEnv, show: boolean, color = "#FFFFFF") => {
+    const body = getBody(expr.node);
+    const inlined = inline(body, envToMathEnv(env));
+    const firstFree = getDependencies(env, expr, "free").first("x");
+    const evalFn = (x: number) =>
+      inlined.compile().evaluate({ [firstFree]: x });
+    return Datum(evalFn, { show, color });
+  },
+};

@@ -34,7 +34,7 @@ import { knownSymbols } from "../js/math/symbols";
 
 import { FunctionPlotData } from "../js/function-plot/FunctionPlotDatum";
 
-import { graph, initGraph } from "./uiUtil";
+import { graph, initGraph, newColor, currentColor } from "./uiUtil";
 
 onMounted(() => {
   if (!defined(graph)) {
@@ -86,7 +86,9 @@ function checkNewExpr() {
     Right: ([env, _]) => {
       state.error = undefined;
       state.env = env;
-      state.parseResult = env.get("__tmp");
+      const expr = env.get("__tmp")!;
+      state.parseResult = expr;
+      graph.options.data["__tmp"] = ValidExpr.toDatum(expr, state.env, true, currentColor())
     },
   });
 }
@@ -101,6 +103,7 @@ function addToEnv(s: string) {
       state.parseResult = undefined;
     },
     Right: ([env, _]) => {
+      newColor();
       const oldDatum = graph.options.data[name];
       graph.options.data[name] = { ...graph.options.data["__tmp"] };
       state.error = undefined;
@@ -189,7 +192,7 @@ function showMenu() {
 
 function exprNames() {
   const names = Array.from(state.env.keys());
-  return names.filter( (name) => graph.options.data[name].show)
+  return names.filter( (name) => graph.options.data[name]?.show)
 }
 
 </script>
