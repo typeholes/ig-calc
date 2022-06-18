@@ -14,15 +14,15 @@ export type GameItem = { label: string; type: ItemType };
 export type GameVar = GameItem & { valueFn: string };
 export type GameButton = GameItem & { costFn: string; cntFn: string };
 
-function GameVar(label: string, valueFn: string): GameVar {
+export function GameVar(label: string, valueFn: string): GameVar {
   return { label, type: "GameVar", valueFn };
 }
 
-function GameButton(label: string, costFn: string, cntFn: string): GameButton {
+export function GameButton(label: string, costFn: string, cntFn: string): GameButton {
   return { label, type: "GameButton", costFn, cntFn };
 }
 
-function initGameVar(name: string, expr: string) {
+export function initGameVar(name: string, expr: string) {
   if (!igCalcState.env.has(name)) {
     addNewExpr(name, expr);
   }
