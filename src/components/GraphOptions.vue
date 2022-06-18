@@ -60,40 +60,4 @@ function updateGraph() {
   grid-column: 5;
 }
 
-.row2 {
-  grid-row: 2;
-}
-.row3 {
-  grid-row: 3;
-}
-.row4 {
-  grid-row: 4;
-}
-.col1 {
-  grid-column: 1;
-}
-.col2 {
-  grid-column: 2;
-}
-.col3 {
-  grid-column: 3;
-}
-.col4 {
-  grid-column: 4;
-}
-.col5 {
-  grid-column: 5;
-}
-.col6 {
-  grid-column: 6;
-}
-.col7 {
-  grid-column: 7;
-}
-.col8 {
-  grid-column: 8;
-}
-.col9 {
-  grid-column: 9;
-}
 </style>
