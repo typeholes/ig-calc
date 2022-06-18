@@ -1,7 +1,13 @@
 import { reactive } from "vue";
 import { defined } from "../../js/util";
 import { getGraphFn, getDependencies } from "../expressions";
-import { state as igCalcState, initGraph, addToEnv, graph, addNewExpr } from "../uiUtil";
+import {
+  state as igCalcState,
+  initGraph,
+  addToEnv,
+  graph,
+  addNewExpr,
+} from "../uiUtil";
 
 export type ItemType = "GameVar" | "GameButton";
 export type GameItem = { label: string; type: ItemType };
@@ -16,12 +22,18 @@ function GameButton(label: string, costFn: string, cntFn: string): GameButton {
   return { label, type: "GameButton", costFn, cntFn };
 }
 
+function initGameVar(name: string, expr: string) {
+  if (!igCalcState.env.has(name)) {
+    addNewExpr(name, expr);
+  }
+}
+
 export function addGameVars() {
   if (!defined(graph)) {
     initGraph(); // TODO separate graph from env so we don't need this here
   }
-  addNewExpr("inc_cnt", "0");
-  addNewExpr("inc_cost", "inc_cnt * 1.25^inc_cnt");
+  initGameVar("inc_cnt", "0");
+  initGameVar("inc_cost", "inc_cnt * 1.25^inc_cnt");
 }
 
 const defaultItems: GameItem[] = [
@@ -47,10 +59,12 @@ export function getValue(fnName: string): number | string {
 export function buy(fnName: string) {
   const cnt = getValue(fnName);
   if (typeof cnt === "number") {
-      addNewExpr(fnName, (cnt+1).toString())
+    addNewExpr(fnName, (cnt + 1).toString());
   }
 }
 
 export function getFnNames() {
-    return igCalcState.env.filter( (expr) => getDependencies(igCalcState.env, expr, 'free').size == 0 ).keys()
+  return igCalcState.env
+    .filter((expr) => getDependencies(igCalcState.env, expr, "free").size == 0)
+    .keys();
 }
