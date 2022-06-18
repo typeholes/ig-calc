@@ -4,7 +4,13 @@ import { Graph, mkGraph } from "../js/function-plot/d3util";
 import { reactive } from "vue";
 import { FunctionPlotOptions } from "../js/function-plot/FunctionPlotOptions";
 import { Interval } from "../js/function-plot/types";
-import { ValidExpr, getNodeName, parseExpr, ExprEnv } from "./expressions";
+import {
+  ValidExpr,
+  getNodeName,
+  parseExpr,
+  ExprEnv,
+  SaveRep,
+} from "./expressions";
 import DisplayData from "./DisplayData.vue";
 import DisplayGraph from "./DisplayGraph.vue";
 import { on } from "../js/Either";
@@ -131,7 +137,7 @@ export function removeExpr(name: string) {
 }
 
 export function addNewExpr(name: string, newExpr: string) {
-  const expr = `${name} = ${newExpr.trim()}`;
+  const expr = newExpr;
   if (!defined(expr) || expr.trim() === "") {
     throw new Error("empty expression");
   }
@@ -151,4 +157,35 @@ export function addNewExpr(name: string, newExpr: string) {
       );
     },
   });
+}
+
+export function loadEnv(args: { saveRep: SaveRep }) {
+  state.env = state.env.clear();
+  if (!defined(graph)) {
+    initGraph();
+  } else {
+    for (const key in graph.options.data) {
+      delete graph.options.data[key];
+    }
+  }
+  state.parseResult = undefined;
+  state.newExpr = "";
+  checkNewExpr();
+
+  for (const name in args.saveRep) {
+    const rep = args.saveRep[name];
+    state.newExpr = rep.expr;
+    checkNewExpr();
+    addToEnv(rep.expr);
+    graph.options.data[name].color = rep.color;
+  }
+
+  // set show after all expressions are added so we don't try to show one that has unloaded dependencies
+  for (const name in args.saveRep) {
+    const rep = args.saveRep[name];
+    graph.options.data[name].show = rep.show;
+  }
+
+  state.newExpr = "";
+  checkNewExpr();
 }

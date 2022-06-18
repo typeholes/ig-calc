@@ -9,14 +9,11 @@ import Hsplitter from "./Hsplitter.vue";
 import { onMounted } from "vue";
 import GraphExpr from "./GraphExpr.vue";
 import {
-  getNodeName,
-  SaveRep,
+  getNodeName, SaveRep,
 } from "./expressions";
 import { defined } from "../js/util";
 import {
   getExpressionUiState,
-  ExpressionUiState,
-  setExpressionUiState,
 } from "./expressionUiState";
 import SaveWidget from "./SaveWidget.vue";
 import { globalTheme } from "../js/theme";
@@ -25,7 +22,7 @@ import { knownSymbols } from "../js/math/symbols";
 
 import { FunctionPlotData } from "../js/function-plot/FunctionPlotDatum";
 
-import { graph, initGraph, state, displayComponents, checkNewExpr, addToEnv, removeExpr } from "./uiUtil";
+import { graph, initGraph, state, displayComponents, checkNewExpr, addToEnv, removeExpr, loadEnv } from "./uiUtil";
 
 onMounted(() => {
   if (!defined(graph)) {
@@ -43,42 +40,6 @@ function onSave() {
   state.modified = false;
 }
 
-function refresh(args: { saveRep: SaveRep }) {
-  state.loading = true;
-  const holdGraphOptions = state.showGraphOptions;
-  state.showGraphOptions = false;
-    state.env = state.env.clear();
-    if (!defined(graph)) {
-      initGraph();
-    } else {
-      for (const key in graph.options.data) { delete graph.options.data[key] };
-    }
-    state.parseResult = undefined;
-    state.newExpr = "";
-    checkNewExpr();
-
-    for (const name in args.saveRep) {
-      const rep = args.saveRep[name];
-      state.newExpr = rep.expr;
-      checkNewExpr();
-      addToEnv(rep.expr);
-      graph.options.data[name].color = rep.color;
-    }
-
-    // set show after all expressions are added so we don't try to show one that has unloaded dependencies
-    for (const name in args.saveRep) {
-      const rep = args.saveRep[name];
-      graph.options.data[name].show = rep.show;
-    }
-
-    state.newExpr = "";
-    checkNewExpr();
-    state.loading = false;
-  nextTick(function () {
-    state.showGraphOptions = holdGraphOptions
-  });
-    state.modified = false;
-}
 
 function help() {
   state.showGraphOptions = false;
@@ -106,6 +67,17 @@ function exprNames() {
   return names.filter( (name) => graph.options.data[name]?.show)
 }
 
+function refresh(args: { saveRep: SaveRep }) {
+  state.loading = true;
+  const holdGraphOptions = state.showGraphOptions;
+  state.showGraphOptions = false;
+  loadEnv(args);
+  state.loading = false;
+  nextTick(function () {
+    state.showGraphOptions = holdGraphOptions
+  });
+  state.modified = false;
+}
 </script>
 
 <template>
