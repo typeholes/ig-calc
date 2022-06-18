@@ -13,7 +13,7 @@ export function Datum(
     evalFn,
     sample: linearSampler(evalFn),
     xAxisType: options.xAxisType ?? "linear",
-    nSamples: options.nSamples ?? 100,
+    nSamples: options.nSamples ?? 1000,
     closed: options.closed ?? false,
     color: options.color ?? "#ffff00",
     skipTip: options.skipTip ?? false,
