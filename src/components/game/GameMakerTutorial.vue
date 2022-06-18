@@ -17,5 +17,17 @@ import { reactive } from "vue";
     go to the Editor tab and change the costFn from inc_cost to simple <br />
     again, click the buy button a few times and you should see that the cost
     increases linearly <br />
+    A game with just one button is pretty boring, let's add another <br />
+    Add these formulas on the calc tab <br />
+    <h2>a = inc_cnt + big_cnt * 10</h2>
+    <h2>big_cnt = 0</h2>
+    <h2>big_cost = big_cnt * 2^big_cnt</h2>
+    <br />
+    now go to the Editor tab, enter "big boy" in the Add Game Item input, and
+    press Button<br />
+    A new GameButton named big boy should have been created<br />
+    Set its costFn to big_cost and its cntFn to big_cnt<br />
+    Set the valueFn for GameVar a to a<br />
+    go to the game tab and you should have two working buttons<br />
   </div>
 </template>
