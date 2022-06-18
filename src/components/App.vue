@@ -5,6 +5,7 @@ import GameEditor from "./game/GameEditor.vue";
 import GameDisplay from "./game/GameDisplay.vue";
 import { globalTheme } from "../js/theme";
 import { reactive, shallowRef } from "vue";
+import GameMakerTutorial from "./game/GameMakerTutorial.vue";
 
 const theme = globalTheme ?? {};
 
@@ -13,6 +14,7 @@ const tabs = {
   Help: shallowRef(HelpScreen),
   Editor: shallowRef(GameEditor),
   Game: shallowRef(GameDisplay),
+  'Game Maker Tutorial': shallowRef(GameMakerTutorial)
 } as const;
 
 const numTabs = Object.keys(tabs).length;

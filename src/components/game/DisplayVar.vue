@@ -6,5 +6,5 @@ const props = defineProps<{ item: GameVar }>();
 </script>
 
 <template>
-  <div>valueFn: {{ item.valueFn }}: {{ getValue(item.valueFn) }}</div>
+  <span> {{ getValue(item.valueFn) }}</span>
 </template>
