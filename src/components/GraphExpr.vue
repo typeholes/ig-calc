@@ -6,6 +6,7 @@ import {
   getGraphFn,
   getDependencies,
   envToMathEnv,
+getGraphFnStr,
 } from "./expressions";
 import { addTexElement, typeset } from "../js/typeset";
 import { onUpdated, onMounted } from "vue";
@@ -84,7 +85,7 @@ function remove() {
 }
 
 function graphFn(x) {
-  return getGraphFn(props.env, x);
+  return getGraphFnStr(props.env, x);
 }
 
 function refreshTex() {

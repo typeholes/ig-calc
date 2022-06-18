@@ -1,27 +1,18 @@
 <script setup lang="ts">
-import { nextTick, shallowRef, VueElement } from "vue";
+import { nextTick } from "vue";
 import HelpScreen from "./HelpScreen.vue";
 import GraphOptions from "./GraphOptions.vue";
 import Vsplitter from "./Vsplitter.vue";
 import Hsplitter from "./Hsplitter.vue";
-import DisplayData from "./DisplayData.vue";
-import DisplayGraph from "./DisplayGraph.vue";
 
 
-
-import { onMounted, reactive } from "vue";
+import { onMounted } from "vue";
 import GraphExpr from "./GraphExpr.vue";
 import {
-  getDependencies,
-  parseExpr,
-  ValidExpr,
-  emptyEnv,
-  ExprEnv,
   getNodeName,
   SaveRep,
 } from "./expressions";
 import { defined } from "../js/util";
-import { on } from "../js/Either";
 import {
   getExpressionUiState,
   ExpressionUiState,
@@ -34,7 +25,7 @@ import { knownSymbols } from "../js/math/symbols";
 
 import { FunctionPlotData } from "../js/function-plot/FunctionPlotDatum";
 
-import { graph, initGraph, newColor, currentColor } from "./uiUtil";
+import { graph, initGraph, state, displayComponents, checkNewExpr, addToEnv, removeExpr } from "./uiUtil";
 
 onMounted(() => {
   if (!defined(graph)) {
@@ -44,88 +35,8 @@ onMounted(() => {
 
 const theme = globalTheme ?? {};
 
-const fns: FunctionPlotData = {};
-
-const displayComponents = { DisplayData, DisplayGraph };
-
-
-const state = reactive({
-  hideBottom: false,
-  hideLeft: false,
-  hideLibrary: true,
-  env: emptyEnv,
-  newExpr: "",
-  parseResult: undefined as undefined | ValidExpr,
-  src: "x",
-  error: undefined as undefined | string,
-  info: "",
-  showHelp: false,
-  loading: false,
-  modified: false,
-  showGraphOptions: false,
-showMenuBar: false,
-  displayComponent: 'DisplayGraph' as keyof typeof displayComponents
-});
-
 function showError(e: Error) {
   state.error = e.message + " " + e.stack;
-}
-
-function checkNewExpr() {
-  const expr = state.newExpr.trim();
-  if (!defined(expr) || expr.trim() === "") {
-    state.error = undefined;
-    state.parseResult = undefined;
-    return;
-  }
-  const result = parseExpr(state.env, expr, "__tmp");
-  on(result, {
-    Left: (err) => {
-      state.error = err.toString();
-    },
-    Right: ([env, _]) => {
-      state.error = undefined;
-      state.env = env;
-      const expr = env.get("__tmp")!;
-      state.parseResult = expr;
-      graph.options.data["__tmp"] = ValidExpr.toDatum(expr, state.env, true, currentColor())
-    },
-  });
-}
-
-function addToEnv(s: string) {
-  const name = state.parseResult ? getNodeName(state.parseResult.node) : "";
-  const oldExpr = state.env.get(name);
-  const result = parseExpr(state.env, s, name);
-  on(result, {
-    Left: (err) => {
-      state.error = err.toString();
-      state.parseResult = undefined;
-    },
-    Right: ([env, _]) => {
-      newColor();
-      const oldDatum = graph.options.data[name];
-      graph.options.data[name] = { ...graph.options.data["__tmp"] };
-      state.error = undefined;
-      state.env = env.delete("__tmp");
-      state.parseResult = undefined;
-
-      if (defined(oldExpr)) {
-        state.newExpr = oldExpr.node.toString();
-        graph.options.data["__tmp"] = { ...oldDatum };
-      } else {
-        state.newExpr = "";
-        delete graph.options.data["__tmp"];
-      }
-      checkNewExpr();
-      state.modified = true;
-    },
-  });
-}
-
-function removeExpr(name: string) {
-  state.env = state.env.remove(name);
-  state.modified = true;
 }
 
 function onSave() {
@@ -282,7 +193,7 @@ function exprNames() {
                 v-if="!state.loading"
                 :env="state.env"
                 :expr="state.env.get('__tmp')!"
-                :tex="state.env.get('__tmp')!.node.toTex()"
+                :tex="state.env.get('__tmp')?.node?.toTex()"
                 v-on:new:expr="
                   (x) => {
                     state.newExpr = x;

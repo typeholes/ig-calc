@@ -4,6 +4,10 @@ import { Graph, mkGraph } from "../js/function-plot/d3util";
 import { reactive } from "vue";
 import { FunctionPlotOptions } from "../js/function-plot/FunctionPlotOptions";
 import { Interval } from "../js/function-plot/types";
+import { ValidExpr, getNodeName, parseExpr, ExprEnv } from "./expressions";
+import DisplayData from "./DisplayData.vue";
+import DisplayGraph from "./DisplayGraph.vue";
+import { on } from "../js/Either";
 
 const colors = IMap(
   "ff0000 00ff00 0000ff ffff00 ff00ff 00ffff ffffff"
@@ -43,4 +47,108 @@ export const graphOptions: FunctionPlotOptions = {
 export function initGraph() {
   graph = mkGraph(graphOptions);
   graph.resetZoom(Interval(-10, 10), 0);
+}
+
+export const displayComponents = { DisplayData, DisplayGraph };
+export const state = reactive({
+  hideBottom: false,
+  hideLeft: false,
+  hideLibrary: true,
+  env: IMap() as ExprEnv,
+  newExpr: "",
+  parseResult: undefined as undefined | ValidExpr,
+  src: "x",
+  error: undefined as undefined | string,
+  info: "",
+  showHelp: false,
+  loading: false,
+  modified: false,
+  showGraphOptions: false,
+  showMenuBar: false,
+  displayComponent: "DisplayGraph" as keyof typeof displayComponents,
+});
+
+export function checkNewExpr() {
+  const expr = state.newExpr.trim();
+  if (!defined(expr) || expr.trim() === "") {
+    state.error = undefined;
+    state.parseResult = undefined;
+    return;
+  }
+  const result = parseExpr(state.env, expr, "__tmp");
+  on(result, {
+    Left: (err) => {
+      state.error = err.toString();
+    },
+    Right: ([env, _]) => {
+      state.error = undefined;
+      state.env = env;
+      const expr = env.get("__tmp")!;
+      state.parseResult = expr;
+      graph.options.data["__tmp"] = ValidExpr.toDatum(
+        expr,
+        state.env,
+        true,
+        currentColor()
+      );
+    },
+  });
+}
+
+export function addToEnv(s: string) {
+  const name = state.parseResult ? getNodeName(state.parseResult.node) : "";
+  const oldExpr = state.env.get(name);
+  const result = parseExpr(state.env, s, name);
+  on(result, {
+    Left: (err) => {
+      state.error = err.toString();
+      state.parseResult = undefined;
+    },
+    Right: ([env, _]) => {
+      newColor();
+      const oldDatum = graph.options.data[name];
+      graph.options.data[name] = { ...graph.options.data["__tmp"] };
+      state.error = undefined;
+      state.env = env.delete("__tmp");
+      state.parseResult = undefined;
+
+      if (defined(oldExpr)) {
+        state.newExpr = oldExpr.node.toString();
+        graph.options.data["__tmp"] = { ...oldDatum };
+      } else {
+        state.newExpr = "";
+        delete graph.options.data["__tmp"];
+      }
+      checkNewExpr();
+      state.modified = true;
+    },
+  });
+}
+
+export function removeExpr(name: string) {
+  state.env = state.env.remove(name);
+  state.modified = true;
+}
+
+export function addNewExpr(name: string, newExpr: string) {
+  const expr = `${name} = ${newExpr.trim()}`;
+  if (!defined(expr) || expr.trim() === "") {
+    throw new Error("empty expression");
+  }
+  const result = parseExpr(state.env, expr, name);
+  on(result, {
+    Left: (err) => {
+      throw err;
+    },
+    Right: ([env, _]) => {
+      state.env = env;
+      const expr = env.get(name)!;
+      graph.options.data[name] = ValidExpr.toDatum(
+        expr,
+        state.env,
+        true,
+        currentColor()
+      );
+    },
+  });
 }

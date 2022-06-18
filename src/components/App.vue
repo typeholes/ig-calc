@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import IgCalc from "./IgCalc.vue";
 import HelpScreen from "./HelpScreen.vue";
+import GameEditor from "./game/GameEditor.vue";
+import GameDisplay from "./game/GameDisplay.vue";
 import { globalTheme } from "../js/theme";
 import { reactive, shallowRef } from "vue";
 
@@ -9,6 +11,8 @@ const theme = globalTheme ?? {};
 const tabs = {
   Calc: shallowRef(IgCalc),
   Help: shallowRef(HelpScreen),
+  Editor: shallowRef(GameEditor),
+  Game: shallowRef(GameDisplay),
 } as const;
 
 const numTabs = Object.keys(tabs).length;
@@ -20,13 +24,14 @@ const state = reactive({
 function setTab(tabName: keyof typeof tabs) {
   state.tab = tabs[tabName];
 }
-
 </script>
 
 <template>
   <div class="main">
-    <template v-for="_,tabName,col in tabs">
-    <button :class="`tab col${col+1}`" @click="setTab(tabName)">{{tabName}}</button>
+    <template v-for="(_, tabName, col) in tabs">
+      <button :class="`tab col${col + 1}`" @click="setTab(tabName)">
+        {{ tabName }}
+      </button>
     </template>
     <div class="pane">
       <KeepAlive>
@@ -56,13 +61,12 @@ function setTab(tabName: keyof typeof tabs) {
 .pane {
   grid-row: 2;
   grid-column-start: 1;
-  grid-column-end: v-bind(numTabs+1);
+  grid-column-end: v-bind(numTabs + 1);
 }
 
 .tab {
   background-color: rgb(82, 87, 90);
 }
-
 </style>
 
 <style>

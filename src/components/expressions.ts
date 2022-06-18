@@ -101,12 +101,22 @@ export function envToMathEnv(
 
   return { ...mathEnv, ...constants };
 }
-
-export function getGraphFn(
+export function getGraphFnStr(
   env: ExprEnv,
   expr: ValidExpr,
   subConstants = false
 ): string | undefined {
+  return getGraphFn(env, expr, subConstants)?.toString();
+}
+
+export function getGraphFn(
+  env: ExprEnv,
+  expr: ValidExpr | undefined,
+  subConstants = false
+): MathNode | undefined {
+  if (!defined(expr)) {
+    return undefined;
+  }
   // TODO return something other than undefined when not graphable?
   const node = getBody(expr.node);
   const mathEnv = envToMathEnv(env, subConstants);
@@ -114,7 +124,7 @@ export function getGraphFn(
   const freeVars = ISet(getFreeVars(mathEnv, inlined));
 
   if (freeVars.size === 0) {
-    return inlined.toString();
+    return inlined;
   }
   if (freeVars.size > 1) {
     return undefined;
@@ -126,7 +136,7 @@ export function getGraphFn(
     [free]: xSymbolNode,
     ...missingPlotFunctions.toObject(),
   });
-  return getFunctionBody(graphNode).toString();
+  return getFunctionBody(graphNode);
 }
 
 export function getDependencies(
@@ -236,7 +246,12 @@ function fromSave(s: string): Errorable<SaveRep> {
 }
 
 export const ValidExpr = {
-  toDatum: (expr: ValidExpr, env: ExprEnv, show: boolean, color = "#FFFFFF") => {
+  toDatum: (
+    expr: ValidExpr,
+    env: ExprEnv,
+    show: boolean,
+    color = "#FFFFFF"
+  ) => {
     const body = getBody(expr.node);
     const inlined = inline(body, envToMathEnv(env));
     const firstFree = getDependencies(env, expr, "free").first("x");
