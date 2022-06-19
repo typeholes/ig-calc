@@ -31,7 +31,7 @@ import {
   map,
   raise,
 } from "../js/Either";
-import { graph } from "./uiUtil";
+import { currentColor, graph, refreshDatumEnvironments, state } from "./uiUtil";
 import { Datum } from "../js/function-plot/FunctionPlotDatum";
 import { reactive } from "vue";
 
@@ -263,6 +263,11 @@ export const ValidExpr = {
 };
 
 export function adjustExpr(expr: ValidExpr, template: string) {
+  if (isFunctionAssignmentNode(expr.node)) {
+    throw new Error("cannot adjust function assignment nodes");
+  }
+
+  const datum = graph.options.data[expr.name];
   const sub = template.replace("%", "(%)");
   if (isAssignmentNode(expr.node)) {
     const body = getBody(expr.node);
@@ -270,14 +275,11 @@ export function adjustExpr(expr: ValidExpr, template: string) {
       `${sub.replace("%", body.toString())}`
     );
     expr.node.value = newBody;
-    return;
+  } else {
+    expr.node = M.simplify(
+      `${expr.name} = ${sub.replace("%", expr.node.toString())}`
+    );
   }
-
-  if (isFunctionAssignmentNode(expr.node)) {
-    throw new Error("cannot adjust function assignment nodes");
-  }
-
-  expr.node = M.simplify(
-    `${expr.name} = ${sub.replace("%", expr.node.toString())}`
-  );
+  refreshDatumEnvironments();
+  graph.drawLines();
 }

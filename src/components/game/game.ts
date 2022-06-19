@@ -75,7 +75,7 @@ export function gameLoop(elapsedTime) {
   const delta = elapsedTime - time;
   if (delta >= 1000) {
     time = elapsedTime;
-    addNewExpr("time", `time = ${time}`);
+    adjustExpr(igCalcState.env.get("time")!, `${time}`);
   }
   window.requestAnimationFrame(gameLoop);
 }

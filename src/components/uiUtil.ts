@@ -189,3 +189,15 @@ export function loadEnv(args: { saveRep: SaveRep }) {
   state.newExpr = "";
   checkNewExpr();
 }
+
+export function refreshDatumEnvironments() {
+  for (const expr of state.env.values()) {
+    const currentDatum = graph.options.data[expr.name];
+    graph.options.data[expr.name] = ValidExpr.toDatum(
+      expr,
+      state.env,
+      currentDatum.show,
+      currentDatum.color
+    );
+  }
+}
