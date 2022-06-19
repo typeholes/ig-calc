@@ -5,7 +5,7 @@ const props = defineProps<{ item: GameButton }>();
 </script>
 
 <template>
-  <button @click="buy(item)" :disabled="!affordable(item)">buy: {{ Math.floor(getValue(item.costFn) as number) }}</button>
+  <button @click="buy(item)" :disabled="!affordable(item)">buy: {{ Math.floor(getValue(item.costFn) as number) }} {{ item.currencyFn }}</button>
   <div>cnt: {{ getValue(item.cntFn) }}</div>
 </template>
 

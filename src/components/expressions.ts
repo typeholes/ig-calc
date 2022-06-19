@@ -97,7 +97,9 @@ export function envToMathEnv(
   includeConstants = false
 ): Record<string, number | MathNode> {
   const constants = includeConstants ? builtinConstants.toObject() : {};
-  const mathEnv : Record<string, MathNode | number > = env.map((x) => getBody(x.node)).toObject();
+  const mathEnv: Record<string, MathNode | number> = env
+    .map((x) => getBody(x.node))
+    .toObject();
   return reactive({ ...mathEnv, ...constants });
 }
 export function getGraphFnStr(
@@ -259,3 +261,23 @@ export const ValidExpr = {
     return Datum(evalFn, { show, color });
   },
 };
+
+export function adjustExpr(expr: ValidExpr, template: string) {
+  const sub = template.replace("%", "(%)");
+  if (isAssignmentNode(expr.node)) {
+    const body = getBody(expr.node);
+    const newBody = M.simplify(
+      `${sub.replace("%", body.toString())}`
+    );
+    expr.node.value = newBody;
+    return;
+  }
+
+  if (isFunctionAssignmentNode(expr.node)) {
+    throw new Error("cannot adjust function assignment nodes");
+  }
+
+  expr.node = M.simplify(
+    `${expr.name} = ${sub.replace("%", expr.node.toString())}`
+  );
+}

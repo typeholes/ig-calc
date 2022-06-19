@@ -10,6 +10,7 @@ function changeCurrency(e: Event) {
   if (defined(target.value)) {
     const newCurrencyFn = target.value;
     updateButtonCurrency(props.item, props.item.currencyFn, newCurrencyFn);
+    props.item.currencyFn = newCurrencyFn;
   }
 }
 </script>
@@ -41,7 +42,7 @@ function changeCurrency(e: Event) {
   </div>
   <div>
     currencyFn:
-    <select v-model="item.currencyFn" @change="changeCurrency">
+    <select :value="item.currencyFn" @change="changeCurrency">
       <option
         v-for="[name, usable] in getUsableFnNames(item, item.cntFn, item.costFn)"
         :value="name"

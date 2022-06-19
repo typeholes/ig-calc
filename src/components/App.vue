@@ -19,6 +19,8 @@ const tabs = {
   MetaData: shallowRef(GameMetaData), 
 } as const;
 
+
+
 const numTabs = Object.keys(tabs).length;
 
 const state = reactive({
@@ -38,7 +40,7 @@ function setTab(tabName: keyof typeof tabs) {
       </button>
     </template>
     <div class="pane">
-      <KeepAlive>
+      <KeepAlive :include="tabs.Calc.value.name">
         <component :is="state.tab"></component>
       </KeepAlive>
     </div>

@@ -2,7 +2,7 @@ import { isNumber } from "mathjs";
 import { reactive } from "vue";
 import { hasPropIs } from "../../js/function-plot/utils";
 import { defined, isString } from "../../js/util";
-import { getGraphFn, getDependencies } from "../expressions";
+import { getGraphFn, getDependencies, adjustExpr } from "../expressions";
 import { state as igCalcState, initGraph, graph, addNewExpr } from "../uiUtil";
 
 export type ItemType = "GameVar" | "GameButton";
@@ -121,12 +121,11 @@ export function buy(item: GameButton) {
     isNumber(currency) &&
     currency >= cost
   ) {
-    addNewExpr(item.cntFn, (cnt + 1).toString());
+    adjustExpr(igCalcState.env.get(item.cntFn)!, '% + 1' )
   }
 }
 
 export function getUsableFnNames(item: GameItem, ...uses: string[]) {
-  console.log(`getting usable names for ${item.label}`, uses);
   return igCalcState.env
     .filter((expr) => getDependencies(igCalcState.env, expr, "free").size == 0)
     .map((expr) => {
@@ -135,11 +134,9 @@ export function getUsableFnNames(item: GameItem, ...uses: string[]) {
       }
       const some = getDependencies(igCalcState.env, expr, "bound").some(
         (_, k) => {
-          console.log({ k, uses, includes: uses.includes(k) });
           return uses.includes(k);
         }
       );
-      console.log({ name: expr.name, some });
       return !some;
     })
     .sort()
@@ -154,7 +151,7 @@ export function addGameItem(item: GameItem, adjustCurrencies = true) {
   game.items[item.label] = item;
   if (isGameButton(item)) {
     const currencyExpr = igCalcState.env.get(item.currencyFn)!.node.toString();
-    addNewExpr(item.currencyFn, `${currencyExpr} - ${item.costFn}`);
+    adjustExpr(igCalcState.env.get(item.currencyFn)!, `% - (${item.costFn})`)
   }
 }
 
@@ -165,8 +162,7 @@ export function updateButtonCurrency(
 ) {
   if (oldCurrencyFn !== newCurrencyFn) {
     const oldCurrencyExpr = igCalcState.env.get(oldCurrencyFn)!.node.toString();
-    addNewExpr(oldCurrencyFn, `${oldCurrencyExpr} + (${button.costFn})`);
-    const newCurrencyExpr = igCalcState.env.get(oldCurrencyFn)!.node.toString();
-    addNewExpr(newCurrencyFn, `${newCurrencyExpr} - (${button.costFn})`);
+    adjustExpr(igCalcState.env.get(oldCurrencyFn)!, `% + (${button.costFn})`)
+    adjustExpr(igCalcState.env.get(newCurrencyFn)!, `% - (${button.costFn})`)
   }
 }
