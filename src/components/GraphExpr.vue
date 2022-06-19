@@ -111,6 +111,7 @@ onMounted(drawGraph);
 <template>
   <button class="closeButton" @click="remove()">x</button>
   <div class="GraphExpr">
+  <span v-if="!props.expr.name.startsWith('anon:')"> {{ props.expr.name }} </span>
     <template v-if="isGraphable(env, expr)">
       <input
         class="gridCheck"
