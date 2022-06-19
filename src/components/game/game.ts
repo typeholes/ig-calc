@@ -40,11 +40,28 @@ export function addGameVars() {
   if (!defined(graph)) {
     initGraph(); // TODO separate graph from env so we don't need this here
   }
+  initGameVar("time", "0");
   initGameVar("inc_cnt", "0");
   initGameVar("inc_cost", "inc_cnt * 1.25^inc_cnt");
 }
 
+let priorTime = 0;
+export function gameLoop(elapsedTime) {
+  const delta = elapsedTime - priorTime;
+  if (delta >= 500) {
+    addNewExpr("time", (delta ).toString());
+    priorTime = elapsedTime;
+  }
+  // if (defined(game.items[0])) {
+  //   // @ts-ignore
+  //   game.items[0].hackyToggle = !!!game.items[0].hackyToggle
+  // }
+  window.requestAnimationFrame(gameLoop);
+}
+
+
 const defaultItems: GameItem[] = [
+  GameVar("time", "time"),
   GameVar("a", "inc_cnt"),
   GameButton("Increment a", "inc_cost", "inc_cnt"),
 ];

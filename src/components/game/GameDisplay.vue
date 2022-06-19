@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { addGameVars, game } from "./game";
+import { addGameVars, game, gameLoop } from "./game";
 import DisplayItem from "./DisplayItem.vue";
 import { onMounted } from "vue";
 
 onMounted(() => {
     addGameVars();
+  window.requestAnimationFrame(gameLoop);
 })
 </script>
 
