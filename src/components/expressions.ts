@@ -6,7 +6,6 @@ import {
   SymbolNode,
 } from "mathjs";
 import * as M from "mathjs";
-
 import {
   parse,
   getDependencies as getVars,
@@ -34,6 +33,7 @@ import {
 } from "../js/Either";
 import { graph } from "./uiUtil";
 import { Datum } from "../js/function-plot/FunctionPlotDatum";
+import { reactive } from "vue";
 
 export type ExprEnv = IMap<string, ValidExpr>;
 export const emptyEnv: ExprEnv = IMap();
@@ -97,9 +97,8 @@ export function envToMathEnv(
   includeConstants = false
 ): Record<string, number | MathNode> {
   const constants = includeConstants ? builtinConstants.toObject() : {};
-  const mathEnv = env.map((x) => getBody(x.node)).toObject();
-
-  return { ...mathEnv, ...constants };
+  const mathEnv : Record<string, MathNode | number > = env.map((x) => getBody(x.node)).toObject();
+  return reactive({ ...mathEnv, ...constants });
 }
 export function getGraphFnStr(
   env: ExprEnv,

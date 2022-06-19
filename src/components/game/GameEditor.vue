@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { game, addGameVars, GameVar, GameButton } from "./game";
+import { game, addGameVars, GameVar, GameButton, addGameItem, itemExists } from "./game";
 import EditItem from "./EditItem.vue";
 import { onMounted, reactive } from "vue";
 
@@ -11,17 +11,13 @@ const state = reactive({
   newLabel: "a",
 })
 
-function itemExists() {
-  return game.items.findIndex( (x) => x.label === state.newLabel ) >= 0
-}
-
 function addVariable() {
-  game.items.push( GameVar( state.newLabel, 'inc_cnt'))
+  addGameItem( GameVar(state.newLabel, 'time'))
 }
 function addButton() {
-  game.items.push( GameButton(state.newLabel, 'inc_cost', 'inc_cnt'))
-
+  addGameItem( GameButton(state.newLabel, 'inc_cost', 'inc_cnt','time'))
 }
+
 </script>
 
 <template>
@@ -30,9 +26,9 @@ function addButton() {
       <EditItem :item="item"></EditItem>
     </div>
     <span class="col1"> Add Game Item </span> <input type="text" v-model="state.newLabel" width="20" class="col2" />
-    <button @click="addVariable" :disabled="itemExists()" class="col3">Variable</button>
-    <button @click="addButton" :disabled="itemExists()" class="col4">Button</button><br/>
-    <span style="color: darkred">{{ itemExists() ? state.newLabel + " already exists" : "" }}</span>
+    <button @click="addVariable" :disabled="itemExists(state.newLabel)" class="col3">Variable</button>
+    <button @click="addButton" :disabled="itemExists(state.newLabel)" class="col4">Button</button><br/>
+    <span style="color: darkred">{{ itemExists(state.newLabel) ? state.newLabel + " already exists" : "" }}</span>
   </div>
 </template>
 

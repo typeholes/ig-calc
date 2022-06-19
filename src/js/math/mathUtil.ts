@@ -17,7 +17,15 @@ import { knownSymbols } from "./symbols";
 export { getDerivative, getDependencies };
 
 export function parse(s: string): Either<Error, MathNode> {
-  return errorable(() => M.parse(s));
+  return errorable(() => {
+    const parsed = M.parse(s);
+    if (M.isAssignmentNode(parsed)) {
+      return parsed;
+    } else if (M.isFunctionAssignmentNode(parsed)) {
+      return parsed;
+    }
+    return M.simplify(parsed);
+  });
 }
 
 //simplify.rules.push({ l: 'n1*n2/(n1*n3)', r: 'n2/n3' });

@@ -5,7 +5,7 @@ import { errorable, on } from "../../js/Either";
 import { hasProp, hasPropIs } from "../../js/function-plot/utils";
 import { isString } from "../../js/util";
 import { addNewExpr, state as igCalcState } from "../uiUtil";
-import { game, GameButton, GameVar, isItemType } from "./game";
+import { game, GameButton, GameVar, isItemType, addGameItem } from "./game";
 
 function getMetaData() {
   const fns = igCalcState.env.map((v, k) => v.node.toString());
@@ -51,7 +51,7 @@ function toGame() {
       const items: unknown[] = obj.game.items;
       state.errors = `${items}`;
 
-      game.items = [];
+        game.items = {}
       for (const entry of items) {
         const entryStr = JSON.stringify(entry, null, "\t");
         if (!hasPropIs(entry, "label", isString)) {
@@ -64,14 +64,15 @@ function toGame() {
         }
         if (entry.type === "GameVar" && hasPropIs(entry, "valueFn", isString)) {
           const gameVar: GameVar = entry;
-          game.items.push(gameVar);
+          addGameItem(gameVar);
         } else if (
           entry.type === "GameButton" &&
           hasPropIs(entry, "costFn", isString) &&
-          hasPropIs(entry, "cntFn", isString)
+          hasPropIs(entry, "cntFn", isString) &&
+          hasPropIs(entry, "currencyFn", isString) 
         ) {
           const gameButton: GameButton = entry;
-          game.items.push(gameButton);
+          addGameItem(gameButton);
         } else {
           state.errors = `invalid functions in ${entryStr}`;
           return;
