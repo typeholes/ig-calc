@@ -14,8 +14,8 @@ function setTutorialData() {
 		"inc_cost": "inc_cost = inc_cnt * 1.25 ^ inc_cnt",
 		"fish_cnt": "fish_cnt = 0",
 		"fish_cost": "fish_cost = fish_cnt * 5",
-		"dog_cnt": "fish_cnt = 0",
-		"dog_cost": "fish_cost = inc_cnt * dog_cnt",
+		"dog_cnt": "dog_cnt = 0",
+		"dog_cost": "dog_cost = inc_cnt * dog_cnt",
 		"cat_cnt": "cat_cnt = 0",
 		"cat_cost": "cat_cost = cat_cnt * sin(cat_cnt)",
     "totalPets": "totalPets = fish_cnt + dog_cnt + cat_cnt"
