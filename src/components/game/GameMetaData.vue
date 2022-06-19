@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { isArray } from "@vue/shared";
+import { isObject } from "util";
 import { reactive } from "vue";
 import { errorable, on } from "../../js/Either";
 import { hasProp, hasPropIs } from "../../js/function-plot/utils";
@@ -27,6 +28,8 @@ function toGame() {
   on(parsed, {
     Left: (err) => {
       state.errors = err.message;
+      console.log(err);
+      debugger;
     },
     Right: (obj) => {
       if (!hasProp(obj, "fns")) {
@@ -37,8 +40,8 @@ function toGame() {
         state.errors = "missing game object";
         return;
       }
-      if (!hasPropIs(obj.game, "items", isArray)) {
-        state.errors = "missing game.items array";
+      if (!hasProp(obj.game, "items")) {
+        state.errors = "missing game.items object";
         return;
       }
 
@@ -48,10 +51,10 @@ function toGame() {
         addNewExpr(name, fns[name]);
       }
 
-      const items: unknown[] = obj.game.items;
+      const items = Object.values(obj.game.items as Record<string, unknown>);
       state.errors = `${items}`;
 
-        game.items = {}
+      game.items = {};
       for (const entry of items) {
         const entryStr = JSON.stringify(entry, null, "\t");
         if (!hasPropIs(entry, "label", isString)) {
@@ -64,15 +67,15 @@ function toGame() {
         }
         if (entry.type === "GameVar" && hasPropIs(entry, "valueFn", isString)) {
           const gameVar: GameVar = entry;
-          addGameItem(gameVar);
+          addGameItem(gameVar, false);
         } else if (
           entry.type === "GameButton" &&
           hasPropIs(entry, "costFn", isString) &&
           hasPropIs(entry, "cntFn", isString) &&
-          hasPropIs(entry, "currencyFn", isString) 
+          hasPropIs(entry, "currencyFn", isString)
         ) {
           const gameButton: GameButton = entry;
-          addGameItem(gameButton);
+          addGameItem(gameButton, false);
         } else {
           state.errors = `invalid functions in ${entryStr}`;
           return;

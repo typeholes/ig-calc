@@ -150,7 +150,7 @@ export function itemExists(label: string) {
   return defined(game.items[label]);
 }
 
-export function addGameItem(item: GameItem) {
+export function addGameItem(item: GameItem, adjustCurrencies = true) {
   game.items[item.label] = item;
   if (isGameButton(item)) {
     const currencyExpr = igCalcState.env.get(item.currencyFn)!.node.toString();
