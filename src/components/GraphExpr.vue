@@ -124,7 +124,7 @@ onMounted(drawGraph);
         class="colorPicker"
         type="color"
         :value="getColor()"
-        v-on:change="updateColor"
+        v-on:input="updateColor"
       />
       <span class="fullRow">{{ graphFn(expr) }}</span>
     </template>
