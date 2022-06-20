@@ -149,11 +149,12 @@ export function addNewExpr(name: string, newExpr: string) {
     Right: ([env, _]) => {
       state.env = env;
       const expr = env.get(name)!;
+      const datum = graph.options.data[name];
       graph.options.data[name] = ValidExpr.toDatum(
         expr,
         state.env,
-        true,
-        currentColor()
+        datum?.show ?? false,
+        datum?.color ?? currentColor()
       );
     },
   });
