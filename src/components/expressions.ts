@@ -281,5 +281,5 @@ export function adjustExpr(expr: ValidExpr, template: string) {
     );
   }
   refreshDatumEnvironments();
-  graph.drawLines();
+  errorable( () => graph.drawLines());
 }
