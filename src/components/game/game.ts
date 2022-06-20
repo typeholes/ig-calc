@@ -72,9 +72,10 @@ export function addGameVars() {
 
 export let time = 0;
 export function gameLoop(elapsedTime) {
-  const delta = elapsedTime - time;
-  if (delta >= 1000) {
-    time = elapsedTime;
+  const t = elapsedTime / 1000;
+  const delta = t - time;
+  if (delta >= 1) {
+    time = t;
     adjustExpr(igCalcState.env.get("time")!, `${time}`);
   }
   window.requestAnimationFrame(gameLoop);
@@ -121,7 +122,7 @@ export function buy(item: GameButton) {
     isNumber(currency) &&
     currency >= cost
   ) {
-    adjustExpr(igCalcState.env.get(item.cntFn)!, '% + 1' )
+    adjustExpr(igCalcState.env.get(item.cntFn)!, "% + 1");
   }
 }
 
@@ -151,7 +152,7 @@ export function addGameItem(item: GameItem, adjustCurrencies = true) {
   game.items[item.label] = item;
   if (isGameButton(item)) {
     const currencyExpr = igCalcState.env.get(item.currencyFn)!.node.toString();
-    adjustExpr(igCalcState.env.get(item.currencyFn)!, `% - (${item.costFn})`)
+    adjustExpr(igCalcState.env.get(item.currencyFn)!, `% - (${item.costFn})`);
   }
 }
 
@@ -162,7 +163,7 @@ export function updateButtonCurrency(
 ) {
   if (oldCurrencyFn !== newCurrencyFn) {
     const oldCurrencyExpr = igCalcState.env.get(oldCurrencyFn)!.node.toString();
-    adjustExpr(igCalcState.env.get(oldCurrencyFn)!, `% + (${button.costFn})`)
-    adjustExpr(igCalcState.env.get(newCurrencyFn)!, `% - (${button.costFn})`)
+    adjustExpr(igCalcState.env.get(oldCurrencyFn)!, `% + (${button.costFn})`);
+    adjustExpr(igCalcState.env.get(newCurrencyFn)!, `% - (${button.costFn})`);
   }
 }
