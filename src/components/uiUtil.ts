@@ -235,10 +235,10 @@ export function refreshDatumEnvironments() {
 export const appTabs = shallowReactive({
   Calc: shallowRef(IgCalc),
   Help: shallowRef(HelpScreen),
-  Editor: shallowRef(GameEditor),
 });
 
 const appGameTabs = {
+  Editor: shallowRef(GameEditor),
   Game: shallowRef(GameDisplay),
   "Game Maker Tutorial": shallowRef(GameMakerTutorial),
   MetaData: shallowRef(GameMetaData),
@@ -260,7 +260,7 @@ export let time = 0;
 export function gameLoop(elapsedTime) {
   const t = elapsedTime / 1000;
   const delta = t - time;
-  if (delta >= .1) {
+  if (delta >= 0.1) {
     time = t;
     const timeFn = state.env.get("time");
     if (defined(timeFn)) {
