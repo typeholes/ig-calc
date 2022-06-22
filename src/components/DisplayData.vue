@@ -9,7 +9,7 @@ function names() {
 }
 
 function nums() {
-  return [1, 2, 3, 4, 5]; //TODO
+  return 10;
 }
 
 function formatName(name: string) {
@@ -35,7 +35,7 @@ function runFn(name: string, n: number) {
 //TODO: make colors stay in sync
 
 <template>
-  <div style="overflow: scroll">
+  <div>
     <div
       class="dataGrid"
       :style="{
@@ -54,11 +54,11 @@ function runFn(name: string, n: number) {
         </div>
       </template>
       <template v-for="num in nums()">
-        <div style="gridcolumn: 1">{{ num }}</div>
+        <div :style="{gridColumn: 1, gridRow: num+1}">{{ num }}</div>
         <template v-for="(name, idx) of names()">
           <div
             :style="{
-              gridColumn: idx + 2,
+              gridColumn: idx+2,
               border: `1px solid ${graph.options.data[name].color ?? 'white'}`,
             }"
           >
@@ -75,6 +75,7 @@ function runFn(name: string, n: number) {
   display: grid;
   border: 1px solid whitesmoke;
   column-gap: 2px;
-  overflow: scroll;
+  overflow: auto auto;
+  max-width: 60vw;
 }
 </style>
