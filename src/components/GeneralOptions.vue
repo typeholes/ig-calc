@@ -1,8 +1,6 @@
 <script setup lang="ts">
 import { reactive } from "vue";
-import { Interval } from "../js/function-plot/types";
-import { defined, isValidNumber } from "../js/function-plot/utils";
-import { graphOptions, enableGameTabs } from "./uiUtil";
+import { graphOptions, enableGameTabs, disableGameTabs } from "./uiUtil";
 
 const firstDatum = Object.entries(graphOptions.data)[0];
 
@@ -16,7 +14,7 @@ function toggleGameTabs() {
   if (state.showGameTabs) { 
     enableGameTabs();
   } else {
-
+    disableGameTabs();
   }
 }
 </script>

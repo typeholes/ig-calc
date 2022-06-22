@@ -5,7 +5,7 @@ import { appTabs as tabs } from './uiUtil';
 
 const theme = globalTheme ?? {};
 
-const numTabs = Object.keys(tabs).length;
+const numTabs = () => Object.keys(tabs).length;
 
 const state = reactive({
   tab: tabs.Calc,
@@ -51,7 +51,7 @@ function setTab(tabName: keyof typeof tabs) {
 .pane {
   grid-row: 2;
   grid-column-start: 1;
-  grid-column-end: v-bind(numTabs + 1);
+  grid-column-end: v-bind(numTabs() + 1);
 }
 
 .tab {
