@@ -1,7 +1,7 @@
 import { defined } from "../js/util";
 import { Map as IMap } from "immutable";
 import { Graph, mkGraph } from "../js/function-plot/d3util";
-import { reactive } from "vue";
+import { reactive, shallowReactive, shallowRef } from "vue";
 import { FunctionPlotOptions } from "../js/function-plot/FunctionPlotOptions";
 import { Interval } from "../js/function-plot/types";
 import {
@@ -14,6 +14,14 @@ import {
 import DisplayData from "./DisplayData.vue";
 import DisplayGraph from "./DisplayGraph.vue";
 import { on } from "../js/Either";
+
+import IgCalc from "./IgCalc.vue";
+import HelpScreen from "./HelpScreen.vue";
+import GameEditor from "./game/GameEditor.vue";
+import GameDisplay from "./game/GameDisplay.vue";
+import GameMakerTutorial from "./game/GameMakerTutorial.vue";
+import GameMetaData from "./game/GameMetaData.vue";
+
 
 const colors = IMap(
   "ff0000 00ff00 0000ff ffff00 ff00ff 00ffff ffffff"
@@ -70,6 +78,7 @@ export const state = reactive({
   loading: false,
   modified: false,
   showGraphOptions: false,
+  showGeneralOptions: false,
   showMenuBar: false,
   displayComponent: "DisplayGraph" as keyof typeof displayComponents,
 });
@@ -200,5 +209,29 @@ export function refreshDatumEnvironments() {
       currentDatum.show,
       currentDatum.color
     );
+  }
+}
+
+export const appTabs = shallowReactive({
+  Calc: shallowRef(IgCalc),
+  Help: shallowRef(HelpScreen),
+  Editor: shallowRef(GameEditor),
+});
+
+const appGameTabs = {
+  Game: shallowRef(GameDisplay),
+  "Game Maker Tutorial": shallowRef(GameMakerTutorial),
+  MetaData: shallowRef(GameMetaData),
+};
+
+export function enableGameTabs() {
+  for (const name in appGameTabs) {
+    appTabs[name] = appGameTabs[name];
+  }
+}
+
+export function disableGameTabs() {
+  for (const name in appGameTabs) {
+    delete appTabs[name];
   }
 }

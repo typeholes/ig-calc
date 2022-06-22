@@ -1,25 +1,9 @@
 <script setup lang="ts">
-import IgCalc from "./IgCalc.vue";
-import HelpScreen from "./HelpScreen.vue";
-import GameEditor from "./game/GameEditor.vue";
-import GameDisplay from "./game/GameDisplay.vue";
 import { globalTheme } from "../js/theme";
-import { reactive, shallowRef } from "vue";
-import GameMakerTutorial from "./game/GameMakerTutorial.vue";
-import GameMetaData from "./game/GameMetaData.vue";
+import { reactive } from "vue";
+import { appTabs as tabs } from './uiUtil';
 
 const theme = globalTheme ?? {};
-
-const tabs = {
-  Calc: shallowRef(IgCalc),
-  Help: shallowRef(HelpScreen),
-  Editor: shallowRef(GameEditor),
-  Game: shallowRef(GameDisplay),
-  'Game Maker Tutorial': shallowRef(GameMakerTutorial),
-  MetaData: shallowRef(GameMetaData), 
-} as const;
-
-
 
 const numTabs = Object.keys(tabs).length;
 

@@ -23,6 +23,7 @@ import { knownSymbols } from "../js/math/symbols";
 import { FunctionPlotData } from "../js/function-plot/FunctionPlotDatum";
 
 import { graph, initGraph, state, displayComponents, checkNewExpr, addToEnv, removeExpr, loadEnv } from "./uiUtil";
+import GeneralOptions from "./GeneralOptions.vue";
 
 onMounted(() => {
   if (!defined(graph)) {
@@ -58,6 +59,12 @@ function dataOptions() {
   state.displayComponent = 'DisplayData'
 }
 
+
+function generalOptions() {
+  state.showHelp = false;
+  state.showGeneralOptions = !state.showGeneralOptions;
+}
+
 function showMenu() {
   state.showMenuBar = !state.showMenuBar;
 }
@@ -88,6 +95,7 @@ function refresh(args: { saveRep: SaveRep }) {
     <div><button class="menuButton" @click="help">?</button></div>
     <div><br><button class="menuButton" @click="graphOptions">&#128200</button></div>
     <div><br><button class="menuButton" @click="dataOptions">&#8862</button></div>
+    <div><br><button class="menuButton" @click="generalOptions">&#9881</button></div>
     </div>
     </div>
     <Hsplitter
@@ -110,6 +118,10 @@ function refresh(args: { saveRep: SaveRep }) {
               class="LeftPopover"
               v-if="state.showGraphOptions"
             ></GraphOptions>
+            <GeneralOptions
+              class="LeftPopover"
+              v-if="state.showGeneralOptions"
+            ></GeneralOptions>
             <div
               v-if="!(state.showGraphOptions || state.showHelp) || state.loading"
               v-for="expr in state.env

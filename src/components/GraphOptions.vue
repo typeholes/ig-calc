@@ -46,7 +46,7 @@ function updateGraph() {
   </div>
 </template>
 
-<style>
+<style scoped>
 .gridOptions {
   display: grid;
   grid-template-columns: repeat(9, auto);
