@@ -124,8 +124,13 @@ function addToEnv(s: string) {
 }
 
 function removeExpr(name: string) {
-  state.env = state.env.remove(name);
-  state.modified = true;
+  if (name === "__tmp") {
+    state.newExpr = "";
+    checkNewExpr();
+  } else {
+    state.env = state.env.remove(name);
+    state.modified = true;
+  }
 }
 
 function onSave() {
