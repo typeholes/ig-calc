@@ -260,7 +260,7 @@ export let time = 0;
 export function gameLoop(elapsedTime) {
   const t = elapsedTime / 1000;
   const delta = t - time;
-  if (delta >= 1) {
+  if (delta >= .1) {
     time = t;
     const timeFn = state.env.get("time");
     if (defined(timeFn)) {
