@@ -156,8 +156,13 @@ export function addToEnv(s: string) {
 }
 
 export function removeExpr(name: string) {
-  state.env = state.env.remove(name);
-  state.modified = true;
+  if (name === "__tmp") {
+    state.newExpr = "";
+    checkNewExpr();
+  } else {
+    state.env = state.env.remove(name);
+    state.modified = true;
+  }
 }
 
 export function addNewExpr(name: string, newExpr: string) {
@@ -221,8 +226,8 @@ export function refreshDatumEnvironments() {
     graph.options.data[expr.name] = ValidExpr.toDatum(
       expr,
       state.env,
-      currentDatum.show,
-      currentDatum.color
+      currentDatum?.show ?? false,
+      currentDatum?.color ?? currentColor()
     );
   }
 }
@@ -265,5 +270,4 @@ export function gameLoop(elapsedTime) {
   window.requestAnimationFrame(gameLoop);
 }
 
-
-export const systemFnNames = ['time'];
+export const systemFnNames = ["time"];
