@@ -1,5 +1,6 @@
 import * as M from "mathjs";
 import { MathNode } from "mathjs";
+import { defined } from "../util";
 import { transformNode, tx, always, C0, C1, C2, op, fn } from "./mathUtil";
 import { simplify as _simplify } from "./simplify";
 
@@ -102,8 +103,18 @@ const deriveTransforms = (by: string) => {
       // need to check that this works for functions with arity > 1
       //    Seems sus
       M.isFunctionNode,
-      always,
+      (n) => defined(functionDerivatives[n.fn.name]),
       (n) => op("*", go(n.args[0]), functionDerivatives[n.fn.name](...n.args))
+    ),
+    tx(
+      // unknown functions
+      M.isFunctionNode,
+      (n) => !defined(functionDerivatives[n.fn.name]),
+      (n) => {
+        throw new Error(
+          `Missing derivation rule for builtin functon ${n.fn.name}`
+        );
+      }
     ),
   ];
 }; // as NodeTransform<MathNode>[];
