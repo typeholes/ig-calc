@@ -70,16 +70,6 @@ export function addGameVars() {
   defaultItemList.forEach((item) => addGameItem(item));
 }
 
-export let time = 0;
-export function gameLoop(elapsedTime) {
-  const t = elapsedTime / 1000;
-  const delta = t - time;
-  if (delta >= 1) {
-    time = t;
-    adjustExpr(igCalcState.env.get("time")!, `${time}`);
-  }
-  window.requestAnimationFrame(gameLoop);
-}
 
 const defaultItemList: GameItem[] = [
   GameVar("time", "time"),

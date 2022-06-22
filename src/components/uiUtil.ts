@@ -10,6 +10,7 @@ import {
   parseExpr,
   ExprEnv,
   SaveRep,
+  adjustExpr,
 } from "./expressions";
 import DisplayData from "./DisplayData.vue";
 import DisplayGraph from "./DisplayGraph.vue";
@@ -21,7 +22,6 @@ import GameEditor from "./game/GameEditor.vue";
 import GameDisplay from "./game/GameDisplay.vue";
 import GameMakerTutorial from "./game/GameMakerTutorial.vue";
 import GameMetaData from "./game/GameMetaData.vue";
-
 
 const colors = IMap(
   "ff0000 00ff00 0000ff ffff00 ff00ff 00ffff ffffff"
@@ -57,6 +57,21 @@ export const graphOptions: FunctionPlotOptions = {
   xDomain: reactive(Interval(0, 1)),
   yDomain: reactive(Interval(0, 1)),
 };
+
+let gameLoopRunning = false;
+export function init() {
+  if (!defined(graph)) {
+    initGraph();
+  }
+  const timeFn = state.env.get("time");
+  if (!defined(timeFn)) {
+    addNewExpr("time", "time = 0");
+  }
+  if (!gameLoopRunning) {
+    gameLoopRunning = true;
+    window.requestAnimationFrame(gameLoop);
+  }
+}
 
 export function initGraph() {
   graph = mkGraph(graphOptions);
@@ -235,3 +250,20 @@ export function disableGameTabs() {
     delete appTabs[name];
   }
 }
+
+export let time = 0;
+export function gameLoop(elapsedTime) {
+  const t = elapsedTime / 1000;
+  const delta = t - time;
+  if (delta >= 1) {
+    time = t;
+    const timeFn = state.env.get("time");
+    if (defined(timeFn)) {
+      adjustExpr(timeFn, `${time}`);
+    }
+  }
+  window.requestAnimationFrame(gameLoop);
+}
+
+
+export const systemFnNames = ['time'];

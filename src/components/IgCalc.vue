@@ -22,13 +22,11 @@ import { knownSymbols } from "../js/math/symbols";
 
 import { FunctionPlotData } from "../js/function-plot/FunctionPlotDatum";
 
-import { graph, initGraph, state, displayComponents, checkNewExpr, addToEnv, removeExpr, loadEnv } from "./uiUtil";
+import { graph, initGraph, state, displayComponents, checkNewExpr, addToEnv, removeExpr, loadEnv, init, systemFnNames } from "./uiUtil";
 import GeneralOptions from "./GeneralOptions.vue";
 
 onMounted(() => {
-  if (!defined(graph)) {
-    initGraph();
-  }
+  init();
 });
 
 const theme = globalTheme ?? {};
@@ -79,6 +77,7 @@ function refresh(args: { saveRep: SaveRep }) {
   const holdGraphOptions = state.showGraphOptions;
   state.showGraphOptions = false;
   loadEnv(args);
+  init();
   state.loading = false;
   nextTick(function () {
     state.showGraphOptions = holdGraphOptions
@@ -126,7 +125,7 @@ function refresh(args: { saveRep: SaveRep }) {
               v-if="!(state.showGraphOptions || state.showHelp) || state.loading"
               v-for="expr in state.env
                 .valueSeq()
-                .filter((x) => x.name !== '__tmp')"
+                .filter((x) => x.name !== '__tmp' && !systemFnNames.includes(x.name))"
               :key="expr.name"
             >
               <GraphExpr
