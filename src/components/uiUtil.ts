@@ -22,6 +22,7 @@ import GameEditor from "./game/GameEditor.vue";
 import GameDisplay from "./game/GameDisplay.vue";
 import GameMakerTutorial from "./game/GameMakerTutorial.vue";
 import GameMetaData from "./game/GameMetaData.vue";
+import { FunctionPlotData } from "../js/function-plot/FunctionPlotDatum";
 
 const colors = IMap(
   "ff0000 00ff00 0000ff ffff00 ff00ff 00ffff ffffff"
@@ -50,7 +51,7 @@ export let graph: Graph;
 
 export const graphOptions: FunctionPlotOptions = {
   target: "#graph",
-  title: "Default",
+  //  title: "Default",
   data: {}, //  reactive({}),  can't make this reactive without recursive vue updates
   width: 800,
   height: 600,

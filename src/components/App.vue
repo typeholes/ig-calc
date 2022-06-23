@@ -39,7 +39,6 @@ function setTab(tabName: keyof typeof tabs) {
 :deep(*) {
   background-color: v-bind("theme.backgroundColor");
   color: v-bind("theme.color");
-  text-align: center;
 }
 
 .main {

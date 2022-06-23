@@ -6,9 +6,11 @@ import Vsplitter from "./Vsplitter.vue";
 import Hsplitter from "./Hsplitter.vue";
 
 
+import { Map as IMap } from "immutable";
 import { onMounted } from "vue";
 import GraphExpr from "./GraphExpr.vue";
 import {
+ExprEnv,
   getNodeName, SaveRep,
 } from "./expressions";
 import { defined } from "../js/util";
@@ -22,7 +24,7 @@ import { knownSymbols } from "../js/math/symbols";
 
 import { FunctionPlotData } from "../js/function-plot/FunctionPlotDatum";
 
-import { graph, initGraph, state, displayComponents, checkNewExpr, addToEnv, removeExpr, loadEnv, init, systemFnNames } from "./uiUtil";
+import { graph, initGraph, state, displayComponents, checkNewExpr, addToEnv, removeExpr, loadEnv, init, systemFnNames, } from "./uiUtil";
 import GeneralOptions from "./GeneralOptions.vue";
 
 onMounted(() => {
@@ -70,6 +72,14 @@ function showMenu() {
 function exprNames() {
   const names = Array.from(state.env.keys());
   return names.filter( (name) => graph.options.data[name]?.show)
+}
+
+
+function selectSave(args: { saveRep: SaveRep }) {
+  refresh(args);
+}
+
+function unselectSave() {
 }
 
 function refresh(args: { saveRep: SaveRep }) {
@@ -122,7 +132,7 @@ function refresh(args: { saveRep: SaveRep }) {
               v-if="state.showGeneralOptions"
             ></GeneralOptions>
             <div
-              v-if="!(state.showGraphOptions || state.showHelp) || state.loading"
+              v-if="!(state.showGraphOptions || state.showHelp || state.loading)"
               v-for="expr in state.env
                 .valueSeq()
                 .filter((x) => x.name !== '__tmp' && !systemFnNames.includes(x.name))"
@@ -200,13 +210,15 @@ function refresh(args: { saveRep: SaveRep }) {
               </button>
               <br />
             </div>
-            <div>
+            <div style="width:100%">
               <!-- {{ state.parseResult }} -->
               <SaveWidget
                 :env="state.env"
                 :expressionUiState="getExpressionUiState()"
                 :hasUnsaved="state.modified"
                 v-on:restore="refresh"
+                v-on:select-save="selectSave"
+                v-on:unselect-save="unselectSave"
                 v-on:saved="onSave"
               ></SaveWidget>
             </div>

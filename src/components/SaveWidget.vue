@@ -16,14 +16,18 @@ import {
 import { ExprEnv, toSaveRep, SaveRep } from "./expressions";
 import { getExpressionUiState, ExpressionUiState } from "./expressionUiState";
 import { defined } from "../js/util";
-import { Graph } from "../js/function-plot/d3util";
 import { graph } from "./uiUtil";
+import SaveEntry from "./SaveEntry.vue";
+
+import { Map as IMap } from "immutable";
 
 import {
   compressToEncodedURIComponent,
   decompressFromEncodedURIComponent,
 } from "lz-string";
 import { Interval } from "../js/function-plot/types";
+import Immutable from "immutable";
+import { statement } from "@babel/template";
 
 type SaveObjectRep = SaveObject & Record<"ExprEnvSaveRep", string>;
 
@@ -43,7 +47,9 @@ const state = reactive({
   newDescr: undefined as string | undefined,
   deletedSaves: {} as Record<string, string>,
   currentSave: "Default",
+  selectedSave: "Default",
   shareString: "",
+  showDescriptions: false,
 });
 
 onMounted(() => {
@@ -52,7 +58,7 @@ onMounted(() => {
   if (params.has("shared")) {
     const shareStr = params.get("shared") ?? "";
     if (shareStr === "") {
-      load("Default");
+      load("Default", "restore");
       return;
     }
     const uncompressed = decompressFromEncodedURIComponent(shareStr) ?? "";
@@ -65,16 +71,18 @@ onMounted(() => {
     saveMetaData[saveName] = saveRep.saveDescription;
     writeSaveMetadata(saveMetaData);
     writeSave(saveName, saveRep.saveDescription, uncompressed);
-    load(saveName);
+    load(saveName, "restore");
   } else {
     console.log("not shared");
-    load("Default");
+    load("Default", "restore");
   }
 });
 
 const props = defineProps<Props>();
 
 const emit = defineEmits<{
+  (e: "selectSave", value: { saveRep: SaveRep }): void;
+  (e: "unselectSave", value: undefined): void;
   (e: "restore", value: { saveRep: SaveRep }): void;
   (e: "error", value: Error): void;
   (e: "saved", value: string): void;
@@ -120,7 +128,7 @@ function save(name: string, description: string) {
   emit("saved", state.currentSave);
 }
 
-function load(name: string) {
+function load(name: string, emitType: "restore" | "selectSave") {
   Either.on(readSave(name), {
     Left: (x) => {
       emit("error", x);
@@ -134,15 +142,27 @@ function load(name: string) {
         return;
       }
 
-      emit("restore", {
+      emit(emitType as keyof typeof emit, {
         saveRep: saveRep.value,
       });
 
-      state.currentSave = name;
+      if (emitType === "restore") {
+        state.currentSave = name;
+      }
       graph.options.title = name;
       graph.resetZoom(Interval(-10, 10), 0);
     },
   });
+}
+
+function saveList(type: "local" | "shared") {
+  return IMap(saveMetaData)
+    .filter(
+      (_, k) =>
+        k !== '__tmp' && k !== state.currentSave && k.startsWith("shared/") != (type === "local")
+    )
+    .sortBy((_, k) =>  ({Empty: "", Default: " " }[k] ?? k ))
+//    .toObject();
 }
 
 function copy(name: string) {
@@ -172,6 +192,7 @@ function create() {
     writeSaveMetadata(saveMetaData);
     const fromSave = Errorable.raise(readSave(state.copying)).value;
     writeSave(state.newName, descr, fromSave);
+    selectSave(state.newName);
   } else {
     save(state.newName, descr);
   }
@@ -206,74 +227,113 @@ function restore(name: string, descr: string) {
 
   delete state.deletedSaves[name];
 }
+
+function selectSave(name: string) {
+  state.selectedSave = name;
+  save('__tmp', 'temporary save')
+  load(name, "selectSave");
+}
+
+function unselectSave() {
+  state.selectedSave = state.currentSave;
+  load('__tmp', 'restore');
+  state.currentSave = state.selectedSave;
+  emit("unselectSave", undefined);
+}
 </script>
 
 <template>
   <div class="outer">
     <div class="saveWidget">
-      <span style="grid-column: 1"> <b>Name</b> </span>
-      <span style="grid-column: 2"> <b>Description</b> </span>
-      <span style="grid-column: 3/8"></span>
-      <template v-for="(description, name) of saveMetaData">
-        <span class="name">{{ name }}</span>
-        <span class="descr">{{ description }}</span>
+      <div class="saveColumn">
+        <div>Current Save</div>
+        <div v-if="props.hasUnsaved">(Unsaved Changes)</div>
+        <SaveEntry
+          :name="state.currentSave"
+          :description="saveMetaData[state.currentSave]"
+          :show-description="true"
+        ></SaveEntry>
+      </div>
+      <div class="saveColumn">
+        <div>Your Saves</div>
+        <div v-for="[name, description] of saveList('local')">
+          <SaveEntry
+            :name="name"
+            :description="description"
+            :show-description="state.showDescriptions"
+            @click="selectSave(name)"
+          ></SaveEntry>
+        </div>
+      </div>
+      <div class="saveColumn">
+        <div>Shared Saves</div>
+        <div v-for="[name, description] of saveList('shared')">
+          <SaveEntry
+            :name="name"
+            :description="description"
+            :show-description="state.showDescriptions"
+            @click="selectSave(name)"
+          ></SaveEntry>
+        </div>
+      </div>
+
+      <div class="saveColumn" v-if="state.selectedSave !== state.currentSave">
+        <div>{{ state.selectedSave }}</div>
         <button
-          v-if="name !== 'Empty'"
+          v-if="state.currentSave !== 'Empty'"
           class="save"
-          @click="save(name, description)"
+          @click="save(state.currentSave, saveMetaData[state.currentSave])"
         >
           save
         </button>
-        <button class="load" @click="load(name)">load</button>
-        <button v-if="!defined(state.copying)" class="copy" @click="copy(name)">
+        <button class="load" @click="load(state.selectedSave, 'restore')">
+          load
+        </button>
+        <button
+          v-if="!defined(state.copying)"
+          class="copy"
+          @click="copy(state.selectedSave)"
+        >
           copy
         </button>
-        <button class="share" @click="share(name)">share</button>
+        <button class="share" @click="share(state.selectedSave)">share</button>
         <button
-          v-if="name !== 'Empty' && name !== 'Default'"
+          v-if="
+            state.selectedSave !== 'Empty' && state.selectedSave !== 'Default'
+          "
           class="delete"
-          @click="deleteSave(name)"
+          @click="deleteSave(state.selectedSave)"
         >
           delete
         </button>
-      </template>
-      <template v-if="defined(state.copying)">
-        <span style="grid-column: 1/8"> <hr /></span>
-        <span class="name"><input v-model="state.newName" /></span>
-        <span class="descr"><input v-model="state.newDescr" /></span>
-        <button class="copy" @click="create()">create</button>
-        <button class="share" @click="cancel()">cancel</button>
-      </template>
+        <button @click="unselectSave">Cancel</button>
+      </div>
+    </div>
+    <template v-if="defined(state.copying)">
+      <span style="grid-column: 1/8"> <hr /></span>
+      <span class="name"><input v-model="state.newName" /></span>
+      <span class="descr"><input v-model="state.newDescr" /></span>
+      <button class="copy" @click="create()">create</button>
+      <button class="share" @click="cancel()">cancel</button>
+    </template>
 
-      <template v-if="hasDeletedSaves()">
-        <span style="grid-column: 1/8">
-          Deleted Saves <button @click="purgeDeletedSaves()">Purge</button>
-        </span>
-      </template>
-      <template v-for="(description, name) of state.deletedSaves">
-        <span class="name">{{ name }}:</span>
-        <span class="descr">{{ description }}</span>
-        <button class="save" @click="restore(name, description)">
-          restore
-        </button>
-      </template>
-    </div>
-    <div class="saveInfo">
-      <span>Current Save: {{ state.currentSave }} </span>
-      <span v-if="props.hasUnsaved"> (Unsaved Changes) </span>
-    </div>
-    <div style="grid-row: 4">
-      {{ baseUrl() + "?shared=" + state.shareString }}
-    </div>
+    <template v-if="hasDeletedSaves()">
+      <span style="grid-column: 1/8">
+        Deleted Saves <button @click="purgeDeletedSaves()">Purge</button>
+      </span>
+    </template>
+    <template v-for="(description, name) of state.deletedSaves">
+      <span class="name">{{ name }}:</span>
+      <span class="descr">{{ description }}</span>
+      <button class="save" @click="restore(name, description)">restore</button>
+    </template>
+  </div>
+  <div style="grid-row: 4">
+    {{ baseUrl() + "?shared=" + state.shareString }}
   </div>
 </template>
 
-<style>
-.outer {
-  display: grid;
-  grid-template-rows: 1fr 1fr 4fr 1fr;
-}
-
+<style scoped>
 input {
   margin: 5px 5px 5px 0px;
   width: 95%;
@@ -284,46 +344,22 @@ input {
 }
 
 .saveWidget {
-  border: 1px solid white;
-  grid-row: 3;
-  display: grid;
-  grid-template-columns: 4fr 16fr repeat(5, 1fr);
-  row-gap: 3px;
-  justify-content: center;
+  display: flex;
+  flex-direction: row;
+  gap: 7px;
 }
 
-.name {
-  grid-column: 1;
-  border: 1px solid white;
+.saveColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
 }
 
-.descr {
-  grid-column: 2;
-  border: 1px solid white;
+.saveColumn > :first-child {
+  background-color: rgb(82, 94, 90);
 }
 
-.save {
-  grid-column: 3;
-  border: 1px solid white;
-}
-
-.load {
-  grid-column: 4;
-  border: 1px solid white;
-}
-
-.copy {
-  grid-column: 5;
-  border: 1px solid white;
-}
-
-.share {
-  grid-column: 6;
-  border: 1px solid white;
-}
-
-.delete {
-  grid-column: 7;
-  border: 1px solid white;
+.saveWidget :first-child :nth-child(2) {
+  flex: auto;
 }
 </style>

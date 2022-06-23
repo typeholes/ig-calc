@@ -116,7 +116,7 @@ export function mkGraph(options: FunctionPlotOptions) {
     .selectAll("text.title")
     .data([options.title])
     .join("text")
-    .text((x) => x || "hmm, undefined")
+//    .text((x) => x || "hmm, undefined")
     .attr("fill", "#999999")
     .attr("x", graphRect.width() / 2)
     .attr("y", 20)
