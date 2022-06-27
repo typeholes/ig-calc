@@ -1,7 +1,7 @@
 import { defined } from "../js/util";
 import { Map as IMap } from "immutable";
 import { Graph, mkGraph } from "../js/function-plot/d3util";
-import { reactive, shallowReactive, shallowRef, nextTick } from "vue";
+import { reactive, shallowReactive, shallowRef, nextTick, computed } from "vue";
 import { FunctionPlotOptions } from "../js/function-plot/FunctionPlotOptions";
 import { Interval } from "../js/function-plot/types";
 import { typeset } from '../js/typeset'
@@ -24,6 +24,7 @@ import GameDisplay from "./game/GameDisplay.vue";
 import GameMakerTutorial from "./game/GameMakerTutorial.vue";
 import GameMetaData from "./game/GameMetaData.vue";
 import { FunctionPlotData } from "../js/function-plot/FunctionPlotDatum";
+import { SaveId } from "../js/SaveManager";
 
 const colors = IMap(
   "ff0000 00ff00 0000ff ffff00 ff00ff 00ffff ffffff"
@@ -98,7 +99,11 @@ export const state = reactive({
   showGeneralOptions: false,
   showMenuBar: false,
   displayComponent: "DisplayGraph" as keyof typeof displayComponents,
+  currentSave: SaveId('local', "Default"),
+  selectedSave: SaveId('local', "Default"),
+  selectedSaveIsDeleted: false,
 });
+
 
 export function checkNewExpr() {
   const expr = state.newExpr.trim();
@@ -192,6 +197,11 @@ export function addNewExpr(name: string, newExpr: string) {
   });
 }
 
+const importExpressions : ValidExpr[] = [];
+export function addImportExpression(expr: ValidExpr) {
+  importExpressions.push(expr);
+}
+
 export function loadEnv(args: { saveRep: SaveRep }) {
   state.env = state.env.clear();
   if (!defined(graph)) {
@@ -214,6 +224,13 @@ export function loadEnv(args: { saveRep: SaveRep }) {
       graph.options.data[name].color = rep.color
     } ;
   }
+
+  for (const expr of importExpressions) {
+    state.newExpr = expr.node.toString();
+    checkNewExpr();
+    addToEnv(state.newExpr);
+  }
+  importExpressions.splice(0, importExpressions.length);
   
 
   // set show after all expressions are added so we don't try to show one that has unloaded dependencies

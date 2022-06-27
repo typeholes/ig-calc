@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { nextTick } from "vue";
+import { computed, nextTick } from "vue";
 import HelpScreen from "./HelpScreen.vue";
 import GraphOptions from "./GraphOptions.vue";
 import Vsplitter from "./Vsplitter.vue";
@@ -26,6 +26,7 @@ import { FunctionPlotData } from "../js/function-plot/FunctionPlotDatum";
 
 import { graph, initGraph, state, displayComponents, checkNewExpr, addToEnv, removeExpr, loadEnv, init, systemFnNames, } from "./uiUtil";
 import GeneralOptions from "./GeneralOptions.vue";
+import { SaveId } from "../js/SaveManager";
 
 onMounted(() => {
   init();
@@ -74,6 +75,7 @@ function exprNames() {
   return names.filter( (name) => graph.options.data[name]?.show)
 }
 
+const previewingSave = computed(() => !SaveId.eq(state.currentSave, state.selectedSave));
 
 function selectSave(args: { saveRep: SaveRep }) {
   refresh(args);
@@ -94,6 +96,20 @@ function refresh(args: { saveRep: SaveRep }) {
   });
   state.modified = false;
 }
+
+function importExpression(name: string) {
+  alert('not implemented');
+}
+
+function editExpression(name: string) {
+  state.newExpr = state.env.get(name)?.node.toString() ?? "";
+  checkNewExpr();
+  if (name.startsWith('anon:')) {
+    state.env = state.env.delete(name); // TODO: should we delete anonymous expressions on edit?
+  }
+}
+
+
 </script>
 
 <template>
@@ -141,6 +157,8 @@ function refresh(args: { saveRep: SaveRep }) {
               <GraphExpr
                 :env="state.env"
                 :expr="expr"
+                :allow-copy="previewingSave"
+                :allow-edit="state.newExpr === ''"
                 v-on:new:expr="
                   (x) => {
                     state.newExpr = x;
@@ -149,6 +167,8 @@ function refresh(args: { saveRep: SaveRep }) {
                 "
                 v-on:remove:expr="(x) => removeExpr(x)"
                 v-on:error="showError"
+                v-on:edit="editExpression"
+                v-on:import="importExpression"
               ></GraphExpr>
               
             </div>
@@ -173,21 +193,29 @@ function refresh(args: { saveRep: SaveRep }) {
           </template>
           <template #left>
             <input
+              class="newExpr"
               type="text"
-              size="80"
+              placeholder="Enter an expression"
               v-model="state.newExpr"
+              
               @input="checkNewExpr()"
               @change="checkNewExpr()"
             />
             <pre color="red" v-if="defined(state.error)">
               {{ state.error }}
             </pre>
+            <div class="inputPlaceholder" v-if="!state.parseResult">
+            &nbsp;
+            
+            </div>
             <div v-if="state.parseResult">
               <GraphExpr
                 v-if="!state.loading"
                 :env="state.env"
                 :expr="state.env.get('__tmp')!"
                 :tex="state.env.get('__tmp')?.node?.toTex()"
+                :allow-copy="false"
+                :allow-edit="false"
                 v-on:new:expr="
                   (x) => {
                     state.newExpr = x;
@@ -211,7 +239,7 @@ function refresh(args: { saveRep: SaveRep }) {
               </button>
               <br />
             </div>
-            <div style="width:100%">
+            <div class="saveWidget">
               <!-- {{ state.parseResult }} -->
               <SaveWidget
                 :env="state.env"
@@ -275,5 +303,20 @@ function refresh(args: { saveRep: SaveRep }) {
   display: flex;
   flex-direction: column;
   margin-top: 3px;
+}
+
+.inputPlaceholder {
+  border: 1px solid white;
+  width: 100%;
+  text-align: center;
+  border-radius: 3px;
+}
+
+.saveWidget {
+  margin-top: 10px;
+}
+
+.newExpr {
+  width: 99.7%;
 }
 </style>

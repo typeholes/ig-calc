@@ -9,22 +9,28 @@ import {
 getGraphFnStr,
 } from "./expressions";
 import { addTexElement, typeset } from "../js/typeset";
-import { onUpdated, onMounted } from "vue";
+import { onUpdated, onMounted, reactive } from "vue";
 import { MathNode, simplify } from "mathjs";
 import { derive as _derive } from "../js/math/derivatives";
 import { integrate as _integrate } from "../js/math/integrals";
 import { inline } from "../js/math/mathUtil";
 import { Errorable, errorable } from "../js/Either";
 import { getFunctionBody, getBody as getDeclarationBody } from "./expressions";
-import { graph } from "./uiUtil";
+import { addImportExpression, graph } from "./uiUtil";
 
 interface Props {
   expr: ValidExpr;
   env: ExprEnv;
   tex?: string;
+  allowCopy: boolean;
+  allowEdit: boolean;
 }
 
 const props = defineProps<Props>();
+
+const state = reactive({
+  showMenu: false
+})
 
 const getBody = (x: MathNode) => getDeclarationBody(getFunctionBody(x));
 
@@ -32,6 +38,7 @@ const emit = defineEmits<{
   (e: "new:expr", value: string): void;
   (e: "remove:expr", value: string): void;
   (e: "error", value: Error): void;
+  (e: "edit", value: string): void;
 }>();
 
 function getColor() {
@@ -88,10 +95,10 @@ function graphFn(x) {
   return getGraphFnStr(props.env, x);
 }
 
-function refreshTex() {
-  addTexElement("tex_" + props.expr.name, props.tex ?? props.expr.node.toTex());
-  typeset();
-}
+// function refreshTex() {
+//   addTexElement("tex_" + props.expr.name, props.tex ?? props.expr.node.toTex());
+//   typeset();
+// }
 
 function drawGraph() {
   addTexElement("tex_" + props.expr.name, props.tex ?? props.expr.node.toTex());
@@ -104,13 +111,23 @@ function drawLines() {
 // TODO: verify we don't have situations where we need to display errors in the graph evaluation
   });
 }
+
+function edit() {
+  emit('edit', props.expr.name)
+}
+
+function copyToCurrent() {
+  addImportExpression(props.expr);
+}
+
 onUpdated(drawGraph);
 onMounted(drawGraph);
 
 </script>
 
 <template>
-  <div class="rows GraphExpr">
+  <div class="cols GraphExpr lastSmall">
+  <div class="rows ">
   <div class="cols">
     <span v-if="!props.expr.name.startsWith('anon:') && props.expr.name !== '__tmp'"> {{ props.expr.name }} </span>
     <template v-if="isGraphable(env, expr)">
@@ -128,7 +145,6 @@ onMounted(drawGraph);
         v-on:input="updateColor"
       />
     </template>
-    <button class="closeButton" @click="remove()">x</button>
   </div>
   <div class="cols">
       <span class="fullRow">{{ graphFn(expr) }}</span>
@@ -149,6 +165,15 @@ onMounted(drawGraph);
     </div>
   </div>
   </div>
+  <div class="rows">
+    <button class="menuButton" @click="state.showMenu = !state.showMenu">&#9776</button>
+    <template v-if="state.showMenu">
+    <button class="menuButton" @click="remove()">Delete</button>
+    <button class="menuButton" v-if="props.allowEdit" @click="edit()">Edit</button>
+    <button class="menuButton" v-if="props.allowCopy" @click="copyToCurrent()">Copy to current save</button>
+    </template>
+  </div>
+  </div>
     
 </template>
 
@@ -158,10 +183,9 @@ onMounted(drawGraph);
   border-radius: 4px;
 }
 
-.closeButton {
-  background-color: red;
+.menuButton {
+  background-color: rgb(89, 92, 96);
   padding: 0 1px 0;
-  margin-left: auto;
 }
 
 :deep(mjx-container) {
@@ -184,7 +208,13 @@ onMounted(drawGraph);
   display: flex;
   flex-direction: column;
   gap: 3px;
+  width: 100%;
 }
+
+.lastSmall > :last-child {
+  flex: 0 1 fit-content;
+}
+
 .cols {
   display: flex;
   flex-direction: row;
