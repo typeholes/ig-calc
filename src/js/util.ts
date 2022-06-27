@@ -59,7 +59,7 @@ export function objMap<ObjT extends Record<string, From>, From, To>(
   ) as Choose<ObjT, Record<keyof ObjT, To>>;
 }
 
-export function defined<T>(x: T | undefined | null): x is T {
+export function defined<T>(x: T | undefined | null): x is NonNullable<T> {
   return typeof x !== "undefined" && x !== null;
 }
 
@@ -87,6 +87,33 @@ export function hasPropIs<T extends string, U>(
   is: (x: unknown) => x is U
 ): x is Record<T, U> {
   return hasProp(x, prop) && is(x[prop]);
+}
+
+export function assert(p: boolean, msg: string) : asserts p {
+  if (!p) { throw new Error(msg) }
+}
+assert.defined = <T>(x: T) : asserts x is NonNullable<T> => assert(defined(x), `undefined: $x`);
+assert.props = <T extends string>(
+  x: unknown,
+  ...props: T[]
+): asserts x is Record<T, unknown> => {
+  assert(typeof x === 'object', 'crud');
+  assert.defined(x); 
+  assert(Object.hasOwn(x, props[0]), 'crud');
+//  return typeof x === "object" && defined(x) && 
+}
+
+assert.is = <T>(x: unknown, f: (x: unknown) => x is T, typeName?: string) => {
+  assert(f(x), `invalid type ${typeName}`);
+}
+
+assert.propIs = <T extends string, U>(
+  x: unknown,
+  prop: T,
+  is: (x: unknown) => x is U
+): asserts x is Record<T, U> => {
+  assert.props(x, prop);
+  assert.is(x, is);
 }
 
 export function tagged<T extends string>(

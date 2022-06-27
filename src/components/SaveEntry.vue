@@ -1,18 +1,21 @@
 <script setup lang="ts">
-import { defineProps } from "vue";
+import { defineProps, reactive, ref } from "vue";
+import { SaveId } from "../js/SaveManager";
 
 interface Props {
-  name: string;
-  description: string;
+  id: SaveId;
+  description?: string;
   showDescription?: boolean;
+  deleted: boolean;
 }
 
 const props = defineProps<Props>();
+
 </script>
 
 <template>
-  <div class="saveEntry">
-    <div>{{ name }}</div>
+  <div :class="{saveEntry: true, deleted: props.deleted}">
+    <div>{{ id.name }}  </div>
     <div class="description" v-if="showDescription">{{ description }}</div>
   </div>
 </template>
@@ -28,6 +31,17 @@ const props = defineProps<Props>();
   background-color: rgb(57, 57, 57);
 }
 
+.saveEntry.deleted {
+  border-color: red; 
+  background-color: rgb(87, 57, 57);
+  border-style: dashed;
+  text-decoration: line-through;
+}
+
+.saveEntry.deleted > div {
+  background-color: rgb(87, 57, 57);
+  text-decoration: line-through;
+}
 .saveEntry > div {
   background-color: rgb(57, 57, 57);
 }

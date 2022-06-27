@@ -1,18 +1,52 @@
 import { errorable, Errorable, raise } from "./Either";
-import { defined, hasPropIs, isString } from "./util";
+import { assert, defined, hasPropIs, isString } from "./util";
 
 const StorageKey = "ig-calc-saves";
 
+export type SaveName = string;
+export type SaveDescription = string;
+export type SaveId = { type: SaveType, name: SaveName}
+export type SaveType = "local" | "shared" | "library";
+export const saveTypes : SaveType[]  = ['local', 'shared', 'library']
+export type SerializedSave = string;
+export type SaveDetail = { description: SaveDescription, serialized: SerializedSave };
+export type Saves = Record<SaveType, Record<SaveName, SaveDetail >>;
+
+export const SaveId = ( type: SaveType, name: SaveName ) : SaveId => ({ type, name })
+SaveId.eq = (a: SaveId, b: SaveId) : boolean => a.name === b.name && a.type === b.type
+
+
+export type SaveMetaData = Record<SaveType, Record<SaveName, SaveDescription >>;
+
+export const DefaultSaveId = SaveId('local', 'Default');
+export const EmptySaveId = SaveId('local', 'Empty');
+
+const defaultSaveMetadata : SaveMetaData = {
+  local: {
+    Empty:  'A fresh start', 
+    Default: 'Loaded on page refresh', 
+  },
+  shared: {},
+  library: {},
+}
+
+const saves: Saves = {
+  local: {
+    Empty: { description: 'A fresh start', serialized: '' },
+    Default: { description: 'Loaded on page refresh', serialized: '' },
+  },
+  shared: {},
+  library: {},
+};
+
+function isSaveType(x: unknown): x is SaveType {
+  return isString(x) && ["local", "shared", "library"].includes(x);
+}
 interface Savable<K extends string, V> {
   saveKey: K;
   toSave: (t: V) => string;
   fromSave: (s: string) => Errorable<V>;
 }
-
-export const emptySave = (name: string, description: string): SaveObject => ({
-  saveName: name,
-  saveDescription: description,
-});
 
 export function addSaveEntry<S, K extends string, V>(
   s: S,
@@ -40,73 +74,63 @@ export function hasSaveEntry<K extends string, V>(
   return save;
 }
 
-export interface SaveObject {
-  saveName: string;
-  saveDescription: string;
-}
-
-export function parseSave(s: string): Errorable<SaveObject> {
+export function parseSaveMetaData(s: string) : Errorable<SaveMetaData> {
   return errorable(() => {
     const obj = JSON.parse(s);
-    if (
-      !(
-        hasPropIs(obj, "saveName", isString) &&
-        hasPropIs(obj, "saveDescription", isString)
-      )
-    ) {
-      throw new Error("save missing name or description");
+    assert.propIs(obj, 'local', (x: unknown): x is Record<string,string> => typeof x === 'object');
+    assert.propIs(obj, 'shared', (x: unknown): x is Record<string,string> => typeof x === 'object');
+    assert.propIs(obj, 'library', (x: unknown): x is Record<string,string> => typeof x === 'object');
+
+    for (const type in obj) {
+      for (const name in obj[type]) {
+        assert.is(obj[type][name], isString);
+      }
     }
     return obj;
   });
 }
 
-export type SaveMetadata = Record<string, string>;
-
-const defaultSaveMetadata: SaveMetadata = {
-  Empty: "Load this for a fresh start",
-  Default: "Loaded on page refresh",
-};
+export const emptySaveMetaData = () : SaveMetaData => ({ local: {}, library: {}, shared: {} });
 
 export function readSaveMetadata() {
   return errorable(() => {
     const str = window.localStorage.getItem(StorageKey);
+
     if (!str) {
       writeSaveMetadata(defaultSaveMetadata);
       return defaultSaveMetadata;
     }
-    const obj = JSON.parse(str);
+    
+    return Errorable.raise(parseSaveMetaData(str)).value;
 
-    // TODO validate obj
-    return { ...defaultSaveMetadata, ...obj } as SaveMetadata;
   });
 }
 
-export function writeSaveMetadata(metadata: SaveMetadata) {
+export function writeSaveMetadata(metadata: SaveMetaData) {
   // TODO handle QuotaExceeded error
   window.localStorage.setItem(StorageKey, JSON.stringify(metadata));
 }
 
-export function writeSave(name: string, description: string, saveStr: string) {
-  const oldMeta = raise(readSaveMetadata()).value;
-  const meta = { ...oldMeta, [name]: description };
+export function writeSave(meta: SaveMetaData, id: SaveId, description: SaveDescription, saveStr: string) {
+  meta[id.type][id.name] = description;
   writeSaveMetadata(meta);
 
   // TODO handle quota exception
-  window.localStorage.setItem(StorageKey + "/" + name, saveStr);
+  window.localStorage.setItem(StorageKey + "/" + id.type + "/" + id.name, saveStr);
 }
 
-export function readSave(name: string): Errorable<string> {
+export function readSave(id: SaveId): Errorable<string> {
   return errorable(() => {
-    if (name === "Empty") {
+    if (id.name === "Empty") {
       return '{"saveName":"Default","saveDescription":"Loaded on page refresh","ExprEnvSaveRep":"{}","ExpressionUiState":"{}"}';
     }
 
-    const saveStr = window.localStorage.getItem(StorageKey + "/" + name);
+    const saveStr = window.localStorage.getItem(StorageKey + "/" + id.type + "/" + id.name);
     if (!defined(saveStr)) {
-      if (name === "Default") {
+      if (id.name === "Default") {
         return '{"saveName":"Default","saveDescription":"Loaded on page refresh","ExprEnvSaveRep":"{}","ExpressionUiState":"{}"}';
       }
-      throw new Error("Save " + name + " not found");
+      throw new Error("Save " + id.name + " not found");
     }
     return saveStr;
   });
