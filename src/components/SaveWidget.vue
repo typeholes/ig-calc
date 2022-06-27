@@ -436,7 +436,6 @@ function unselectSave() {
   <div style="grid-row: 5">
     {{ baseUrl() + "?shared=" + state.shareString }}
   </div>
-  {{ JSON.stringify({deleted: state.deletedSaves})}}
 </template>
 
 <style scoped>
