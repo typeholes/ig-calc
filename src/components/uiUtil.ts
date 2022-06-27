@@ -225,6 +225,7 @@ export function loadEnv(args: { saveRep: SaveRep }) {
     } ;
   }
 
+  state.modified = importExpressions.length > 0;
   for (const expr of importExpressions) {
     state.newExpr = expr.node.toString();
     checkNewExpr();

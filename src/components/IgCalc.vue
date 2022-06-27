@@ -94,7 +94,6 @@ function refresh(args: { saveRep: SaveRep }) {
   nextTick(function () {
     state.showGraphOptions = holdGraphOptions
   });
-  state.modified = false;
 }
 
 function importExpression(name: string) {
