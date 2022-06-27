@@ -265,6 +265,7 @@ function restoreDeletedSave(id: SaveId) {
 const tmpSaveId = SaveId('local', "__tmp");
 
 function selectSave(id: SaveId, deleted: boolean) {
+  if (SaveId.eq(id, appState.currentSave)) { return; }
   appState.selectedSave = id;
   appState.selectedSaveIsDeleted = deleted;
   if (id.type === 'library') {
