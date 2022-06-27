@@ -101,7 +101,8 @@ function drawGraph() {
 
 function drawLines() {
   Errorable.catch(errorable(graph.drawLines), (error) => {
-    emit("error", error);
+//    emit("error", error);
+// TODO: verify we don't have situations where we need to display errors in the graph evaluation
   });
 }
 onUpdated(drawGraph);
