@@ -208,13 +208,18 @@ export function loadEnv(args: { saveRep: SaveRep }) {
     state.newExpr = rep.expr;
     checkNewExpr();
     addToEnv(rep.expr);
-    graph.options.data[name].color = rep.color;
+    if (defined(graph.options.data[name])) {
+      graph.options.data[name].color = rep.color
+    } ;
   }
+  
 
   // set show after all expressions are added so we don't try to show one that has unloaded dependencies
   for (const name in args.saveRep) {
-    const rep = args.saveRep[name];
-    graph.options.data[name].show = rep.show;
+    if (defined(graph.options.data[name])) {
+      const rep = args.saveRep[name];
+      graph.options.data[name].show = rep.show;
+    }
   }
 
   state.newExpr = "";

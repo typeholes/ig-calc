@@ -28,10 +28,12 @@ const libraryMap = IMap(
   libraries.map((library) => [SaveId('local', library.name), library])
 );
 
-export const librarySaveReps = libraryMap.mapEntries(([name, library]) => [
-  "library/" + name,
-  { ...library, saveType: "local" },
+export const librarySaveReps = 
+  libraryMap.mapEntries(([id, library]) => [
+  id.name,
+    { ...library, fns: IMap(library.fns).map((expr, name) => `${name} = ${expr}`).toObject() }
 ]);
 
 const metaEntries = libraries.map((library) => [SaveId('library', library.name), library.description] ) as [SaveId,SaveDescription][];
 export const librarySaveMeta: IMap<SaveId, SaveDescription> = IMap(metaEntries);
+export const libraryDescriptions = librarySaveMeta.mapEntries( ([k,v]) => [k.name, v])

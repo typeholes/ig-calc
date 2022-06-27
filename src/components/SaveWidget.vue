@@ -1,8 +1,7 @@
 <script setup lang="ts">
-import { computed, onMounted, reactive } from "vue";
+import { onMounted, reactive } from "vue";
 import { Either, Errorable, isLeft } from "../js/Either";
 import {
-  addSaveEntry,
   readSave,
   getSaveEntry,
   hasSaveEntry,
@@ -16,12 +15,10 @@ DefaultSaveId,
 EmptySaveId,
 SaveDescription,
 SerializedSave,
-SaveMetaData,
-saveTypes,
 } from "../js/SaveManager";
 import { ExprEnv, toSaveRep, SaveRep } from "./expressions";
 import { ExpressionUiState } from "./expressionUiState";
-import { defined } from "../js/util";
+import { assert, defined } from "../js/util";
 import { graph } from "./uiUtil";
 import SaveEntry from "./SaveEntry.vue";
 
@@ -32,7 +29,7 @@ import {
   decompressFromEncodedURIComponent,
 } from "lz-string";
 import { Interval } from "../js/function-plot/types";
-import { librarySaveMeta } from "../js/libraryValues";
+import { librarySaveMeta, librarySaveReps, libraryDescriptions } from "../js/libraryValues";
 
 type SaveObjectRep = SaveId & { ExprEnvSaveRep: string, description: SaveDescription };
 
@@ -126,30 +123,46 @@ function save(id: SaveId, description: SaveDescription) {
 }
 
 function load(id: SaveId, emitType: "restore" | "selectSave") {
-  Either.on(readSave(id), {
-    Left: (x) => {
-      emit("error", x);
-      return;
-    },
-    Right: (x) => {
-      const obj = JSON.parse(x);
-      const saveRep = getSaveEntry(hasSaveEntry(obj, SaveRep), SaveRep);
-      if (isLeft(saveRep)) {
-        emit("error", saveRep.value);
+  if (id.type === 'library') {
+    const fns = librarySaveReps.get(id.name)?.fns;
+    assert.defined(fns);
+    const saveRep : SaveRep = IMap(fns).map( (expr) => ({ expr, show: false, color: "#FFFF00" })).toObject()
+    console.log({ saveRep })
+        emit(emitType as keyof typeof emit, { saveRep });
+
+        if (emitType === "restore") {
+          state.currentSave = id;
+        }
+        graph.options.title = id.name;
+        graph.resetZoom(Interval(-10, 10), 0);
+
+  }
+  else {
+    Either.on(readSave(id), {
+      Left: (x) => {
+        emit("error", x);
         return;
-      }
+      },
+      Right: (x) => {
+        const obj = JSON.parse(x);
+        const saveRep = getSaveEntry(hasSaveEntry(obj, SaveRep), SaveRep);
+        if (isLeft(saveRep)) {
+          emit("error", saveRep.value);
+          return;
+        }
 
-      emit(emitType as keyof typeof emit, {
-        saveRep: saveRep.value,
-      });
+        emit(emitType as keyof typeof emit, {
+          saveRep: saveRep.value,
+        });
 
-      if (emitType === "restore") {
-        state.currentSave = id;
-      }
-      graph.options.title = id.name;
-      graph.resetZoom(Interval(-10, 10), 0);
-    },
-  });
+        if (emitType === "restore") {
+          state.currentSave = id;
+        }
+        graph.options.title = id.name;
+        graph.resetZoom(Interval(-10, 10), 0);
+      },
+    });
+  }
 }
 
 
@@ -255,8 +268,12 @@ const tmpSaveId = SaveId('local', "__tmp");
 function selectSave(id: SaveId, deleted: boolean) {
   state.selectedSave = id;
   state.selectedSaveIsDeleted = deleted;
-  save(tmpSaveId, state.saveMetaData[id.type][id.name] );
-  load(id, "selectSave");
+  if (id.type === 'library') {
+    save(tmpSaveId, id.name);
+  } else {
+    save(tmpSaveId, state.saveMetaData[id.type][id.name] );
+  }
+    load(id, "selectSave");
 }
 
 function unselectSave() {
@@ -386,6 +403,18 @@ function unselectSave() {
             @click="selectSave(id, deleted)"
           ></SaveEntry>
         </div>
+      </div>
+      <div
+        class="saveColumn"
+        v-if="
+          !SaveId.eq(state.selectedSave,state.currentSave) &&
+          state.selectedSave.type == 'library' &&
+          !state.selectedSaveIsDeleted
+        "
+      >
+        <div> {{ state.selectedSave.name }} </div>
+        <div> {{ libraryDescriptions.get(state.selectedSave.name) }} </div>
+        <button @click="unselectSave">Cancel</button>
       </div>
     <div class="saveColumn" style="margin-left: auto" v-if="state.hasDeletedSaves">
       <span>Deleted Save Options</span>
