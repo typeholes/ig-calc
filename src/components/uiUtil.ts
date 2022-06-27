@@ -1,9 +1,10 @@
 import { defined } from "../js/util";
 import { Map as IMap } from "immutable";
 import { Graph, mkGraph } from "../js/function-plot/d3util";
-import { reactive, shallowReactive, shallowRef } from "vue";
+import { reactive, shallowReactive, shallowRef, nextTick } from "vue";
 import { FunctionPlotOptions } from "../js/function-plot/FunctionPlotOptions";
 import { Interval } from "../js/function-plot/types";
+import { typeset } from '../js/typeset'
 import {
   ValidExpr,
   getNodeName,
@@ -122,6 +123,7 @@ export function checkNewExpr() {
         true,
         currentColor()
       );
+      nextTick(typeset);
     },
   });
 }

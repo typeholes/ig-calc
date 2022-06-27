@@ -131,7 +131,7 @@ function refresh(args: { saveRep: SaveRep }) {
               class="LeftPopover"
               v-if="state.showGeneralOptions"
             ></GeneralOptions>
-            <div
+            <div class="expressions"
               v-if="!(state.showGraphOptions || state.showHelp || state.loading)"
               v-for="expr in state.env
                 .valueSeq()
@@ -150,6 +150,7 @@ function refresh(args: { saveRep: SaveRep }) {
                 v-on:remove:expr="(x) => removeExpr(x)"
                 v-on:error="showError"
               ></GraphExpr>
+              
             </div>
           </template>
           <template #right> 
@@ -268,5 +269,11 @@ function refresh(args: { saveRep: SaveRep }) {
   top: 0;
   overflow: auto;
   position: relative;
+}
+
+.expressions {
+  display: flex;
+  flex-direction: column;
+  margin-top: 3px;
 }
 </style>

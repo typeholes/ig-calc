@@ -37,8 +37,14 @@ function setTab(tabName: keyof typeof tabs) {
 }
 
 :deep(*) {
-  background-color: v-bind("theme.backgroundColor");
   color: v-bind("theme.color");
+}
+
+:deep(button) {
+  background-color: v-bind("theme.backgroundColor"); 
+}
+:deep(input) {
+  background-color: v-bind("theme.backgroundColor"); 
 }
 
 .main {

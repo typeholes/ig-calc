@@ -95,7 +95,6 @@ function refreshTex() {
 
 function drawGraph() {
   addTexElement("tex_" + props.expr.name, props.tex ?? props.expr.node.toTex());
-  typeset();
   drawLines();
 }
 
@@ -107,12 +106,13 @@ function drawLines() {
 }
 onUpdated(drawGraph);
 onMounted(drawGraph);
+
 </script>
 
 <template>
-  <button class="closeButton" @click="remove()">x</button>
-  <div class="GraphExpr">
-  <span v-if="!props.expr.name.startsWith('anon:')"> {{ props.expr.name }} </span>
+  <div class="rows GraphExpr">
+  <div class="cols">
+    <span v-if="!props.expr.name.startsWith('anon:') && props.expr.name !== '__tmp'"> {{ props.expr.name }} </span>
     <template v-if="isGraphable(env, expr)">
       <input
         class="gridCheck"
@@ -127,37 +127,41 @@ onMounted(drawGraph);
         :value="getColor()"
         v-on:input="updateColor"
       />
-      <span class="fullRow">{{ graphFn(expr) }}</span>
     </template>
+    <button class="closeButton" @click="remove()">x</button>
+  </div>
+  <div class="cols">
+      <span class="fullRow">{{ graphFn(expr) }}</span>
+  </div>
+  <div class="cols">
     <span class="tex" :id="'tex_' + expr.name">{{ expr.toString() }} </span>
+  </div>
+  <div class="cols">
+    <div class="rows">
     <template v-for="free in getDependencies(env, expr, 'free')">
       <span class="free">
         {{ free }}
-      </span>
       <button class="dx" @click="derive(free)">dx</button>
+      </span>
       <!-- <button @click="integrate(free)">&#x222B</button>  integration is broken :(-->
       <!-- <input type="number" /> -->
     </template>
-    <!-- {{ derive(expr.node).toString() }} -->
+    </div>
   </div>
+  </div>
+    
 </template>
 
 <style scoped>
 .GraphExpr {
   border: 1px solid bisque;
-  display: grid;
-  grid-template-columns: 8fr min-content min-content 3fr 8fr;
-}
-
-.fullRow {
-  grid-column: 1/6;
+  border-radius: 4px;
 }
 
 .closeButton {
-  float: right;
   background-color: red;
   padding: 0 1px 0;
-  margin: -1px;
+  margin-left: auto;
 }
 
 :deep(mjx-container) {
@@ -165,25 +169,26 @@ onMounted(drawGraph);
   top: 1px;
 }
 .tex {
-  grid-column: 1/6;
   overflow: auto;
+  align-self: center;
+  width: 100%;
+  background-color: rgb(11, 37, 37);
 }
 
 .gridCheck {
-  grid-column: 3;
   width: 15px;
   align-self: center;
 }
 
-.colorPicker {
-  grid-column: 4;
+.rows {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
 }
-
-.dx {
-  grid-column: 3;
-}
-
-.free {
-  grid-column: 2;
+.cols {
+  display: flex;
+  flex-direction: row;
+  gap: 3px;
+  margin: 3px;
 }
 </style>
