@@ -196,7 +196,7 @@ function editExpression(name: string) {
               type="text"
               placeholder="Enter an expression"
               v-model="state.newExpr"
-              
+              autofocus
               @input="checkNewExpr()"
               @change="checkNewExpr()"
             />
@@ -204,7 +204,7 @@ function editExpression(name: string) {
               {{ state.error }}
             </pre>
             <div class="inputPlaceholder" v-if="!state.parseResult">
-            &nbsp;
+            &nbsp;<br><br><br>
             
             </div>
             <div v-if="state.parseResult">
