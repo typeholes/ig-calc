@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { reactive } from "vue";
 import { graph } from "./uiUtil";
+import CanError from "./CanError.vue";
+import { errorable, Errorable } from "../js/Either";
 
 const props = defineProps<{ names: string[] }>();
 
@@ -24,11 +25,13 @@ function formatNumber(n: number) {
 }
 
 function runFn(name: string, n: number) {
-  const fn = graph.options.data[name].evalFn;
-  if (! (fn instanceof Function) ) {
-    return "";
-  }
-  return formatNumber(fn(n));
+  return errorable(() => {
+    const fn = graph.options.data[name].evalFn;
+    if (!(fn instanceof Function)) {
+      return "";
+    }
+    return formatNumber(fn(n));
+  });
 }
 </script>
 
@@ -60,7 +63,7 @@ function runFn(name: string, n: number) {
               border: `1px solid ${graph.options.data[name].color ?? 'white'}`,
             }"
           >
-            {{ runFn(name, num) }}
+            <CanError :value="runFn(name, num)"></CanError>
           </div>
         </template>
       </template>
