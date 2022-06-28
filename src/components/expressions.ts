@@ -34,6 +34,7 @@ import {
 import { currentColor, graph, refreshDatumEnvironments, state } from "./uiUtil";
 import { Datum } from "../js/function-plot/FunctionPlotDatum";
 import { reactive } from "vue";
+import { simplify } from "../js/math/simplify";
 
 export type ExprEnv = IMap<string, ValidExpr>;
 export const emptyEnv: ExprEnv = IMap();
@@ -275,12 +276,12 @@ export function adjustExpr(expr: ValidExpr, template: string) {
   const sub = template.replace("%", "(%)");
   if (isAssignmentNode(expr.node)) {
     const body = getBody(expr.node);
-    const newBody = M.simplify(
+    const newBody = simplify(
       `${sub.replace("%", body.toString())}`
     );
     expr.node.value = newBody;
   } else {
-    expr.node = M.simplify(
+    expr.node = simplify(
       `${expr.name} = ${sub.replace("%", expr.node.toString())}`
     );
   }

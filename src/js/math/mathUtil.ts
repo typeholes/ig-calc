@@ -13,6 +13,7 @@ import {
 import { Either, errorable } from "../Either";
 
 import { knownSymbols } from "./symbols";
+import { simplify } from "./simplify";
 
 export { getDerivative, getDependencies };
 
@@ -24,7 +25,7 @@ export function parse(s: string): Either<Error, MathNode> {
     } else if (M.isFunctionAssignmentNode(parsed)) {
       return parsed;
     }
-    return M.simplify(parsed);
+    return simplify(parsed);
   });
 }
 
@@ -123,7 +124,7 @@ function texExpr(
   return function () {
     let node = M.parse(expr);
     let expanded = doExpand ? inline(node, args) : node;
-    let simplified = M.simplify(expanded);
+    let simplified = simplify(expanded);
     return (
       simplified
         //         .transform(addHandlers)

@@ -101,6 +101,7 @@ export const state = reactive({
   currentSave: SaveId('local', "Default"),
   selectedSave: SaveId('local', "Default"),
   selectedSaveIsDeleted: false,
+  tickTime: 0.1
 });
 
 
@@ -114,7 +115,7 @@ export function checkNewExpr() {
   const result = parseExpr(state.env, expr, "__tmp");
   on(result, {
     Left: (err) => {
-      state.error = err.toString();
+      state.error = err.message 
     },
     Right: ([env, _]) => {
       state.error = undefined;
@@ -289,7 +290,7 @@ export let time = 0;
 export function gameLoop(elapsedTime) {
   const t = elapsedTime / 1000;
   const delta = t - time;
-  if (delta >= 0.1) {
+  if (delta >= state.tickTime) {
     time = t;
     const timeFn = state.env.get("time");
     if (defined(timeFn)) {

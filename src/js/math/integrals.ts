@@ -1,6 +1,7 @@
 import * as M from "mathjs";
 import { hasProp } from "../util";
 import { transformNode, tx, always, C0, C1, C2, op, fn } from "./mathUtil";
+import { simplify as _simplify} from "./simplify";
 
 const integrateTransforms = (by: string) => {
   const go = <T extends M.MathNode>(n: T) =>
@@ -119,5 +120,5 @@ export function integrate(
   simplify = true
 ): M.MathNode {
   const d = transformNode(node, integrateTransforms(by));
-  return simplify ? M.simplify(d) : d;
+  return simplify ? _simplify(d) : d;
 }

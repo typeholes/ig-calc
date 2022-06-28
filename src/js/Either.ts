@@ -46,11 +46,11 @@ export function flatMap<L, R, S>(x: Either<L, R>, f: (r: R) => Either<L, S>) {
   return isLeft(x) ? x : f(x.value);
 }
 
-export function on<L, R>(
+export function on<L, R, T>(
   x: Either<L, R>,
-  go: { Left: (l: L) => void; Right: (r: R) => void }
+  go: { Left: (l: L) => T; Right: (r: R) => T }
 ) {
-  isLeft(x) ? go.Left(x.value) : go.Right(x.value);
+  return isLeft(x) ? go.Left(x.value) : go.Right(x.value);
 }
 
 export function raise<R>(e: Errorable<R>): Right<R> {

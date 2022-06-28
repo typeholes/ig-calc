@@ -1,12 +1,11 @@
 <script setup lang="ts">
 import { reactive } from "vue";
-import { graphOptions, enableGameTabs, disableGameTabs } from "./uiUtil";
+import { graphOptions, enableGameTabs, disableGameTabs, state as appState } from "./uiUtil";
 import GraphOptions from "./GraphOptions.vue";
 
 const firstDatum = Object.entries(graphOptions.data)[0];
 
 const state = reactive({
-  tickRate: 100,  // milliseconds
   showGameTabs: false
 });
 
@@ -24,8 +23,10 @@ function toggleGameTabs() {
   <div class="gridOptions">
   <GraphOptions></GraphOptions>
   <!-- <GridOptions></GridOptions> -->
-    <span class="row2 col3"> Show Game Tabs ( Exprimental and often broken feature )</span>
-    <input class="row2 col4" type="checkbox" :value="state.showGameTabs" @change="toggleGameTabs" />
+    <span class="row2 col3"> Tick time in seconds </span>
+    <input class="row2 col4" v-model="appState.tickTime"/>
+    <span class="row3 col3"> Show Game Tabs ( Exprimental and often broken feature )</span>
+    <input class="row3 col4" type="checkbox" :value="state.showGameTabs" @change="toggleGameTabs" />
   </div>
 </template>
 

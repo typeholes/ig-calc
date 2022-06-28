@@ -6,9 +6,10 @@ const props = defineProps<{ value: Errorable<unknown> }>();
 </script>
 
 <template>
+<div>
     <template v-if="isRight(value)"> {{ value.value }} </template>
     <div v-else class="error" :title="value.value.message"> ERROR </div>
-
+</div>
 </template>
 
 <style scoped>
