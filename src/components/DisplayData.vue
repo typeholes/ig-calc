@@ -25,14 +25,12 @@ function formatNumber(n: number) {
 
 function runFn(name: string, n: number) {
   const fn = graph.options.data[name].evalFn;
-  if (typeof fn !== "function") {
+  if (! (fn instanceof Function) ) {
     return "";
   }
   return formatNumber(fn(n));
 }
 </script>
-
-//TODO: make colors stay in sync
 
 <template>
   <div>

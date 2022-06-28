@@ -88,8 +88,12 @@ export function getFunctionBody(node: MathNode) {
   return isFunctionAssignmentNode(node) ? node.expr : node;
 }
 
-export function getBody(node: MathNode) {
+export function getAssignmentBody(node: MathNode) {
   return isAssignmentNode(node) ? node.value : node;
+}
+
+export function getBody(node: MathNode) {
+  return getFunctionBody(getAssignmentBody(node));
 }
 
 export function envToMathEnv(
@@ -98,7 +102,7 @@ export function envToMathEnv(
 ): Record<string, number | MathNode> {
   const constants = includeConstants ? builtinConstants.toObject() : {};
   const mathEnv: Record<string, MathNode | number> = env
-    .map((x) => getBody(x.node))
+    .map((x) => getAssignmentBody(x.node))
     .toObject();
   return reactive({ ...mathEnv, ...constants });
 }
