@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { reactive } from "vue";
 import { graphOptions, enableGameTabs, disableGameTabs } from "./uiUtil";
+import GraphOptions from "./GraphOptions.vue";
 
 const firstDatum = Object.entries(graphOptions.data)[0];
 
@@ -21,7 +22,9 @@ function toggleGameTabs() {
 
 <template>
   <div class="gridOptions">
-    <span class="row2 col3"> Show Game Tabs </span>
+  <GraphOptions></GraphOptions>
+  <!-- <GridOptions></GridOptions> -->
+    <span class="row2 col3"> Show Game Tabs ( Exprimental and often broken feature )</span>
     <input class="row2 col4" type="checkbox" :value="state.showGameTabs" @change="toggleGameTabs" />
   </div>
 </template>

@@ -44,19 +44,16 @@ function onSave() {
 
 
 function help() {
-  state.showGraphOptions = false;
   state.showHelp = !state.showHelp;
 }
 
-function graphOptions() {
+function showGraph() {
   state.showHelp = false;
-  state.showGraphOptions = !state.showGraphOptions;
   state.displayComponent = 'DisplayGraph'
 }
 
-function dataOptions() {
+function showData() {
   state.showHelp = false;
-  state.showGraphOptions = !state.showGraphOptions;
   state.displayComponent = 'DisplayData'
 }
 
@@ -86,13 +83,10 @@ function unselectSave() {
 
 function refresh(args: { saveRep: SaveRep }) {
   state.loading = true;
-  const holdGraphOptions = state.showGraphOptions;
-  state.showGraphOptions = false;
   loadEnv(args);
   init();
   state.loading = false;
   nextTick(function () {
-    state.showGraphOptions = holdGraphOptions
   });
 }
 
@@ -117,8 +111,8 @@ function editExpression(name: string) {
     <button class="menuButton" @click="showMenu">&#9776</button>
     <div v-if="state.showMenuBar"><br>
     <div><button class="menuButton" @click="help">?</button></div>
-    <div><br><button class="menuButton" @click="graphOptions">&#128200</button></div>
-    <div><br><button class="menuButton" @click="dataOptions">&#8862</button></div>
+    <div><br><button class="menuButton" @click="showGraph">&#128200</button></div>
+    <div><br><button class="menuButton" @click="showData">&#8862</button></div>
     <div><br><button class="menuButton" @click="generalOptions">&#9881</button></div>
     </div>
     </div>
@@ -138,16 +132,12 @@ function editExpression(name: string) {
               class="LeftPopover"
               v-if="state.showHelp"
             ></HelpScreen>
-            <GraphOptions
-              class="LeftPopover"
-              v-if="state.showGraphOptions"
-            ></GraphOptions>
             <GeneralOptions
               class="LeftPopover"
               v-if="state.showGeneralOptions"
             ></GeneralOptions>
             <div class="expressions"
-              v-if="!(state.showGraphOptions || state.showHelp || state.loading)"
+              v-if="!( state.showHelp || state.loading || state.showGeneralOptions)"
               v-for="expr in state.env
                 .valueSeq()
                 .filter((x) => x.name !== '__tmp' && !systemFnNames.includes(x.name))"

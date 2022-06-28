@@ -95,7 +95,6 @@ export const state = reactive({
   showHelp: false,
   loading: false,
   modified: false,
-  showGraphOptions: false,
   showGeneralOptions: false,
   showMenuBar: false,
   displayComponent: "DisplayGraph" as keyof typeof displayComponents,
