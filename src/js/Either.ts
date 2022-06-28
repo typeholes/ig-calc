@@ -23,7 +23,7 @@ export type Either<L, R> = Left<L> | Right<R>;
 export const isLeft = (x: unknown): x is Left<unknown> =>
   tagged(x, "Left") && hasProp(x, "value");
 
-export const isRight = (x: unknown): x is Left<unknown> =>
+export const isRight = (x: unknown): x is Right<unknown> =>
   tagged(x, "Right") && hasProp(x, "value");
 
 export const isEither = (x: unknown): x is Either<unknown, unknown> =>
