@@ -197,9 +197,12 @@ export function addNewExpr(name: string, newExpr: string) {
   });
 }
 
-const importExpressions : ValidExpr[] = [];
+const importExpressions: Record<string, ValidExpr> = reactive({});
 export function addImportExpression(expr: ValidExpr) {
-  importExpressions.push(expr);
+  importExpressions[expr.name] = expr;
+}
+export function hasImportExpression(expr: ValidExpr): boolean {
+  return defined(importExpressions[expr.name]);
 }
 
 export function loadEnv(args: { saveRep: SaveRep }) {
@@ -225,13 +228,14 @@ export function loadEnv(args: { saveRep: SaveRep }) {
     } ;
   }
 
-  state.modified = importExpressions.length > 0;
-  for (const expr of importExpressions) {
+  state.modified = Object.entries(importExpressions).length === 0;
+  for (const name in importExpressions) {
+    const expr = importExpressions[name];
     state.newExpr = expr.node.toString();
     checkNewExpr();
     addToEnv(state.newExpr);
+    delete importExpressions[name];
   }
-  importExpressions.splice(0, importExpressions.length);
   
 
   // set show after all expressions are added so we don't try to show one that has unloaded dependencies

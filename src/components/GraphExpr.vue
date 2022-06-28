@@ -3,7 +3,6 @@ import {
   ExprEnv,
   ValidExpr,
   isGraphable,
-  getGraphFn,
   getDependencies,
   envToMathEnv,
 getGraphFnStr,
@@ -16,7 +15,8 @@ import { integrate as _integrate } from "../js/math/integrals";
 import { inline } from "../js/math/mathUtil";
 import { Errorable, errorable } from "../js/Either";
 import { getFunctionBody, getBody as getDeclarationBody } from "./expressions";
-import { addImportExpression, graph } from "./uiUtil";
+import { addImportExpression, graph, hasImportExpression } from "./uiUtil";
+import { computed } from "@vue/reactivity";
 
 interface Props {
   expr: ValidExpr;
@@ -31,6 +31,8 @@ const props = defineProps<Props>();
 const state = reactive({
   showMenu: false
 })
+
+const isImported = computed( () => hasImportExpression(props.expr))
 
 const getBody = (x: MathNode) => getDeclarationBody(getFunctionBody(x));
 
@@ -112,6 +114,7 @@ function drawLines() {
   });
 }
 
+
 function edit() {
   emit('edit', props.expr.name)
 }
@@ -126,7 +129,7 @@ onMounted(drawGraph);
 </script>
 
 <template>
-  <div class="cols GraphExpr lastSmall">
+  <div class="cols GraphExpr lastSmall" :class="{imported: isImported}">
   <div class="rows ">
   <div class="cols">
     <span v-if="!props.expr.name.startsWith('anon:') && props.expr.name !== '__tmp'"> {{ props.expr.name }} </span>
@@ -170,7 +173,7 @@ onMounted(drawGraph);
     <template v-if="state.showMenu">
     <button class="menuButton" @click="remove()">Delete</button>
     <button class="menuButton" v-if="props.allowEdit" @click="edit()">Edit</button>
-    <button class="menuButton" v-if="props.allowCopy" @click="copyToCurrent()">Copy to current save</button>
+    <button class="menuButton" v-if="props.allowCopy" @click="copyToCurrent()" :disabled="isImported">Copy to current save</button>
     </template>
   </div>
   </div>
@@ -220,5 +223,12 @@ onMounted(drawGraph);
   flex-direction: row;
   gap: 3px;
   margin: 3px;
+}
+.imported {
+  background-color: rgb(43, 51, 36);
+}
+
+button:disabled {
+  background-color: rgb(59, 20, 20);
 }
 </style>
