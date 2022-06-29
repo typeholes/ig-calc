@@ -21,8 +21,11 @@ const periodic: Library = {
   name: "periodic",
   description: "periodic functions, useful for animationing variables",
   fns: {
-    sinal: [ "sinal(min, height, width) = min + height/2 * (1 + sin(2 pi x / width) )", 'sin wave'], 
-    zigZag: ["zigZag(min, height, width) = min + height * (acos(0.999 sin(2 pi x / width)) / pi)", "linear"],
+    sinal: [ "sinal(x, min, height, width) = min + height/2 * (1 + sin(2 pi x / width) )", 'sin wave'], 
+    zigZag: ["zigZag(x, min, height, width) = min + height * (acos(0.999 sin(2 pi x / width)) / pi)", "linear"],
+    min: ['min=1',''],
+    height: ['height=5',''],
+    width: ['width=5',''],
   },
 };
 

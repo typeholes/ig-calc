@@ -261,6 +261,14 @@ function fromSave(s: string): Errorable<SaveRep> {
   });
 }
 
+
+function defaultCall(fn: M.FunctionAssignmentNode) : MathNode {
+  const name = fn.name;
+  const args = fn.params;
+  const call = `${name}(${args.join(',')})`;
+  return M.parse(call);
+}
+
 export const ValidExpr = {
   toDatum: (
     expr: ValidExpr,
@@ -268,7 +276,7 @@ export const ValidExpr = {
     show: boolean,
     color = "#FFFFFF",
   ) => {
-    const body = getAssignmentBody(expr.node);
+    const body = isFunctionAssignmentNode(expr.node) ? defaultCall(expr.node) : getAssignmentBody(expr.node);
     const inlined = inline(body, envToMathEnv(env));
     const firstFree = getDependencies(env, expr, "free").first("x");
     const evalFn = (x: number) =>
