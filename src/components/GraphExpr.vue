@@ -167,6 +167,9 @@ onMounted(drawGraph);
     </template>
     </div>
   </div>
+  <div class="cols" v-if="expr.description">
+      <span class="fullRow">{{ expr.description }}</span>
+  </div>
   </div>
   <div class="rows">
     <button class="menuButton" @click="state.showMenu = !state.showMenu">&#9776</button>

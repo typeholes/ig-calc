@@ -225,7 +225,10 @@ export function loadEnv(args: { saveRep: SaveRep }) {
     state.newExpr = rep.expr;
     checkNewExpr();
     const newExpr = addToEnv(rep.expr);
-    if (defined(newExpr)) { newExpr.showValue = rep.showValue }
+    if (defined(newExpr)) {
+      newExpr.showValue = rep.showValue;
+      newExpr.description = rep.description;
+    }
 
     if (defined(graph.options.data[name])) {
       graph.options.data[name].color = rep.color
