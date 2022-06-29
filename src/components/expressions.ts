@@ -268,7 +268,7 @@ export const ValidExpr = {
     show: boolean,
     color = "#FFFFFF",
   ) => {
-    const body = getBody(expr.node);
+    const body = getAssignmentBody(expr.node);
     const inlined = inline(body, envToMathEnv(env));
     const firstFree = getDependencies(env, expr, "free").first("x");
     const evalFn = (x: number) =>
