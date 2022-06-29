@@ -279,8 +279,11 @@ export const ValidExpr = {
     const body = isFunctionAssignmentNode(expr.node) ? defaultCall(expr.node) : getAssignmentBody(expr.node);
     const inlined = inline(body, envToMathEnv(env));
     const firstFree = getDependencies(env, expr, "free").first("x");
-    const evalFn = (x: number) =>
-      inlined.compile().evaluate({ [firstFree]: x });
+    const evalFn = (x: number) => {
+      try {
+        return inlined.compile().evaluate({ [firstFree]: x });
+      } catch( e) { return 0 }
+    }
     return Datum(evalFn, { show, color });
   },
 };
