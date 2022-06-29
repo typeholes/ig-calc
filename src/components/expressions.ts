@@ -1,4 +1,5 @@
 import {
+expression,
   isAssignmentNode,
   isFunctionAssignmentNode,
   isString,
@@ -49,7 +50,7 @@ export function parseExpr(
   env: ExprEnv,
   s: string,
   forceName?: string | undefined
-): Errorable<[ExprEnv, string]> {
+): Errorable<[ExprEnv, ValidExpr, string]> {
   const result = parse(s);
 
   return flatMap(result, (node) =>
@@ -60,7 +61,8 @@ export function parseExpr(
         throw new Error(name + " already defined");
       }
 
-      return [env.set(name, validExpr(name, node, ISet(getVars(node)))), name];
+      const newExpr = validExpr(name, node, ISet(getVars(node)))
+      return [env.set(name, newExpr), newExpr, name];
     })
   );
 }
@@ -69,6 +71,7 @@ export interface ValidExpr {
   name: string;
   node: MathNode;
   vars: ISet<string>;
+  showValue: boolean;
 }
 
 let anonCnt = 0;
@@ -76,8 +79,9 @@ let anonCnt = 0;
 export const validExpr = (
   name: string,
   node: MathNode,
-  vars: ISet<string>
-): ValidExpr => ({ name, node, vars });
+  vars: ISet<string>,
+  showValue = false,
+): ValidExpr => ({ name, node, vars, showValue });
 
 const xSymbolNode = new SymbolNode("x");
 
@@ -216,7 +220,7 @@ function getDefinition(env: ExprEnv, name: string) {
 
 export type SaveRep = Record<
   string,
-  { expr: string; color: string; show: boolean }
+  { expr: string; color: string; show: boolean, showValue: boolean }
 >;
 
 export function toSaveRep(env: ExprEnv): SaveRep {
@@ -224,6 +228,7 @@ export function toSaveRep(env: ExprEnv): SaveRep {
     expr: v.node.toString(),
     color: graph.options.data[k].color,
     show: graph.options.data[k].show,
+    showValue: v.showValue,
   }));
   return saveRep.toObject();
 }
@@ -244,7 +249,8 @@ function fromSave(s: string): Errorable<SaveRep> {
       const expr = v.expr;
       const color = hasPropIs(v, "color", isString) ? v.color : "#ff0000";
       const show = hasPropIs(v, "show", isBoolean) ? v.show : false;
-      saveRep[k] = { expr, color, show };
+      const showValue = hasPropIs(v, "showValue", isBoolean) ? v.showValue : false;
+      saveRep[k] = { expr, color, show, showValue };
     });
 
     return saveRep;
@@ -256,7 +262,7 @@ export const ValidExpr = {
     expr: ValidExpr,
     env: ExprEnv,
     show: boolean,
-    color = "#FFFFFF"
+    color = "#FFFFFF",
   ) => {
     const body = getBody(expr.node);
     const inlined = inline(body, envToMathEnv(env));

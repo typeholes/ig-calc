@@ -149,7 +149,7 @@ onMounted(drawGraph);
       />
     </template>
   </div>
-  <div class="cols">
+  <div class="cols" v-if="expr.showValue">
       <span class="fullRow">{{ graphFn(expr) }}</span>
   </div>
   <div class="cols">
@@ -174,6 +174,7 @@ onMounted(drawGraph);
     <button class="menuButton" @click="remove()">Delete</button>
     <button class="menuButton" v-if="props.allowEdit" @click="edit()">Edit</button>
     <button class="menuButton" v-if="props.allowCopy" @click="copyToCurrent()" :disabled="isImported">Copy to current save</button>
+    <button class="menuButton" @click="expr.showValue = !expr.showValue"> {{ expr.showValue ? 'Hide Value' : 'Show Value' }}</button>
     </template>
   </div>
   </div>

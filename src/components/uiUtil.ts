@@ -137,12 +137,13 @@ export function addToEnv(s: string) {
   const name = state.parseResult ? getNodeName(state.parseResult.node) : "";
   const oldExpr = state.env.get(name);
   const result = parseExpr(state.env, s, name);
-  on(result, {
+  return on(result, {
     Left: (err) => {
       state.error = err.toString();
       state.parseResult = undefined;
+      return undefined;
     },
-    Right: ([env, _]) => {
+    Right: ([env, newExpr, _]) => {
       newColor();
       const oldDatum = graph.options.data[name];
       graph.options.data[name] = { ...graph.options.data["__tmp"] };
@@ -159,6 +160,7 @@ export function addToEnv(s: string) {
       }
       checkNewExpr();
       state.modified = true;
+      return newExpr;
     },
   });
 }
@@ -222,7 +224,9 @@ export function loadEnv(args: { saveRep: SaveRep }) {
     const rep = args.saveRep[name];
     state.newExpr = rep.expr;
     checkNewExpr();
-    addToEnv(rep.expr);
+    const newExpr = addToEnv(rep.expr);
+    if (defined(newExpr)) { newExpr.showValue = rep.showValue }
+
     if (defined(graph.options.data[name])) {
       graph.options.data[name].color = rep.color
     } ;
