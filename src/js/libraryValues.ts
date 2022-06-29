@@ -17,13 +17,16 @@ const Library = {
   }),
 };
 
-const other: Library = {
-  name: "other",
-  description: "miscellaneous functions",
-  fns: { zigZag: ["zigZag(x) = 1 - 2 acos(0.999 sin(2 pi x)) / pi", "ranges linerly between -1 and 1 per x"] },
+const periodic: Library = {
+  name: "periodic",
+  description: "periodic functions, useful for animationing variables",
+  fns: {
+    sinal: [ "sinal(min, height, width) = min + height/2 * (1 + sin(2 pi x / width) )", 'sin wave'], 
+    zigZag: ["zigZag(min, height, width) = min + height * (acos(0.999 sin(2 pi x / width)) / pi)", "linear"],
+  },
 };
 
-const libraries = [other];
+const libraries = [periodic];
 const libraryMap = IMap(
   libraries.map((library) => [SaveId('local', library.name), library])
 );
