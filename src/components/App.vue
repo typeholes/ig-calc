@@ -105,4 +105,17 @@ html {
 .col9 {
   grid-column: 9;
 }
+
+.rows {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  width: 100%;
+}
+.cols {
+  display: flex;
+  flex-direction: row;
+  gap: 3px;
+  margin: 3px;
+}
 </style>

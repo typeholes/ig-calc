@@ -30,8 +30,10 @@ function toggleGameTabs() {
     <input class="row3 col3" type="number" v-model="appState.freeMin" >
     <span class="row3 col4"> To:</span>
     <input class="row3 col5" type="number" v-model="appState.freeMax" >
-    <span class="row4 col3"> Show Game Tabs ( Exprimental and often broken feature )</span>
-    <input class="row4 col4" type="checkbox" :value="state.showGameTabs" @change="toggleGameTabs" />
+    <span class="row4 col1"> Show hidden expressions</span>
+    <input class="row4 col2" type="checkbox" v-model="appState.showHiddenExpressions"  />
+    <span class="row4 col4"> Show Game Tabs ( Exprimental and often broken feature )</span>
+    <input class="row4 col5" type="checkbox" :value="state.showGameTabs" @change="toggleGameTabs" />
   </div>
 </template>
 

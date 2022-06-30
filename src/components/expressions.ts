@@ -76,6 +76,7 @@ export interface ValidExpr {
   vars: ISet<string>;
   showValue: boolean;
   description: string | undefined;
+  showExpr: boolean;
 }
 
 let anonCnt = 0;
@@ -85,8 +86,9 @@ export const validExpr = (
   node: MathNode,
   vars: ISet<string>,
   showValue = false,
+  showExpr = false,
   description = undefined as string | undefined,
-): ValidExpr => ({ name, node, vars, showValue, description });
+): ValidExpr => ({ name, node, vars, showValue, description, showExpr });
 
 const xSymbolNode = new SymbolNode("x");
 
@@ -225,7 +227,7 @@ function getDefinition(env: ExprEnv, name: string) {
 
 export type SaveRep = Record<
   string,
-  { expr: string; color: string; show: boolean, showValue: boolean, description: string | undefined }
+  { expr: string; color: string; show: boolean, showValue: boolean, description: string | undefined, showExpr: boolean }
 >;
 
 export function toSaveRep(env: ExprEnv): SaveRep {
@@ -235,6 +237,7 @@ export function toSaveRep(env: ExprEnv): SaveRep {
     show: graph.options.data[k].show,
     showValue: v.showValue,
     description: v.description,
+    showExpr: v.showExpr,
   }));
   return saveRep.toObject();
 }
@@ -256,8 +259,9 @@ function fromSave(s: string): Errorable<SaveRep> {
       const color = hasPropIs(v, "color", isString) ? v.color : "#ff0000";
       const show = hasPropIs(v, "show", isBoolean) ? v.show : false;
       const showValue = hasPropIs(v, "showValue", isBoolean) ? v.showValue : false;
+      const showExpr = hasPropIs(v, "showExpr", isBoolean) ? v.showExpr : true;
       const description = hasPropIs(v, "description", isString) ? v.description : undefined;
-      saveRep[k] = { expr, color, show, showValue, description };
+      saveRep[k] = { expr, color, show, showValue, description, showExpr };
     });
 
     return saveRep;

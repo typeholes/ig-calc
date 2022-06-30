@@ -137,7 +137,7 @@ function load(id: SaveId, emitType: "restore" | "selectSave") {
   if (id.type === 'library') {
     const fns = librarySaveReps.get(id.name)?.fns;
     assert.defined(fns);
-    const saveRep : SaveRep = IMap(fns).map( (fn) => ({ expr: fn.expr, show: false, color: "#FFFF00", showValue: false, description: fn.description })).toObject()
+    const saveRep : SaveRep = IMap(fns).map( (fn) => ({ expr: fn.expr, show: false, color: "#FFFF00", showValue: false, description: fn.description, showExpr: true })).toObject()
     console.log({ saveRep })
         emit(emitType as keyof typeof emit, { saveRep });
 

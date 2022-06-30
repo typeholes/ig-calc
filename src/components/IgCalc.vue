@@ -1,38 +1,26 @@
 <script setup lang="ts">
-import { computed, nextTick } from "vue";
+import { computed, nextTick, onMounted } from "vue";
 import HelpScreen from "./HelpScreen.vue";
-import GraphOptions from "./GraphOptions.vue";
 import Vsplitter from "./Vsplitter.vue";
 import Hsplitter from "./Hsplitter.vue";
-
-
-import { Map as IMap } from "immutable";
-import { onMounted } from "vue";
+import FunctionSelector from "./FunctionSelector.vue";
 import GraphExpr from "./GraphExpr.vue";
-import {
-ExprEnv,
-  getNodeName, SaveRep,
-} from "./expressions";
-import { defined } from "../js/util";
-import {
-  getExpressionUiState,
-} from "./expressionUiState";
 import SaveWidget from "./SaveWidget.vue";
+import GeneralOptions from "./GeneralOptions.vue";
+
+import { getNodeName, SaveRep, } from "./expressions";
+import { defined } from "../js/util";
+import { getExpressionUiState } from "./expressionUiState";
 import { globalTheme } from "../js/theme";
 
 import { knownSymbols } from "../js/math/symbols";
 
-import { FunctionPlotData } from "../js/function-plot/FunctionPlotDatum";
-
-import { graph, initGraph, state, displayComponents, checkNewExpr, addToEnv, removeExpr, loadEnv, init, systemFnNames, } from "./uiUtil";
-import GeneralOptions from "./GeneralOptions.vue";
+import { graph, state, displayComponents, checkNewExpr, addToEnv, removeExpr, loadEnv, init, systemFnNames, } from "./uiUtil";
 import { SaveId } from "../js/SaveManager";
 
 onMounted(() => {
   init();
 });
-
-const theme = globalTheme ?? {};
 
 function showError(e: Error) {
   state.error = e.message + " " + e.stack;
@@ -140,7 +128,7 @@ function editExpression(name: string) {
               v-if="!( state.showHelp || state.loading || state.showGeneralOptions)"
               v-for="expr in state.env
                 .valueSeq()
-                .filter((x) => x.name !== '__tmp' && !systemFnNames.includes(x.name))"
+                .filter((x) => x.name !== '__tmp' && !systemFnNames.includes(x.name) && (x.showExpr || state.showHiddenExpressions)) "
               :key="expr.name"
             >
               <GraphExpr
@@ -193,10 +181,7 @@ function editExpression(name: string) {
             <pre color="red" v-if="defined(state.error)">
               {{ state.error }}
             </pre>
-            <div class="inputPlaceholder" v-if="!state.parseResult">
-            &nbsp;<br><br><br>
-            
-            </div>
+            <FunctionSelector v-if="!state.parseResult"></FunctionSelector>
             <div v-if="state.parseResult">
               <GraphExpr
                 v-if="!state.loading"
@@ -294,12 +279,6 @@ function editExpression(name: string) {
   margin-top: 3px;
 }
 
-.inputPlaceholder {
-  border: 1px solid white;
-  width: 100%;
-  text-align: center;
-  border-radius: 3px;
-}
 
 .saveWidget {
   margin-top: 10px;

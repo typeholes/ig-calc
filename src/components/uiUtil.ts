@@ -105,7 +105,8 @@ export const state = reactive({
   selectedSaveIsDeleted: false,
   tickTime: 0.1,
   freeMin: 1,
-  freeMax: 10
+  freeMax: 10,
+  showHiddenExpressions: false,
 });
 
 
@@ -141,7 +142,7 @@ export function refreshTex() {
   nextTick(typeset);
 }
 
-export function addToEnv(s: string) {
+export function addToEnv(s: string, showExpr = true) {
   const name = state.parseResult ? getNodeName(state.parseResult.node) : "";
   const oldExpr = state.env.get(name);
   const result = parseExpr(state.env, s, name);
@@ -154,7 +155,7 @@ export function addToEnv(s: string) {
     Right: ([env, newExpr, _]) => {
       newColor();
       const oldDatum = graph.options.data[name];
-      graph.options.data[name] = { ...graph.options.data["__tmp"] };
+      graph.options.data[name] = { ...graph.options.data["__tmp"], show: graph.options.data['__tmp'].show && showExpr };
       state.error = undefined;
       state.env = env.delete("__tmp");
       state.parseResult = undefined;
@@ -168,6 +169,7 @@ export function addToEnv(s: string) {
       }
       checkNewExpr();
       state.modified = true;
+      newExpr.showExpr = showExpr;
       return newExpr;
     },
   });
@@ -232,10 +234,11 @@ export function loadEnv(args: { saveRep: SaveRep }) {
     const rep = args.saveRep[name];
     state.newExpr = rep.expr;
     checkNewExpr();
-    const newExpr = addToEnv(rep.expr);
+    const newExpr = addToEnv(rep.expr, rep.showExpr);
     if (defined(newExpr)) {
       newExpr.showValue = rep.showValue;
       newExpr.description = rep.description;
+      newExpr.showExpr = rep.showExpr;
     }
 
     if (defined(graph.options.data[name])) {
@@ -257,7 +260,7 @@ export function loadEnv(args: { saveRep: SaveRep }) {
   for (const name in args.saveRep) {
     if (defined(graph.options.data[name])) {
       const rep = args.saveRep[name];
-      graph.options.data[name].show = rep.show;
+      graph.options.data[name].show = rep.show && rep.showExpr;
     }
   }
 

@@ -211,23 +211,11 @@ onMounted(drawGraph);
   align-self: center;
 }
 
-.rows {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-  width: 100%;
-}
 
 .lastSmall > :last-child {
   flex: 0 1 fit-content;
 }
 
-.cols {
-  display: flex;
-  flex-direction: row;
-  gap: 3px;
-  margin: 3px;
-}
 .imported {
   background-color: rgb(43, 51, 36);
 }

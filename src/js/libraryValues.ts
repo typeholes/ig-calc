@@ -12,7 +12,7 @@ const Library = {
   addSaveRep: (library: Library): Library & { saveRep: SaveRep } => ({
     ...library,
     saveRep: IMap(library.fns)
-      .map(([expr,description]) => ({ expr, show: false, color: "#FFFFFF", description, showValue: false }))
+      .map(([expr,description]) => ({ expr, show: false, color: "#FFFFFF", description, showValue: false, showExpr: true }))
       .toObject(),
   }),
 };
@@ -30,7 +30,7 @@ const periodic: Library = {
 };
 
 const libraries = [periodic];
-const libraryMap = IMap(
+export const libraryMap = IMap(
   libraries.map((library) => [SaveId('local', library.name), library])
 );
 
@@ -43,3 +43,5 @@ export const librarySaveReps =
 const metaEntries = libraries.map((library) => [SaveId('library', library.name), library.description] ) as [SaveId,SaveDescription][];
 export const librarySaveMeta: IMap<SaveId, SaveDescription> = IMap(metaEntries);
 export const libraryDescriptions = librarySaveMeta.mapEntries( ([k,v]) => [k.name, v])
+
+export const libraryFns = libraryMap.mapEntries(([k, v]) => [k.name, v.fns]);
