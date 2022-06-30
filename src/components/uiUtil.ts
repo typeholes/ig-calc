@@ -137,6 +137,10 @@ export function checkNewExpr() {
   });
 }
 
+export function refreshTex() {
+  nextTick(typeset);
+}
+
 export function addToEnv(s: string) {
   const name = state.parseResult ? getNodeName(state.parseResult.node) : "";
   const oldExpr = state.env.get(name);

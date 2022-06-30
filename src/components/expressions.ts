@@ -13,6 +13,7 @@ import {
   inline,
   freeVars as getFreeVars,
 } from "../js/math/mathUtil";
+import { typeset } from '../js/typeset';
 
 import {
   builtinConstants,
@@ -30,12 +31,14 @@ import {
   flatMap,
   isLeft,
   map,
+  on,
   raise,
 } from "../js/Either";
-import { currentColor, graph, refreshDatumEnvironments, state } from "./uiUtil";
+import { currentColor, graph, refreshDatumEnvironments, refreshTex, state } from "./uiUtil";
 import { Datum } from "../js/function-plot/FunctionPlotDatum";
 import { reactive } from "vue";
 import { simplify } from "../js/math/simplify";
+import { typeCastExpression } from "@babel/types";
 
 export type ExprEnv = IMap<string, ValidExpr>;
 export const emptyEnv: ExprEnv = IMap();
@@ -269,6 +272,7 @@ function defaultCall(fn: M.FunctionAssignmentNode) : MathNode {
   return M.parse(call);
 }
 
+
 export const ValidExpr = {
   toDatum: (
     expr: ValidExpr,
@@ -308,4 +312,28 @@ export function adjustExpr(expr: ValidExpr, template: string) {
   }
   refreshDatumEnvironments();
   errorable( () => graph.drawLines());
+}
+
+export function buildEnv(fns: Record<string, string>) {
+  let env = IMap(state.env);
+  for (const name in fns) {
+    env = env.delete(name);
+    const exprStr = fns[name];
+    const result = parseExpr(env, exprStr, name);
+    Errorable.raise(result);
+    env = result.value[0];
+  }
+  state.env = env;
+  
+  for (const name in fns) {
+    const expr = env.get(name)!;
+    graph.options.data[name] = ValidExpr.toDatum(
+      expr,
+      state.env,
+      false,
+      currentColor()
+    );
+  }
+
+  refreshTex();
 }

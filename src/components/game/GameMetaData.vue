@@ -5,7 +5,8 @@ import { reactive } from "vue";
 import { errorable, on } from "../../js/Either";
 import { hasProp, hasPropIs } from "../../js/function-plot/utils";
 import { isString } from "../../js/util";
-import { addNewExpr, state as igCalcState } from "../uiUtil";
+import { buildEnv } from "../expressions";
+import { addNewExpr, addToEnv, state as igCalcState } from "../uiUtil";
 import { game, GameButton, GameVar, isItemType, addGameItem } from "./game";
 
 function getMetaData() {
@@ -46,10 +47,7 @@ function toGame() {
       }
 
       const fns = obj.fns as Record<string, string>;
-      for (const name in fns) {
-        state.errors = fns[name];
-        addNewExpr(name, fns[name]);
-      }
+      buildEnv(fns);
 
       const items = Object.values(obj.game.items as Record<string, unknown>);
       state.errors = `${items}`;
