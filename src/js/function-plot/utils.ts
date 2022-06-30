@@ -88,3 +88,7 @@ export function pointToString(p: Point) {
   const r = p.map(Math.round);
   return `(${r[0]},${r[1]})`;
 }
+
+export function arrayRange(from: number, to: number) : number[] {
+  return [...Array(to-from+1).keys()].map( (n) => n + from)
+}

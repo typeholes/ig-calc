@@ -25,8 +25,13 @@ function toggleGameTabs() {
   <!-- <GridOptions></GridOptions> -->
     <span class="row2 col3"> Tick time in seconds </span>
     <input class="row2 col4" v-model="appState.tickTime"/>
-    <span class="row3 col3"> Show Game Tabs ( Exprimental and often broken feature )</span>
-    <input class="row3 col4" type="checkbox" :value="state.showGameTabs" @change="toggleGameTabs" />
+    <span class="row3 col1"> Data table Range</span>
+    <span class="row3 col2"> From:</span>
+    <input class="row3 col3" type="number" v-model="appState.freeMin" >
+    <span class="row3 col4"> To:</span>
+    <input class="row3 col5" type="number" v-model="appState.freeMax" >
+    <span class="row4 col3"> Show Game Tabs ( Exprimental and often broken feature )</span>
+    <input class="row4 col4" type="checkbox" :value="state.showGameTabs" @change="toggleGameTabs" />
   </div>
 </template>
 

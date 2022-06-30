@@ -25,6 +25,7 @@ import GameMakerTutorial from "./game/GameMakerTutorial.vue";
 import GameMetaData from "./game/GameMetaData.vue";
 import { FunctionPlotData } from "../js/function-plot/FunctionPlotDatum";
 import { SaveId } from "../js/SaveManager";
+import { arrayRange } from "../js/function-plot/utils";
 
 const colors = IMap(
   "ff0000 00ff00 0000ff ffff00 ff00ff 00ffff ffffff"
@@ -81,6 +82,7 @@ export function initGraph() {
   graph.resetZoom(Interval(-10, 10), 0);
 }
 
+
 export const displayComponents = { DisplayData, DisplayGraph };
 export const state = reactive({
   hideBottom: false,
@@ -101,7 +103,9 @@ export const state = reactive({
   currentSave: SaveId('local', "Default"),
   selectedSave: SaveId('local', "Default"),
   selectedSaveIsDeleted: false,
-  tickTime: 0.1
+  tickTime: 0.1,
+  freeMin: 1,
+  freeMax: 10
 });
 
 
