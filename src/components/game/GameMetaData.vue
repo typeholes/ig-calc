@@ -116,4 +116,8 @@ function toGame() {
   color: red;
   grid-row: 2;
 }
+
+:deep(*) {
+  background-color: black;
+}
 </style>
