@@ -135,7 +135,7 @@ function editExpression(name: string) {
                 :env="state.env"
                 :expr="expr"
                 :allow-copy="previewingSave"
-                :allow-edit="state.newExpr === ''"
+                :allow-edit="true"
                 v-on:new:expr="
                   (x) => {
                     state.newExpr = x;

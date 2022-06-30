@@ -15,8 +15,9 @@ import { integrate as _integrate } from "../js/math/integrals";
 import { inline } from "../js/math/mathUtil";
 import { Errorable, errorable } from "../js/Either";
 import { getFunctionBody, getBody as getDeclarationBody } from "./expressions";
-import { addImportExpression, graph, hasImportExpression } from "./uiUtil";
+import { addImportExpression, checkNewExpr, graph, hasImportExpression, state as appState } from "./uiUtil";
 import { computed } from "@vue/reactivity";
+import { notBlank } from "../js/util"
 
 interface Props {
   expr: ValidExpr;
@@ -90,7 +91,17 @@ function integrate(by: string) {
 
 function remove() {
   delete graph.options.data[props.expr.name];
+  appState.newExpr = props.expr.node.toString();
+  checkNewExpr();
   emit("remove:expr", props.expr.name);
+}
+
+function edit() {
+  if (props.expr.name.startsWith('anon: ')) {
+    remove();
+  } else {
+    emit('edit', props.expr.name)
+  }
 }
 
 function graphFn(x) {
@@ -115,9 +126,6 @@ function drawLines() {
 }
 
 
-function edit() {
-  emit('edit', props.expr.name)
-}
 
 function copyToCurrent() {
   addImportExpression(props.expr);
@@ -174,8 +182,8 @@ onMounted(drawGraph);
   <div class="rows">
     <button class="menuButton" @click="state.showMenu = !state.showMenu">&#9776</button>
     <template v-if="state.showMenu">
-    <button class="menuButton" @click="remove()">Delete</button>
-    <button class="menuButton" v-if="props.allowEdit" @click="edit()">Edit</button>
+    <button class="menuButton" :disabled="notBlank(appState.newExpr) && props.expr.name !== '__tmp'" @click="remove()">Remove</button>
+    <button class="menuButton" v-if="props.allowEdit" :disabled="notBlank(appState.newExpr)" @click="edit()">Edit</button>
     <button class="menuButton" v-if="props.allowCopy" @click="copyToCurrent()" :disabled="isImported">Copy to current save</button>
     <button class="menuButton" @click="expr.showValue = !expr.showValue"> {{ expr.showValue ? 'Hide Value' : 'Show Value' }}</button>
     </template>
@@ -193,6 +201,10 @@ onMounted(drawGraph);
 .menuButton {
   background-color: rgb(89, 92, 96);
   padding: 0 1px 0;
+}
+
+.menuButton:disabled {
+  background-color: rgb(109, 92, 96);
 }
 
 :deep(mjx-container) {

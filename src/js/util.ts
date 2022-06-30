@@ -131,6 +131,10 @@ export function isString(x: unknown): x is string {
   return typeof x === "string";
 }
 
+export function notBlank(s: string | null | undefined): s is string {
+  return defined(s) && defined(s.match(/\S/));
+}
+
 export type Expand<T> = T extends
   | string
   | number
