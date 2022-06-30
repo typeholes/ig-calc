@@ -21,7 +21,7 @@ function addButton() {
 </script>
 
 <template>
-  <div class="grid">
+  <div class="grid gameEditor">
     <div v-for="item in game.items">
       <EditItem :item="item"></EditItem>
     </div>
@@ -45,4 +45,9 @@ button {
 button:disabled {
   background-color: rgb(107, 43, 43);
 }
+
+.gameEditor :deep(*) {
+  background-color: black;
+}
+
 </style>
