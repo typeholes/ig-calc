@@ -17,7 +17,8 @@ import { Errorable, errorable } from "../js/Either";
 import { getFunctionBody, getBody as getDeclarationBody } from "./expressions";
 import { addImportExpression, checkNewExpr, graph, hasImportExpression, state as appState } from "./uiUtil";
 import { computed } from "@vue/reactivity";
-import { notBlank } from "../js/util"
+import { defined, notBlank } from "../js/util"
+import { play } from "../js/sonify";
 
 interface Props {
   expr: ValidExpr;
@@ -108,6 +109,16 @@ function graphFn(x) {
   return getGraphFnStr(props.env, x);
 }
 
+function sonify() {
+  const datum = graph.options.data[props.expr.name];
+  if ( defined(datum) ) {
+    const samples = graph.runSampler(props.expr.name, 1000).flat().map( ([_,y]) => y);
+    play(samples);
+  }
+  
+  
+}
+
 // function refreshTex() {
 //   addTexElement("tex_" + props.expr.name, props.tex ?? props.expr.node.toTex());
 //   typeset();
@@ -186,6 +197,7 @@ onMounted(drawGraph);
     <button class="menuButton" v-if="props.allowEdit" :disabled="notBlank(appState.newExpr)" @click="edit()">Edit</button>
     <button class="menuButton" v-if="props.allowCopy" @click="copyToCurrent()" :disabled="isImported">Copy to current save</button>
     <button class="menuButton" @click="expr.showValue = !expr.showValue"> {{ expr.showValue ? 'Hide Value' : 'Show Value' }}</button>
+    <button class="menuButton" @click="sonify()">Sonify</button>
     </template>
   </div>
   </div>

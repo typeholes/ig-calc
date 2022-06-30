@@ -199,6 +199,15 @@ export function mkGraph(options: FunctionPlotOptions) {
 
   options.data ??= {};
   const graph = {
+    runSampler: (name: string, numSamples: number) => {
+      const d = options.data[name];
+      return d.sample(
+        Interval(...xScale.domain()),
+        Interval(...yScale.range()),
+        "linear",
+        numSamples
+      )
+    },
     options: options ?? { data: {} },
     updateTitle: () => {
       root()
