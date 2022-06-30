@@ -15,6 +15,7 @@ DefaultSaveId,
 EmptySaveId,
 SaveDescription,
 SerializedSave,
+isSaveType,
 } from "../js/SaveManager";
 import { ExprEnv, toSaveRep, SaveRep } from "./expressions";
 import { ExpressionUiState } from "./expressionUiState";
@@ -32,6 +33,7 @@ import {
 } from "lz-string";
 import { Interval } from "../js/function-plot/types";
 import { librarySaveMeta, librarySaveReps, libraryDescriptions } from "../js/libraryValues";
+import { notBlank } from "../js/function-plot/utils";
 
 type SaveObjectRep = SaveId & { ExprEnvSaveRep: string, description: SaveDescription };
 
@@ -56,6 +58,16 @@ const state = reactive({
 onMounted(() => {
   const search = window.location.search.slice(1);
   const params = new URLSearchParams(search);
+  if (params.has('saveType') && params.has('saveName')) {
+    const saveType = params.get('saveType');
+    const saveName = params.get('saveName');
+    if (isSaveType(saveType) && notBlank(saveName)) {
+      const saveId = SaveId(saveType, saveName)
+      load(saveId, "restore");
+      appState.selectedSave = {...saveId}
+      return;
+    }
+  }
   if (params.has("shared")) {
     const shareStr = params.get("shared") ?? "";
     if (shareStr === "") {
@@ -67,11 +79,11 @@ onMounted(() => {
     const saveRep = JSON.parse(saveObj.save) as SaveObjectRep;
     console.log(saveRep);
 
-    const name = saveRep.name;
     appState.currentSave = SaveId('shared', saveObj.name )
     writeSave(state.saveMetaData, appState.currentSave, saveObj.description, saveObj.save  );
     load(appState.currentSave, "restore");
     selectSave(appState.currentSave, false);
+    window.location.href = baseUrl() + `?saveType=shared&saveName=${saveObj.name}`;
   } else {
     console.log("not shared");
     load(DefaultSaveId, "restore");

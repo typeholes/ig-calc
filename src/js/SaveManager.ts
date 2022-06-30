@@ -39,7 +39,7 @@ const saves: Saves = {
   library: {},
 };
 
-function isSaveType(x: unknown): x is SaveType {
+export function isSaveType(x: unknown): x is SaveType {
   return isString(x) && ["local", "shared", "library"].includes(x);
 }
 interface Savable<K extends string, V> {

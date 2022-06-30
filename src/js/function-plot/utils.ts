@@ -69,6 +69,11 @@ export function defaulted<T>(x: T | undefined, dfault: T): T {
   return defined(x) ? x : dfault;
 }
 
+
+export function notBlank(s: string | null | undefined) : s is string {
+  return defined(s) && !s.match(/^\s*$/);
+}
+
 export function hasProp<T extends string>(
   x: unknown,
   prop: T
