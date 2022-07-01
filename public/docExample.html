@@ -1,0 +1,58 @@
+<html>
+<head>
+<style>
+.cols { display: flex; flex-direction: row }
+.igcalc { height: 1000px; width: 1000px;  border: none
+       zoom: 0.75;
+        -moz-transform: scale(0.75);
+        -moz-transform-origin: 0 0;
+        -o-transform: scale(0.75);
+        -o-transform-origin: 0 0;
+        -webkit-transform: scale(0.75);
+        -webkit-transform-origin: 0 0;
+}
+.scaled {
+        width: 750x;
+        height: 750px;
+        padding: 0;
+        overflow: hidden;
+}
+.pointer {
+z-index: 2;
+width: 730px;
+position: absolute;
+top: 498px;
+right: 275px;
+background-blend-mode: hard-light;
+border: 2px solid green;
+text-align: right;
+color: green;
+pointer-events: none
+}
+.view { pointer-events: none }
+.left { flex: 1 1 auto}
+</style>
+</head>
+<body>
+<div class="cols">
+<div class="left">
+Type sin(x in the highlight box (in green)<br> 
+The graph for sin(x) should appear above<br> 
+New options will appear below<br> you can use the color picker to change the color of the graph.
+Click the add button and sin(x) expression will move to the list of expressions at the top left
+Click the save button underneath "Current Save" and then refresh.
+</div>
+<div class="scaled">
+   <div class="pointer"> &xlarr; </div>
+   <iframe class="igcalc" src="https://typeholes.github.io/ig-calc/?StorageKey=test1" title="ig-calc test 1"></iframe>
+
+</div>
+</div>
+<div style="display: flex">
+<div class="left">It should look like this</div>
+<div class="scaled">
+   <iframe class="igcalc view" src="https://typeholes.github.io/ig-calc/?StorageKey=test2&shared=N4IgdghgtgpiBcIAiMBmECuAbALiANCACYwDOAxgE4CWADjtQPZgIgAyjEJRABMz7QgBzGD0ppxpABYEQpCADc4iYAB0QAUQAetShrAKAyopgAlGLXXx1a1eoaw7V2+pg7KThJ4eiAvDwAWAAYAOiCAdgA2ACYATgBmT3xPckYsRg87LyyAYlR8gqTPaUYAd094dCxSGGSsktKANQgsDBgKnEo2uvUG7V0OrpgAXx6QCDBmeB5SajAACi0ASgqXEDcBrOt6ucWVrLHU9MyrTxygi6D8ovqpMsHu4rumlraKqpqxvvcHkeH1YYgYZAA" title="ig-calc test 1"></iframe>
+</div>
+</div>
+</body>
+</html>
