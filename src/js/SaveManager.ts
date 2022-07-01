@@ -1,7 +1,11 @@
 import { errorable, Errorable, raise } from "./Either";
 import { assert, defined, hasPropIs, isString } from "./util";
 
-const StorageKey = "ig-calc-saves";
+let StorageKey = "ig-calc-saves";
+export function setStorageKey(key: string) : SaveMetaData {
+  StorageKey = `ig-calc-saves[${key}]` 
+  return Errorable.handle(readSaveMetadata(), ((error) => { throw error }), emptySaveMetaData() )
+}
 
 export type SaveName = string;
 export type SaveDescription = string;

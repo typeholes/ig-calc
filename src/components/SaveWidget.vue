@@ -16,6 +16,7 @@ EmptySaveId,
 SaveDescription,
 SerializedSave,
 isSaveType,
+setStorageKey,
 } from "../js/SaveManager";
 import { ExprEnv, toSaveRep, SaveRep } from "./expressions";
 import { ExpressionUiState } from "./expressionUiState";
@@ -58,6 +59,11 @@ const state = reactive({
 onMounted(() => {
   const search = window.location.search.slice(1);
   const params = new URLSearchParams(search);
+
+  let storageKey = params.get("StorageKey") ?? "";
+  if (params.has("StorageKey")) {
+    state.saveMetaData = setStorageKey(storageKey);
+  }
   if (params.has('saveType') && params.has('saveName')) {
     const saveType = params.get('saveType');
     const saveName = params.get('saveName');
@@ -82,8 +88,9 @@ onMounted(() => {
     appState.currentSave = SaveId('shared', saveObj.name )
     writeSave(state.saveMetaData, appState.currentSave, saveObj.description, saveObj.save  );
     load(appState.currentSave, "restore");
-    selectSave(appState.currentSave, false);
-    window.location.href = baseUrl() + `?saveType=shared&saveName=${saveObj.name}`;
+    selectSave(appState.currentSave, false);    
+    const keyParam = storageKey === "" ? "" : `&StorageKey=${storageKey}`;
+    window.location.href = baseUrl() + `?saveType=shared&saveName=${saveObj.name}${keyParam}`;
   } else {
     console.log("not shared");
     load(DefaultSaveId, "restore");
