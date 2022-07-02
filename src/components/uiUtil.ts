@@ -306,6 +306,7 @@ export function disableGameTabs() {
 }
 
 export let time = 0;
+let actionDelay = 0;
 export function gameLoop(elapsedTime) {
   const t = elapsedTime / 1000;
   const delta = t - time;
@@ -315,10 +316,12 @@ export function gameLoop(elapsedTime) {
     if (defined(timeFn)) {
       adjustExpr(timeFn, `${time}`);
     }
-    if (defined(actions) && actions.length > 0) {
+    if (actionDelay === 0 && defined(actions) && actions.length > 0) {
       const action = actions.shift()!;
       runAction(action);
+      actionDelay = 5;
     }
+    if ( actionDelay > 0 ) { actionDelay-- }
   }
   window.requestAnimationFrame(gameLoop);
 }
