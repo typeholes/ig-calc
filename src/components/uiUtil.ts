@@ -26,6 +26,7 @@ import GameMetaData from "./game/GameMetaData.vue";
 import { FunctionPlotData } from "../js/function-plot/FunctionPlotDatum";
 import { SaveId } from "../js/SaveManager";
 import { arrayRange } from "../js/function-plot/utils";
+import { actions, runAction } from "../js/actions";
 
 const colors = IMap(
   "ff0000 00ff00 0000ff ffff00 ff00ff 00ffff ffffff"
@@ -313,6 +314,10 @@ export function gameLoop(elapsedTime) {
     const timeFn = state.env.get("time");
     if (defined(timeFn)) {
       adjustExpr(timeFn, `${time}`);
+    }
+    if (defined(actions) && actions.length > 0) {
+      const action = actions.shift()!;
+      runAction(action);
     }
   }
   window.requestAnimationFrame(gameLoop);

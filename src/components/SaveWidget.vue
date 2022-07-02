@@ -35,6 +35,7 @@ import {
 import { Interval } from "../js/function-plot/types";
 import { librarySaveMeta, librarySaveReps, libraryDescriptions } from "../js/libraryValues";
 import { notBlank } from "../js/function-plot/utils";
+import { getActions, runAction } from "../js/actions";
 
 type SaveObjectRep = SaveId & { ExprEnvSaveRep: string, description: SaveDescription };
 
@@ -61,6 +62,12 @@ onMounted(() => {
   const params = new URLSearchParams(search);
 
   let storageKey = params.get("StorageKey") ?? "";
+  if (params.has("actions")) {
+    const actionsKey = params.get("actions");
+    if (defined(actionsKey)) {
+      const actions = getActions(actionsKey);
+    }
+  }
   if (params.has("StorageKey")) {
     state.saveMetaData = setStorageKey(storageKey);
   }
