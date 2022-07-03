@@ -319,7 +319,7 @@ export function gameLoop(elapsedTime) {
     if (actionDelay === 0 && defined(actions) && actions.length > 0) {
       const action = actions.shift()!;
       runAction(action);
-      actionDelay = 5;
+      actionDelay = 10;
     }
     if ( actionDelay > 0 ) { actionDelay-- }
   }

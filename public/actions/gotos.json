@@ -1,0 +1,6 @@
+[ 
+    { "setNewExpr": "x" },
+    { "showCursor": ""},
+    { "goto": "newExpr"},
+    { "goto": "addExpr"}
+]

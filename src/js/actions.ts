@@ -2,12 +2,16 @@ import { isObject } from "@vue/shared";
 import { isArray, sluDependencies } from "mathjs";
 import { assert, defined, isString } from "./util";
 import { addToEnv, checkNewExpr, state as appState } from "../components/uiUtil";
+import { cursorState, goToElement } from "../components/FakeCursor";
 
 type Action = [string, string];
 
-const actionHandlers : Record<string, ((x: string) => void) > = {
+const actionHandlers: Record<string, ((x: string) => void)> = {
     alert: alert,
-    addExpr: (x) => { appState.newExpr = x; checkNewExpr(); addToEnv(x, true); }
+    setNewExpr: (x) => { appState.newExpr = x; checkNewExpr()},
+    addExpr: (x) => { appState.newExpr = x; checkNewExpr(); addToEnv(x, true); },
+    showCursor: () => { cursorState.show = true },
+    goto: goToElement,
 }
 
 export function runAction([name,arg]: Action) {

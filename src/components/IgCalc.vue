@@ -17,6 +17,7 @@ import { knownSymbols } from "../js/math/symbols";
 
 import { graph, state, displayComponents, checkNewExpr, addToEnv, removeExpr, loadEnv, init, systemFnNames, } from "./uiUtil";
 import { SaveId } from "../js/SaveManager";
+import FakeCursor from "./FakeCursor.vue";
 
 onMounted(() => {
   init();
@@ -95,6 +96,7 @@ function editExpression(name: string) {
 
 <template>
   <div class="ig-calc">
+  <FakeCursor></FakeCursor>
     <div class="menuBar">
     <button class="menuButton" @click="showMenu">&#9776</button>
     <div v-if="state.showMenuBar"><br>
@@ -170,6 +172,7 @@ function editExpression(name: string) {
           </template>
           <template #left>
             <input
+              id="newExpr"
               class="newExpr"
               type="text"
               placeholder="Enter an expression"
@@ -201,6 +204,7 @@ function editExpression(name: string) {
               >
               </GraphExpr>
               <button
+                id="addExpr"
                 v-if="!defined(state.error) && !state.loading"
                 :disabled="state.newExpr === ''"
                 @click="addToEnv(state.newExpr)"
