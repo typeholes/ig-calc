@@ -14,7 +14,7 @@ const editors: Record<ItemType, any> = {
 
 <template>
   <div>
-    {{ item.label }}: 
+    {{ item.label }}:
     <component :is="editors[item.type]" :item="item"></component>
   </div>
   <br />

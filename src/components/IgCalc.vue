@@ -8,14 +8,24 @@ import GraphExpr from "./GraphExpr.vue";
 import SaveWidget from "./SaveWidget.vue";
 import GeneralOptions from "./GeneralOptions.vue";
 
-import { getNodeName, SaveRep, } from "./expressions";
+import { getNodeName, SaveRep } from "./expressions";
 import { defined } from "../js/util";
 import { getExpressionUiState } from "./expressionUiState";
 import { globalTheme } from "../js/theme";
 
 import { knownSymbols } from "../js/math/symbols";
 
-import { graph, state, displayComponents, checkNewExpr, addToEnv, removeExpr, loadEnv, init, systemFnNames, } from "./uiUtil";
+import {
+  graph,
+  state,
+  displayComponents,
+  checkNewExpr,
+  addToEnv,
+  removeExpr,
+  loadEnv,
+  init,
+  systemFnNames,
+} from "./uiUtil";
 import { SaveId } from "../js/SaveManager";
 import FakeCursor from "./FakeCursor.vue";
 
@@ -31,21 +41,19 @@ function onSave() {
   state.modified = false;
 }
 
-
 function help() {
   state.showHelp = !state.showHelp;
 }
 
 function showGraph() {
   state.showHelp = false;
-  state.displayComponent = 'DisplayGraph'
+  state.displayComponent = "DisplayGraph";
 }
 
 function showData() {
   state.showHelp = false;
-  state.displayComponent = 'DisplayData'
+  state.displayComponent = "DisplayData";
 }
-
 
 function generalOptions() {
   state.showHelp = false;
@@ -58,53 +66,60 @@ function showMenu() {
 
 function exprNames() {
   const names = Array.from(state.env.keys());
-  return names.filter( (name) => graph.options.data[name]?.show)
+  return names.filter((name) => graph.options.data[name]?.show);
 }
 
-const previewingSave = computed(() => !SaveId.eq(state.currentSave, state.selectedSave));
+const previewingSave = computed(
+  () => !SaveId.eq(state.currentSave, state.selectedSave)
+);
 
 function selectSave(args: { saveRep: SaveRep }) {
   refresh(args);
 }
 
-function unselectSave() {
-}
+function unselectSave() {}
 
 function refresh(args: { saveRep: SaveRep }) {
   state.loading = true;
   loadEnv(args);
   init();
   state.loading = false;
-  nextTick(function () {
-  });
+  nextTick(function () {});
 }
 
 function importExpression(name: string) {
-  alert('not implemented');
+  alert("not implemented");
 }
 
 function editExpression(name: string) {
   state.newExpr = state.env.get(name)?.node.toString() ?? "";
   checkNewExpr();
-  if (name.startsWith('anon:')) {
+  if (name.startsWith("anon:")) {
     state.env = state.env.delete(name); // TODO: should we delete anonymous expressions on edit?
   }
 }
-
-
 </script>
 
 <template>
   <div class="ig-calc">
-  <FakeCursor></FakeCursor>
+    <FakeCursor></FakeCursor>
     <div class="menuBar">
-    <button class="menuButton" @click="showMenu">&#9776</button>
-    <div v-if="state.showMenuBar"><br>
-    <div><button class="menuButton" @click="help">?</button></div>
-    <div><br><button class="menuButton" @click="showGraph">&#128200</button></div>
-    <div><br><button class="menuButton" @click="showData">&#8862</button></div>
-    <div><br><button class="menuButton" @click="generalOptions">&#9881</button></div>
-    </div>
+      <button class="menuButton" @click="showMenu">&#9776;</button>
+      <div v-if="state.showMenuBar">
+        <br />
+        <div><button class="menuButton" @click="help">?</button></div>
+        <div>
+          <br /><button class="menuButton" @click="showGraph">&#128200;</button>
+        </div>
+        <div>
+          <br /><button class="menuButton" @click="showData">&#8862;</button>
+        </div>
+        <div>
+          <br /><button class="menuButton" @click="generalOptions">
+            &#9881;
+          </button>
+        </div>
+      </div>
     </div>
     <Hsplitter
       top-col-spec="1fr"
@@ -118,19 +133,24 @@ function editExpression(name: string) {
           v-model:collapsed="state.hideLeft"
         >
           <template #left>
-            <HelpScreen
-              class="LeftPopover"
-              v-if="state.showHelp"
-            ></HelpScreen>
+            <HelpScreen class="LeftPopover" v-if="state.showHelp"></HelpScreen>
             <GeneralOptions
               class="LeftPopover"
               v-if="state.showGeneralOptions"
             ></GeneralOptions>
-            <div class="expressions"
-              v-if="!( state.showHelp || state.loading || state.showGeneralOptions)"
+            <div
+              class="expressions"
+              v-if="
+                !(state.showHelp || state.loading || state.showGeneralOptions)
+              "
               v-for="expr in state.env
                 .valueSeq()
-                .filter((x) => x.name !== '__tmp' && !systemFnNames.includes(x.name) && (x.showExpr || state.showHiddenExpressions)) "
+                .filter(
+                  (x) =>
+                    x.name !== '__tmp' &&
+                    !systemFnNames.includes(x.name) &&
+                    (x.showExpr || state.showHiddenExpressions)
+                )"
               :key="expr.name"
             >
               <GraphExpr
@@ -149,13 +169,15 @@ function editExpression(name: string) {
                 v-on:edit="editExpression"
                 v-on:import="importExpression"
               ></GraphExpr>
-              
             </div>
           </template>
-          <template #right> 
-          <KeepAlive>
-            <component :is="displayComponents[state.displayComponent]" :names="exprNames()" ></component>
-          </KeepAlive>
+          <template #right>
+            <KeepAlive>
+              <component
+                :is="displayComponents[state.displayComponent]"
+                :names="exprNames()"
+              ></component>
+            </KeepAlive>
           </template>
         </Vsplitter>
       </template>
@@ -282,7 +304,6 @@ function editExpression(name: string) {
   flex-direction: column;
   margin-top: 3px;
 }
-
 
 .saveWidget {
   margin-top: 10px;

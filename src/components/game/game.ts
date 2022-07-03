@@ -70,7 +70,6 @@ export function addGameVars() {
   defaultItemList.forEach((item) => addGameItem(item));
 }
 
-
 const defaultItemList: GameItem[] = [
   GameVar("time", "time"),
   GameVar("money", "money"),

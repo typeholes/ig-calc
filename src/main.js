@@ -1,4 +1,3 @@
-
 window.global = global;
 
 import { createApp } from "vue";

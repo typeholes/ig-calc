@@ -12,7 +12,7 @@ export default defineConfig({
   base: "/ig-calc/",
   //  server: { fs: { strict: false }},
   optimizeDeps: {
-//    include: ["function-plot"],
+    //    include: ["function-plot"],
     //		allowNodeBuiltins: ['function-plot']
     //		include: ['pouchdb-live-find/dist/index.es.js']
   },

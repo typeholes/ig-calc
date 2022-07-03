@@ -1,45 +1,44 @@
 <script setup lang="ts">
-
-import { cursorState, goToElement } from './FakeCursor';
-
+import { cursorState, goToElement } from "./FakeCursor";
 </script>
 
 <template>
-<div>
-    <span v-if="cursorState.show" :class="{ animate: true,  cursor: true}">&#10146; </span>
-</div>
+  <div>
+    <span v-if="cursorState.show" :class="{ animate: true, cursor: true }"
+      >&#10146;
+    </span>
+  </div>
 </template>
 
 <style scoped>
-
 .cursor {
-    z-index: 99;
-    background: none;
-    color: antiquewhite;
-    font-size: 5ch;
-    transform: rotate(-0.35turn);
-    position: fixed;
-    top: v-bind('cursorState.top + "px"');
-    left: v-bind('cursorState.left + "px"');
-    margin-top: -13px;
-    animation-name: none;
-} 
+  z-index: 99;
+  background: none;
+  color: antiquewhite;
+  font-size: 5ch;
+  transform: rotate(-0.35turn);
+  position: fixed;
+  top: v-bind('cursorState.top + "px"');
+  left: v-bind('cursorState.left + "px"');
+  margin-top: -13px;
+  animation-name: none;
+}
 
 .animate {
-    animation-name: moveCursor;
-    animation-duration: 1s;
-    animation-direction: forward;
+  animation-name: moveCursor;
+  animation-duration: 1s;
+  animation-direction: forward;
 }
 
 @keyframes moveCursor {
-    0% {
-        top: v-bind('cursorState.oldTop + "px"');
-        left: v-bind('cursorState.oldLeft + "px"');
-    }
-    100% {
-        top: v-bind('cursorState.top + "px"');
-        left: v-bind('cursorState.left + "px"');
-    }
+  0% {
+    top: v-bind('cursorState.oldTop + "px"');
+    left: v-bind('cursorState.oldLeft + "px"');
+  }
+  100% {
+    top: v-bind('cursorState.top + "px"');
+    left: v-bind('cursorState.left + "px"');
+  }
 }
 
 .shake {

@@ -44,7 +44,11 @@ function changeCurrency(e: Event) {
     currencyFn:
     <select :value="item.currencyFn" @change="changeCurrency">
       <option
-        v-for="[name, usable] in getUsableFnNames(item, item.cntFn, item.costFn)"
+        v-for="[name, usable] in getUsableFnNames(
+          item,
+          item.cntFn,
+          item.costFn
+        )"
         :value="name"
         :disabled="!usable"
       >

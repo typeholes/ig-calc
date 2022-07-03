@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { globalTheme } from "../js/theme";
 import { reactive } from "vue";
-import { appTabs as tabs } from './uiUtil';
+import { appTabs as tabs } from "./uiUtil";
 
 const theme = globalTheme ?? {};
 
@@ -41,10 +41,10 @@ function setTab(tabName: keyof typeof tabs) {
 }
 
 :deep(button) {
-  background-color: v-bind("theme.backgroundColor"); 
+  background-color: v-bind("theme.backgroundColor");
 }
 :deep(input) {
-  background-color: v-bind("theme.backgroundColor"); 
+  background-color: v-bind("theme.backgroundColor");
 }
 
 .main {

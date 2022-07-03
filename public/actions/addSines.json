@@ -1,6 +1,6 @@
-[ 
-    { "addExpr": "sin(x)"} ,
-    { "addExpr": "cos(x)"} ,
-    { "addExpr": "-sin(x)"} ,
-    { "addExpr": "-cos(x)"} 
+[
+  { "addExpr": "sin(x)" },
+  { "addExpr": "cos(x)" },
+  { "addExpr": "-sin(x)" },
+  { "addExpr": "-cos(x)" }
 ]

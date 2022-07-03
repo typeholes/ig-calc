@@ -1,5 +1,5 @@
 import {
-expression,
+  expression,
   isAssignmentNode,
   isFunctionAssignmentNode,
   isString,
@@ -13,7 +13,7 @@ import {
   inline,
   freeVars as getFreeVars,
 } from "../js/math/mathUtil";
-import { typeset } from '../js/typeset';
+import { typeset } from "../js/typeset";
 
 import {
   builtinConstants,
@@ -34,7 +34,13 @@ import {
   on,
   raise,
 } from "../js/Either";
-import { currentColor, graph, refreshDatumEnvironments, refreshTex, state } from "./uiUtil";
+import {
+  currentColor,
+  graph,
+  refreshDatumEnvironments,
+  refreshTex,
+  state,
+} from "./uiUtil";
 import { Datum } from "../js/function-plot/FunctionPlotDatum";
 import { reactive } from "vue";
 import { simplify } from "../js/math/simplify";
@@ -64,7 +70,7 @@ export function parseExpr(
         throw new Error(name + " already defined");
       }
 
-      const newExpr = validExpr(name, node, ISet(getVars(node)))
+      const newExpr = validExpr(name, node, ISet(getVars(node)));
       return [env.set(name, newExpr), newExpr, name];
     })
   );
@@ -87,7 +93,7 @@ export const validExpr = (
   vars: ISet<string>,
   showValue = false,
   showExpr = false,
-  description = undefined as string | undefined,
+  description = undefined as string | undefined
 ): ValidExpr => ({ name, node, vars, showValue, description, showExpr });
 
 const xSymbolNode = new SymbolNode("x");
@@ -227,7 +233,14 @@ function getDefinition(env: ExprEnv, name: string) {
 
 export type SaveRep = Record<
   string,
-  { expr: string; color: string; show: boolean, showValue: boolean, description: string | undefined, showExpr: boolean }
+  {
+    expr: string;
+    color: string;
+    show: boolean;
+    showValue: boolean;
+    description: string | undefined;
+    showExpr: boolean;
+  }
 >;
 
 export function toSaveRep(env: ExprEnv): SaveRep {
@@ -258,9 +271,13 @@ function fromSave(s: string): Errorable<SaveRep> {
       const expr = v.expr;
       const color = hasPropIs(v, "color", isString) ? v.color : "#ff0000";
       const show = hasPropIs(v, "show", isBoolean) ? v.show : false;
-      const showValue = hasPropIs(v, "showValue", isBoolean) ? v.showValue : false;
+      const showValue = hasPropIs(v, "showValue", isBoolean)
+        ? v.showValue
+        : false;
       const showExpr = hasPropIs(v, "showExpr", isBoolean) ? v.showExpr : true;
-      const description = hasPropIs(v, "description", isString) ? v.description : undefined;
+      const description = hasPropIs(v, "description", isString)
+        ? v.description
+        : undefined;
       saveRep[k] = { expr, color, show, showValue, description, showExpr };
     });
 
@@ -268,30 +285,32 @@ function fromSave(s: string): Errorable<SaveRep> {
   });
 }
 
-
-function defaultCall(fn: M.FunctionAssignmentNode) : MathNode {
+function defaultCall(fn: M.FunctionAssignmentNode): MathNode {
   const name = fn.name;
   const args = fn.params;
-  const call = `${name}(${args.join(',')})`;
+  const call = `${name}(${args.join(",")})`;
   return M.parse(call);
 }
-
 
 export const ValidExpr = {
   toDatum: (
     expr: ValidExpr,
     env: ExprEnv,
     show: boolean,
-    color = "#FFFFFF",
+    color = "#FFFFFF"
   ) => {
-    const body = isFunctionAssignmentNode(expr.node) ? defaultCall(expr.node) : getAssignmentBody(expr.node);
+    const body = isFunctionAssignmentNode(expr.node)
+      ? defaultCall(expr.node)
+      : getAssignmentBody(expr.node);
     const inlined = inline(body, envToMathEnv(env));
     const firstFree = getDependencies(env, expr, "free").first("x");
     const evalFn = (x: number) => {
       try {
         return inlined.compile().evaluate({ [firstFree]: x });
-      } catch( e) { return 0 }
-    }
+      } catch (e) {
+        return 0;
+      }
+    };
     return Datum(evalFn, { show, color });
   },
 };
@@ -305,9 +324,7 @@ export function adjustExpr(expr: ValidExpr, template: string) {
   const sub = template.replace("%", "(%)");
   if (isAssignmentNode(expr.node)) {
     const body = getBody(expr.node);
-    const newBody = simplify(
-      `${sub.replace("%", body.toString())}`
-    );
+    const newBody = simplify(`${sub.replace("%", body.toString())}`);
     expr.node.value = newBody;
   } else {
     expr.node = simplify(
@@ -315,7 +332,7 @@ export function adjustExpr(expr: ValidExpr, template: string) {
     );
   }
   refreshDatumEnvironments();
-  errorable( () => graph.drawLines());
+  errorable(() => graph.drawLines());
 }
 
 export function buildEnv(fns: Record<string, string>) {
@@ -328,7 +345,7 @@ export function buildEnv(fns: Record<string, string>) {
     env = result.value[0];
   }
   state.env = env;
-  
+
   for (const name in fns) {
     const expr = env.get(name)!;
     graph.options.data[name] = ValidExpr.toDatum(

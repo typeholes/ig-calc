@@ -5,7 +5,7 @@ import {
   isGraphable,
   getDependencies,
   envToMathEnv,
-getGraphFnStr,
+  getGraphFnStr,
 } from "./expressions";
 import { addTexElement, typeset } from "../js/typeset";
 import { onUpdated, onMounted, reactive } from "vue";
@@ -15,9 +15,15 @@ import { integrate as _integrate } from "../js/math/integrals";
 import { inline } from "../js/math/mathUtil";
 import { Errorable, errorable } from "../js/Either";
 import { getFunctionBody, getBody as getDeclarationBody } from "./expressions";
-import { addImportExpression, checkNewExpr, graph, hasImportExpression, state as appState } from "./uiUtil";
+import {
+  addImportExpression,
+  checkNewExpr,
+  graph,
+  hasImportExpression,
+  state as appState,
+} from "./uiUtil";
 import { computed } from "@vue/reactivity";
-import { defined, notBlank } from "../js/util"
+import { defined, notBlank } from "../js/util";
 import { play } from "../js/sonify";
 
 interface Props {
@@ -31,10 +37,10 @@ interface Props {
 const props = defineProps<Props>();
 
 const state = reactive({
-  showMenu: false
-})
+  showMenu: false,
+});
 
-const isImported = computed( () => hasImportExpression(props.expr))
+const isImported = computed(() => hasImportExpression(props.expr));
 
 const getBody = (x: MathNode) => getDeclarationBody(getFunctionBody(x));
 
@@ -98,10 +104,10 @@ function remove() {
 }
 
 function edit() {
-  if (props.expr.name.startsWith('anon: ')) {
+  if (props.expr.name.startsWith("anon: ")) {
     remove();
   } else {
-    emit('edit', props.expr.name)
+    emit("edit", props.expr.name);
   }
 }
 
@@ -111,12 +117,13 @@ function graphFn(x) {
 
 function sonify() {
   const datum = graph.options.data[props.expr.name];
-  if ( defined(datum) ) {
-    const samples = graph.runSampler(props.expr.name, 1000).flat().map( ([_,y]) => y);
+  if (defined(datum)) {
+    const samples = graph
+      .runSampler(props.expr.name, 1000)
+      .flat()
+      .map(([_, y]) => y);
     play(samples);
   }
-  
-  
 }
 
 // function refreshTex() {
@@ -131,12 +138,10 @@ function drawGraph() {
 
 function drawLines() {
   Errorable.catch(errorable(graph.drawLines), (error) => {
-//    emit("error", error);
-// TODO: verify we don't have situations where we need to display errors in the graph evaluation
+    //    emit("error", error);
+    // TODO: verify we don't have situations where we need to display errors in the graph evaluation
   });
 }
-
-
 
 function copyToCurrent() {
   addImportExpression(props.expr);
@@ -144,64 +149,92 @@ function copyToCurrent() {
 
 onUpdated(drawGraph);
 onMounted(drawGraph);
-
 </script>
 
 <template>
-  <div class="cols GraphExpr lastSmall" :class="{imported: isImported}">
-  <div class="rows ">
-  <div class="cols">
-    <span v-if="!props.expr.name.startsWith('anon:') && props.expr.name !== '__tmp'"> {{ props.expr.name }} </span>
-    <template v-if="isGraphable(env, expr)">
-      <input
-        class="gridCheck"
-        type="checkbox"
-        :checked="getShow()"
-        :value="getShow()"
-        v-on:change="updateShow"
-      />
-      <input
-        class="colorPicker"
-        type="color"
-        :value="getColor()"
-        v-on:input="updateColor"
-      />
-    </template>
-  </div>
-  <div class="cols" v-if="expr.showValue">
-      <span class="fullRow">{{ graphFn(expr) }}</span>
-  </div>
-  <div class="cols">
-    <span class="tex" :id="'tex_' + expr.name">{{ expr.toString() }} </span>
-  </div>
-  <div class="cols">
+  <div class="cols GraphExpr lastSmall" :class="{ imported: isImported }">
     <div class="rows">
-    <template v-for="free in getDependencies(env, expr, 'free')">
-      <span class="free">
-        {{ free }}
-      <button class="dx" @click="derive(free)">dx</button>
-      </span>
-      <!-- <button @click="integrate(free)">&#x222B</button>  integration is broken :(-->
-      <!-- <input type="number" /> -->
-    </template>
+      <div class="cols">
+        <span
+          v-if="
+            !props.expr.name.startsWith('anon:') && props.expr.name !== '__tmp'
+          "
+        >
+          {{ props.expr.name }}
+        </span>
+        <template v-if="isGraphable(env, expr)">
+          <input
+            class="gridCheck"
+            type="checkbox"
+            :checked="getShow()"
+            :value="getShow()"
+            v-on:change="updateShow"
+          />
+          <input
+            class="colorPicker"
+            type="color"
+            :value="getColor()"
+            v-on:input="updateColor"
+          />
+        </template>
+      </div>
+      <div class="cols" v-if="expr.showValue">
+        <span class="fullRow">{{ graphFn(expr) }}</span>
+      </div>
+      <div class="cols">
+        <span class="tex" :id="'tex_' + expr.name">{{ expr.toString() }} </span>
+      </div>
+      <div class="cols">
+        <div class="rows">
+          <template v-for="free in getDependencies(env, expr, 'free')">
+            <span class="free">
+              {{ free }}
+              <button class="dx" @click="derive(free)">dx</button>
+            </span>
+            <!-- <button @click="integrate(free)">&#x222B</button>  integration is broken :(-->
+            <!-- <input type="number" /> -->
+          </template>
+        </div>
+      </div>
+      <div class="cols" v-if="expr.description">
+        <span class="fullRow">{{ expr.description }}</span>
+      </div>
+    </div>
+    <div class="rows">
+      <button class="menuButton" @click="state.showMenu = !state.showMenu">
+        &#9776;
+      </button>
+      <template v-if="state.showMenu">
+        <button
+          class="menuButton"
+          :disabled="notBlank(appState.newExpr) && props.expr.name !== '__tmp'"
+          @click="remove()"
+        >
+          Remove
+        </button>
+        <button
+          class="menuButton"
+          v-if="props.allowEdit"
+          :disabled="notBlank(appState.newExpr)"
+          @click="edit()"
+        >
+          Edit
+        </button>
+        <button
+          class="menuButton"
+          v-if="props.allowCopy"
+          @click="copyToCurrent()"
+          :disabled="isImported"
+        >
+          Copy to current save
+        </button>
+        <button class="menuButton" @click="expr.showValue = !expr.showValue">
+          {{ expr.showValue ? "Hide Value" : "Show Value" }}
+        </button>
+        <button class="menuButton" @click="sonify()">Sonify</button>
+      </template>
     </div>
   </div>
-  <div class="cols" v-if="expr.description">
-      <span class="fullRow">{{ expr.description }}</span>
-  </div>
-  </div>
-  <div class="rows">
-    <button class="menuButton" @click="state.showMenu = !state.showMenu">&#9776</button>
-    <template v-if="state.showMenu">
-    <button class="menuButton" :disabled="notBlank(appState.newExpr) && props.expr.name !== '__tmp'" @click="remove()">Remove</button>
-    <button class="menuButton" v-if="props.allowEdit" :disabled="notBlank(appState.newExpr)" @click="edit()">Edit</button>
-    <button class="menuButton" v-if="props.allowCopy" @click="copyToCurrent()" :disabled="isImported">Copy to current save</button>
-    <button class="menuButton" @click="expr.showValue = !expr.showValue"> {{ expr.showValue ? 'Hide Value' : 'Show Value' }}</button>
-    <button class="menuButton" @click="sonify()">Sonify</button>
-    </template>
-  </div>
-  </div>
-    
 </template>
 
 <style scoped>
@@ -234,7 +267,6 @@ onMounted(drawGraph);
   width: 15px;
   align-self: center;
 }
-
 
 .lastSmall > :last-child {
   flex: 0 1 fit-content;

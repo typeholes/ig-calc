@@ -59,5 +59,4 @@ function updateGraph() {
   grid-row: 1;
   grid-column: 5;
 }
-
 </style>

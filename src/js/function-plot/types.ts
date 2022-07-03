@@ -38,10 +38,3 @@ export function reverseInterval(i: Interval): Interval {
 export function offsetInterval(i: Interval, by): Interval {
   return { lo: i.lo + by, hi: i.hi + by };
 }
-
-  
-
-
-
-
-

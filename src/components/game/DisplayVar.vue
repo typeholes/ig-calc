@@ -2,7 +2,6 @@
 import { GameVar, getValue } from "./game";
 
 const props = defineProps<{ item: GameVar }>();
-
 </script>
 
 <template>

@@ -1,5 +1,3 @@
-
-
 {
   "compilerOptions": {
     "target": "esnext",
@@ -12,12 +10,9 @@
     "esModuleInterop": true,
     "skipLibCheck": true
   },
-	"typedocOptions": {
-        "entryPoints": [
-            "src/js/GameState.ts"
-        ],
-        "out": "docs",
-	"sort": [ "static-first", "visibility", "source-order" ]
-
-    }
+  "typedocOptions": {
+    "entryPoints": ["src/js/GameState.ts"],
+    "out": "docs",
+    "sort": ["static-first", "visibility", "source-order"]
+  }
 }

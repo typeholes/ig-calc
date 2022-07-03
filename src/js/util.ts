@@ -89,23 +89,26 @@ export function hasPropIs<T extends string, U>(
   return hasProp(x, prop) && is(x[prop]);
 }
 
-export function assert(p: boolean, msg: string) : asserts p {
-  if (!p) { throw new Error(msg) }
+export function assert(p: boolean, msg: string): asserts p {
+  if (!p) {
+    throw new Error(msg);
+  }
 }
-assert.defined = <T>(x: T) : asserts x is NonNullable<T> => assert(defined(x), `undefined: $x`);
+assert.defined = <T>(x: T): asserts x is NonNullable<T> =>
+  assert(defined(x), `undefined: $x`);
 assert.props = <T extends string>(
   x: unknown,
   ...props: T[]
 ): asserts x is Record<T, unknown> => {
-  assert(typeof x === 'object', 'crud');
-  assert.defined(x); 
-  assert(Object.hasOwn(x, props[0]), 'crud');
-//  return typeof x === "object" && defined(x) && 
-}
+  assert(typeof x === "object", "crud");
+  assert.defined(x);
+  assert(Object.hasOwn(x, props[0]), "crud");
+  //  return typeof x === "object" && defined(x) &&
+};
 
 assert.is = <T>(x: unknown, f: (x: unknown) => x is T, typeName?: string) => {
   assert(f(x), `invalid type ${typeName}`);
-}
+};
 
 assert.propIs = <T extends string, U>(
   x: unknown,
@@ -114,7 +117,7 @@ assert.propIs = <T extends string, U>(
 ): asserts x is Record<T, U> => {
   assert.props(x, prop);
   assert.is(x, is);
-}
+};
 
 export function tagged<T extends string>(
   x: unknown,

@@ -2,7 +2,7 @@
 import { graph } from "./uiUtil";
 import CanError from "./CanError.vue";
 import { errorable, Errorable } from "../js/Either";
-import { state as appState } from './uiUtil';
+import { state as appState } from "./uiUtil";
 import { arrayRange } from "../js/function-plot/utils";
 
 const props = defineProps<{ names: string[] }>();
@@ -56,12 +56,14 @@ function runFn(name: string, n: number) {
           {{ formatName(name) }}
         </div>
       </template>
-      <template v-for=" (num,rowNum) in arrayRange(appState.freeMin, appState.freeMax)">
-        <div :style="{gridColumn: 1, gridRow: rowNum+2}">{{ num }}</div>
+      <template
+        v-for="(num, rowNum) in arrayRange(appState.freeMin, appState.freeMax)"
+      >
+        <div :style="{ gridColumn: 1, gridRow: rowNum + 2 }">{{ num }}</div>
         <template v-for="(name, idx) of names()">
           <div
             :style="{
-              gridColumn: idx+2,
+              gridColumn: idx + 2,
               border: `1px solid ${graph.options.data[name].color ?? 'white'}`,
             }"
           >

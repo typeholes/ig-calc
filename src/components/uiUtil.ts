@@ -4,7 +4,7 @@ import { Graph, mkGraph } from "../js/function-plot/d3util";
 import { reactive, shallowReactive, shallowRef, nextTick, computed } from "vue";
 import { FunctionPlotOptions } from "../js/function-plot/FunctionPlotOptions";
 import { Interval } from "../js/function-plot/types";
-import { typeset } from '../js/typeset'
+import { typeset } from "../js/typeset";
 import {
   ValidExpr,
   getNodeName,
@@ -83,7 +83,6 @@ export function initGraph() {
   graph.resetZoom(Interval(-10, 10), 0);
 }
 
-
 export const displayComponents = { DisplayData, DisplayGraph };
 export const state = reactive({
   hideBottom: false,
@@ -101,15 +100,14 @@ export const state = reactive({
   showGeneralOptions: false,
   showMenuBar: false,
   displayComponent: "DisplayGraph" as keyof typeof displayComponents,
-  currentSave: SaveId('local', "Default"),
-  selectedSave: SaveId('local', "Default"),
+  currentSave: SaveId("local", "Default"),
+  selectedSave: SaveId("local", "Default"),
   selectedSaveIsDeleted: false,
   tickTime: 0.1,
   freeMin: 1,
   freeMax: 10,
   showHiddenExpressions: false,
 });
-
 
 export function checkNewExpr() {
   const expr = state.newExpr.trim();
@@ -121,7 +119,7 @@ export function checkNewExpr() {
   const result = parseExpr(state.env, expr, "__tmp");
   on(result, {
     Left: (err) => {
-      state.error = err.message 
+      state.error = err.message;
     },
     Right: ([env, _]) => {
       state.error = undefined;
@@ -156,7 +154,10 @@ export function addToEnv(s: string, showExpr = true) {
     Right: ([env, newExpr, _]) => {
       newColor();
       const oldDatum = graph.options.data[name];
-      graph.options.data[name] = { ...graph.options.data["__tmp"], show: graph.options.data['__tmp'].show && showExpr };
+      graph.options.data[name] = {
+        ...graph.options.data["__tmp"],
+        show: graph.options.data["__tmp"].show && showExpr,
+      };
       state.error = undefined;
       state.env = env.delete("__tmp");
       state.parseResult = undefined;
@@ -243,8 +244,8 @@ export function loadEnv(args: { saveRep: SaveRep }) {
     }
 
     if (defined(graph.options.data[name])) {
-      graph.options.data[name].color = rep.color
-    } ;
+      graph.options.data[name].color = rep.color;
+    }
   }
 
   state.modified = Object.entries(importExpressions).length === 0;
@@ -255,7 +256,6 @@ export function loadEnv(args: { saveRep: SaveRep }) {
     addToEnv(state.newExpr);
     delete importExpressions[name];
   }
-  
 
   // set show after all expressions are added so we don't try to show one that has unloaded dependencies
   for (const name in args.saveRep) {
@@ -321,7 +321,9 @@ export function gameLoop(elapsedTime) {
       runAction(action);
       actionDelay = 10;
     }
-    if ( actionDelay > 0 ) { actionDelay-- }
+    if (actionDelay > 0) {
+      actionDelay--;
+    }
   }
   window.requestAnimationFrame(gameLoop);
 }

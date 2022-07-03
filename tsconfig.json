@@ -8,10 +8,10 @@
     "isolatedModules": true,
     "noEmit": true,
     "experimentalDecorators": true,
-    "esModuleInterop": true
-    , "noImplicitAny": false
-    , "strict": true
-    , "alwaysStrict": true
-    , "jsx": "preserve"
+    "esModuleInterop": true,
+    "noImplicitAny": false,
+    "strict": true,
+    "alwaysStrict": true,
+    "jsx": "preserve"
   }
 }

@@ -69,8 +69,7 @@ export function defaulted<T>(x: T | undefined, dfault: T): T {
   return defined(x) ? x : dfault;
 }
 
-
-export function notBlank(s: string | null | undefined) : s is string {
+export function notBlank(s: string | null | undefined): s is string {
   return defined(s) && !s.match(/^\s*$/);
 }
 
@@ -94,6 +93,6 @@ export function pointToString(p: Point) {
   return `(${r[0]},${r[1]})`;
 }
 
-export function arrayRange(from: number, to: number) : number[] {
-  return [...Array(to-from+1).keys()].map( (n) => n + from)
+export function arrayRange(from: number, to: number): number[] {
+  return [...Array(to - from + 1).keys()].map((n) => n + from);
 }

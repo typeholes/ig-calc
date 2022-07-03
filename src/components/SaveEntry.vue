@@ -10,12 +10,11 @@ interface Props {
 }
 
 const props = defineProps<Props>();
-
 </script>
 
 <template>
-  <div :class="{saveEntry: true, deleted: props.deleted}">
-    <div>{{ id.name }}  </div>
+  <div :class="{ saveEntry: true, deleted: props.deleted }">
+    <div>{{ id.name }}</div>
     <div class="description" v-if="showDescription">{{ description }}</div>
   </div>
 </template>
@@ -26,13 +25,13 @@ const props = defineProps<Props>();
   flex-direction: column;
   border: 1px solid rgb(108, 180, 243);
   border-radius: 5px;
-  text-align:left ;
+  text-align: left;
   padding: 2px;
   background-color: rgb(57, 57, 57);
 }
 
 .saveEntry.deleted {
-  border-color: red; 
+  border-color: red;
   background-color: rgb(87, 57, 57);
   border-style: dashed;
   text-decoration: line-through;
