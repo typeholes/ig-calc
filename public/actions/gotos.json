@@ -1,6 +1,7 @@
 [
-  { "setNewExpr": "x" },
-  { "showCursor": "" },
-  { "goto": "newExpr" },
-  { "goto": "addExpr" }
+   { "setNewExpr": "x" },
+   { "showCursor": "" },
+   { "goto": "newExpr" },
+   { "goto": "addExpr" },
+   { "click": "" }
 ]
