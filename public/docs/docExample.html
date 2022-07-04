@@ -44,27 +44,53 @@
       <div class="cols">
          <div class="left"></div>
          <div class="instructions rows">
-            <span>Type sin(x) in the highlight box (in green)</span>
+            <span
+               >Type sin(x) in the highlight box (in green)
+               <button onclick="showIt(2)">Show Me</button>
+            </span>
             <span>The graph for sin(x) should appear above</span>
             <span>New options will appear below</span>
             <span>
                you can use the color picker to change the color of the graph.
+               <button onclick="showIt(5)">Show Me</button>
             </span>
             <span>
                Click the add button and sin(x) expression will move to the list
                of expressions at the top left
+               <button onclick="showIt(7)">Show Me</button>
             </span>
             <span>
-               Click the save button underneath "Current Save" and then refresh.
+               If there are any free variables in an expression they will be
+               listed below the expression <br />Click the dx button next to the
+               free variable x to set the input expression to the derivative by
+               x <br />You can then add the derivative to the expression list by
+               clicking the add button
+               <button onclick="showIt(99)">Show Me</button>
             </span>
          </div>
-         <div class="scaled">
-            <iframe
-               class="igcalc"
-               src="https://typeholes.github.io/ig-calc/?StorageKey=test1"
-               title="ig-calc test 1"
-            ></iframe>
+         <div class="rows">
+            <button onclick="tryIt()">Try It</button>
+            <div class="scaled">
+               <iframe
+                  id="demo"
+                  class="igcalc"
+                  src=""
+                  title="ig-calc test 1"
+               ></iframe>
+            </div>
          </div>
       </div>
+      <script>
+         const demo = document.getElementById('demo');
+         const origin = window.location.origin;
+         function tryIt() {
+            demo.src = '`${origin}/ig-calc/?StorageKey=test1';
+            demo.classList.remove('view');
+         }
+         function showIt(cnt) {
+            demo.src = `${origin}/ig-calc/?StorageKey=test2&actionCnt=${cnt}&actions=example`;
+            demo.classList.add('view');
+         }
+      </script>
    </body>
 </html>
