@@ -1,0 +1,13 @@
+[
+   { "goto": { "delay": 2.5, "args": ["newExpr"] } },
+   { "type": { "delay": 2.5, "args": ["sin(x)"] } },
+   { "goto": { "delay": 2.5, "args": ["color:__tmp"] } },
+   { "click": { "delay": 1.5, "args": [] } },
+   { "set": { "delay": 2.5, "args": ["#00FFFF"] } },
+   { "goto": { "delay": 2.5, "args": ["addExpr"] } },
+   { "click": { "delay": 2.5, "args": [] } },
+   { "goto": { "delay": 2.5, "args": ["dx:x:anon: sin(x)"] } },
+   { "click": { "delay": 2.5, "args": [] } },
+   { "goto": { "delay": 2.5, "args": ["addExpr"] } },
+   { "click": { "delay": 2.5, "args": [] } }
+]

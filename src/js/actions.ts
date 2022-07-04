@@ -58,12 +58,15 @@ const actionHandlers: Record<string, (...x: string[]) => void> = {
    },
    click: (x) => {
       actionHandlers.select(x);
+      selectedElement?.classList.add('fakeActive');
+      setTimeout(() => selectedElement?.classList.remove('fakeActive'), 500);
       selectedElement?.click();
    },
    set: (value, elementId) => {
       actionHandlers.select(elementId);
       if (selectedElement instanceof HTMLInputElement) {
          selectedElement.value = value;
+         selectedElement.dispatchEvent(new Event('input', { bubbles: true }));
          selectedElement.dispatchEvent(new Event('change', { bubbles: true }));
       }
    },
@@ -140,24 +143,41 @@ function parseActions(json: unknown, cnt: number | undefined): Action[] {
    return actions.slice(0, cnt);
 }
 
+let previousElapsedTime = 0;
 let time = 0;
 let nextTime = 0.5;
-export function tick(elapsedSeconds: number) {
-   time += elapsedSeconds;
+export function tick(elapsedTime: number) {
+   const deltaSeconds = (elapsedTime - previousElapsedTime) / 1000;
+   previousElapsedTime = elapsedTime;
+   time += deltaSeconds;
+   // if (defined(actions) && actions.length > 0) {
+   //    console.log({
+   //       deltaSeconds,
+   //       time,
+   //       nextTime,
+   //       now: new Date().getSeconds(),
+   //    });
+   // }
    if (nextTime > time) {
       return;
    }
 
    if (defined(actions) && actions.length > 0) {
       const action = actions.shift()!;
-      nextTime += action[1].delay;
-      console.log('running action', {
-         time,
-         nextTime,
-         name: action[0],
-         ...action[1],
-         selected: selectedElement?.id,
-      });
+      const name = action[0];
+      if (name === 'wait') {
+         nextTime += action[1].delay;
+      } else {
+         prependAction('wait', action[1].delay);
+         nextTime += 0.1;
+      }
+      // console.log('running action', {
+      //    time,
+      //    nextTime,
+      //    name: name,
+      //    ...action[1],
+      //    selected: selectedElement?.id,
+      // });
       runAction(action);
    }
 }

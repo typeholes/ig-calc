@@ -307,9 +307,9 @@ export function disableGameTabs() {
 
 export let time = 0;
 export function gameLoop(elapsedTime) {
+   actionsTick(elapsedTime);
    const t = elapsedTime / 1000;
    const delta = t - time;
-   actionsTick(delta);
    if (delta >= state.tickTime) {
       time = t;
       const timeFn = state.env.get('time');
