@@ -12,6 +12,7 @@ import {
    ExprEnv,
    SaveRep,
    adjustExpr,
+isGraphable,
 } from './expressions';
 import DisplayData from './DisplayData.vue';
 import DisplayGraph from './DisplayGraph.vue';
@@ -156,7 +157,7 @@ export function addToEnv(s: string, showExpr = true) {
          const oldDatum = graph.options.data[name];
          graph.options.data[name] = {
             ...graph.options.data['__tmp'],
-            show: graph.options.data['__tmp'].show && showExpr,
+            show: graph.options.data['__tmp'].show && showExpr && isGraphable(env, newExpr),
          };
          state.error = undefined;
          state.env = env.delete('__tmp');
