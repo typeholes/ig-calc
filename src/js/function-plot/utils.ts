@@ -77,7 +77,7 @@ export function hasProp<T extends string>(
   x: unknown,
   prop: T
 ): x is Record<T, unknown> {
-  return typeof x === "object" && defined(x) && Object.hasOwn(x, prop);
+  return typeof x === "object" && defined(x) && x.hasOwnProperty(prop); // Object.hasOwn(x, prop);
 }
 
 export function hasPropIs<T extends string, U>(
