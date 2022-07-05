@@ -141,13 +141,13 @@
    // }
 
    function drawGraph() {
-      addTexElement(
-         'tex_' + props.expr.name,
-         props.tex ?? props.expr.node.toTex()
-      );
       drawLines();
    }
 
+   addTexElement(
+      'tex_' + props.expr.name,
+      props.tex ?? props.expr.node.toTex()
+   );
    function drawLines() {
       Errorable.catch(errorable(graph.drawLines), (error) => {
          //    emit("error", error);

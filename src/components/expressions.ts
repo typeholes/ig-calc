@@ -356,5 +356,5 @@ export function buildEnv(fns: Record<string, string>) {
     );
   }
 
-  refreshTex();
+//  refreshTex();
 }
