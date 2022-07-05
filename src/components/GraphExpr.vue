@@ -135,10 +135,10 @@
       }
    }
 
-   // function refreshTex() {
-   //   addTexElement("tex_" + props.expr.name, props.tex ?? props.expr.node.toTex());
-   //   typeset();
-   // }
+   function refreshTex() {
+     addTexElement("tex_" + props.expr.name, props.tex ?? props.expr.node.toTex());
+     typeset();
+   }
 
    function drawGraph() {
       drawLines();

@@ -4,7 +4,7 @@ import { Graph, mkGraph } from '../js/function-plot/d3util';
 import { reactive, shallowReactive, shallowRef, nextTick, computed } from 'vue';
 import { FunctionPlotOptions } from '../js/function-plot/FunctionPlotOptions';
 import { Interval } from '../js/function-plot/types';
-import { typeset } from '../js/typeset';
+import { addTexElement, typeset } from '../js/typeset';
 import {
    ValidExpr,
    getNodeName,
@@ -12,7 +12,7 @@ import {
    ExprEnv,
    SaveRep,
    adjustExpr,
-isGraphable,
+   isGraphable,
 } from './expressions';
 import DisplayData from './DisplayData.vue';
 import DisplayGraph from './DisplayGraph.vue';
@@ -133,12 +133,15 @@ export function checkNewExpr() {
             true,
             currentColor()
          );
-         nextTick(typeset);
+         refreshTex(expr);
       },
    });
 }
 
-export function refreshTex() {
+export function refreshTex(expr?: ValidExpr | undefined) {
+   if (defined(expr)) {
+      addTexElement('tex_' + expr.name, expr.node.toTex());
+   }
    nextTick(typeset);
 }
 
@@ -157,7 +160,10 @@ export function addToEnv(s: string, showExpr = true) {
          const oldDatum = graph.options.data[name];
          graph.options.data[name] = {
             ...graph.options.data['__tmp'],
-            show: graph.options.data['__tmp'].show && showExpr && isGraphable(env, newExpr),
+            show:
+               graph.options.data['__tmp'].show &&
+               showExpr &&
+               isGraphable(env, newExpr),
          };
          state.error = undefined;
          state.env = env.delete('__tmp');
