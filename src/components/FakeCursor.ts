@@ -14,13 +14,16 @@ export function goToElement(el: HTMLElement | undefined) {
    if (!defined(el)) {
       return;
    }
-   if (defined(el)) {
+  const appEl = document.getElementById('app');
+      appEl?.scrollIntoView(true);
+
+      el.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+   
       const bounds = el.getBoundingClientRect();
       moveTo(
-         window.scrollY + (bounds.top + bounds.bottom) / 2,
-         window.scrollX + (bounds.left + bounds.right) / 2
+         (bounds.top + bounds.bottom) / 2,
+         (bounds.left + bounds.right) / 2
       );
-   }
 }
 
 export function moveTo(top: number, left: number) {

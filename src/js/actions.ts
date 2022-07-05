@@ -1,5 +1,10 @@
 import { isObject } from '@vue/shared';
-import { isArray, isNumber, sluDependencies } from 'mathjs';
+import {
+   elementaryChargeDependencies,
+   isArray,
+   isNumber,
+   sluDependencies,
+} from 'mathjs';
 import { assert, defined, hasProp, hasPropIs, isString } from './util';
 import {
    addToEnv,
@@ -54,7 +59,7 @@ const actionHandlers: Record<string, (...x: string[]) => void> = {
    },
    goto: (x) => {
       actionHandlers.select(x);
-      goToElement(selectedElement);
+         goToElement(selectedElement);
    },
    click: (x) => {
       actionHandlers.select(x);
