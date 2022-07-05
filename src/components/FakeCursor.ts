@@ -14,16 +14,30 @@ export function goToElement(el: HTMLElement | undefined) {
    if (!defined(el)) {
       return;
    }
-  const appEl = document.getElementById('app');
-      appEl?.scrollIntoView(true);
+   const appEl = document.getElementById('app');
+   appEl?.scrollIntoView(true);
 
-      el.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
-   
-      const bounds = el.getBoundingClientRect();
+   el.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+
+   let bounds = el.getBoundingClientRect();
+   if (window.innerHeight - bounds.top < 80) {
+      window.scrollBy(0, 160);
+      bounds = el.getBoundingClientRect();
+   }
+
+   moveTo((bounds.top + bounds.bottom) / 2, (bounds.left + bounds.right) / 2);
+
+   bounds = el.getBoundingClientRect();
+   if (window.innerHeight - bounds.top < 80) {
+      window.scrollBy(0, 160);
+     cursorState.top += 160;
+     cursorState.oldTop += 160;
+      bounds = el.getBoundingClientRect();
       moveTo(
          (bounds.top + bounds.bottom) / 2,
          (bounds.left + bounds.right) / 2
       );
+   }
 }
 
 export function moveTo(top: number, left: number) {

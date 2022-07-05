@@ -59,7 +59,7 @@ const actionHandlers: Record<string, (...x: string[]) => void> = {
    },
    goto: (x) => {
       actionHandlers.select(x);
-         goToElement(selectedElement);
+      goToElement(selectedElement);
    },
    click: (x) => {
       actionHandlers.select(x);
@@ -148,9 +148,11 @@ function parseActions(json: unknown, cnt: number | undefined): Action[] {
    return actions.slice(0, cnt);
 }
 
+const bodyEl = document.getElementsByTagName('body')[0];
 let previousElapsedTime = 0;
 let time = 0;
 let nextTime = 0.5;
+let holdPointerEvents: string | undefined = undefined;
 export function tick(elapsedTime: number) {
    const deltaSeconds = (elapsedTime - previousElapsedTime) / 1000;
    previousElapsedTime = elapsedTime;
@@ -168,6 +170,11 @@ export function tick(elapsedTime: number) {
    }
 
    if (defined(actions) && actions.length > 0) {
+      if (!defined(holdPointerEvents)) {
+         holdPointerEvents = bodyEl.style.pointerEvents;
+         bodyEl.style.pointerEvents = 'none';
+         bodyEl.style.overflow = 'hidden';
+      }
       const action = actions.shift()!;
       const name = action[0];
       if (name === 'wait') {
@@ -184,5 +191,9 @@ export function tick(elapsedTime: number) {
       //    selected: selectedElement?.id,
       // });
       runAction(action);
+   } else if (defined(holdPointerEvents)) {
+      bodyEl.style.pointerEvents = holdPointerEvents;
+      holdPointerEvents = undefined;
+      bodyEl.style.overflow = '';
    }
 }
