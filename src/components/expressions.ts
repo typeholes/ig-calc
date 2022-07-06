@@ -55,12 +55,24 @@ export const SaveRep = {
    saveKey: 'ExprEnvSaveRep' as const,
 };
 
+function unJS(expr: string) {
+   return expr
+      .replaceAll('**', '^')
+      .replaceAll('Math.PI', 'pi')
+      .replaceAll('Math.E', 'e')
+      .replaceAll('Math.', '')
+      .replace(
+         /const ([^=]+)=(.+)=>(.+)/,
+         (match, name, args, body) => name + args + '=' + body
+      )
+      .replace(/const ([^=]+)=(.+)/, (match, name, body) => name + '=' + body);
+}
 export function parseExpr(
    env: ExprEnv,
    s: string,
    forceName?: string | undefined
 ): Errorable<[ExprEnv, ValidExpr, string]> {
-   const result = parse(s.replaceAll('**', '^'));
+   const result = parse(unJS(s));
 
    return flatMap(result, (node) =>
       errorable(() => {
@@ -119,10 +131,13 @@ export function envToMathEnv(
    includeConstants = false
 ): Record<string, number | MathNode> {
    const constants = includeConstants ? builtinConstants.toObject() : {};
+   // const tmp = env.get('__tmp');
+   // const tmpEntry = defined(tmp) ? { [tmp.name]: tmp.node } : {};
+
    const mathEnv: Record<string, MathNode | number> = env
       .map((x) => getAssignmentBody(x.node))
       .toObject();
-   return reactive({ ...mathEnv, ...constants });
+   return reactive({ ...mathEnv, ...constants, /*...tmpEntry*/ });
 }
 export function getGraphFnStr(
    env: ExprEnv,
@@ -306,14 +321,14 @@ export const ValidExpr = {
          : getAssignmentBody(expr.node);
       const inlined = inline(body, envToMathEnv(env));
       const firstFree = getDependencies(env, expr, 'free').first('x');
-      const evalFn = (x: number) => {
+      const datum = Datum((x: number) => {
          try {
             return inlined.compile().evaluate({ [firstFree]: x });
          } catch (e) {
             return 0;
          }
-      };
-      return Datum(evalFn, { show, color });
+      }, { show, color });
+      return datum
    },
 };
 
