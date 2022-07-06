@@ -28,6 +28,9 @@ import { FunctionPlotData } from '../js/function-plot/FunctionPlotDatum';
 import { SaveId } from '../js/SaveManager';
 import { arrayRange } from '../js/function-plot/utils';
 import { actions, runAction, tick as actionsTick } from '../js/actions';
+import GraphExpr from './GraphExpr.vue';
+import TextExpr from './TextExpr.vue';
+import TextJsExpr from './TextJsExpr.vue';
 
 const colors = IMap(
    'ff0000 00ff00 0000ff ffff00 ff00ff 00ffff ffffff'
@@ -101,6 +104,7 @@ export const state = reactive({
    showGeneralOptions: false,
    showMenuBar: false,
    displayComponent: 'DisplayGraph' as keyof typeof displayComponents,
+   exprComponent: 'expr' as 'text' | 'expr',
    currentSave: SaveId('local', 'Default'),
    selectedSave: SaveId('local', 'Default'),
    selectedSaveIsDeleted: false,
@@ -292,6 +296,17 @@ export const appTabs = shallowReactive({
    Calc: shallowRef(IgCalc),
    Help: shallowRef(HelpScreen),
 });
+
+export const exprComponents = shallowReactive({
+   text: shallowRef(TextExpr),
+   expr: shallowRef(GraphExpr),
+   js: shallowRef(TextJsExpr),
+});
+
+export function lookupExprComponent(name: 'text' | 'expr' | 'js') {
+   const component = exprComponents[name];
+   return component.value;
+}
 
 const appGameTabs = {
    Editor: shallowRef(GameEditor),

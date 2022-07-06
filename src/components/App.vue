@@ -46,6 +46,9 @@
    :deep(input) {
       background-color: v-bind('theme.backgroundColor');
    }
+   :deep(select) {
+      background-color: v-bind('theme.backgroundColor');
+   }
 
    .main {
       display: grid;
@@ -125,7 +128,7 @@
       box-shadow: 0 2px #666;
       transform: translateY(2px);
    }
-   
+
    /* body {
     overflow: hidden;
    } */

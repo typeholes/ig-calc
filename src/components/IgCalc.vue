@@ -5,6 +5,7 @@
    import Hsplitter from './Hsplitter.vue';
    import FunctionSelector from './FunctionSelector.vue';
    import GraphExpr from './GraphExpr.vue';
+   import TextExpr from './TextExpr.vue';
    import SaveWidget from './SaveWidget.vue';
    import GeneralOptions from './GeneralOptions.vue';
 
@@ -25,6 +26,7 @@
       loadEnv,
       init,
       systemFnNames,
+      lookupExprComponent,
    } from './uiUtil';
    import { SaveId } from '../js/SaveManager';
    import FakeCursor from './FakeCursor.vue';
@@ -145,6 +147,14 @@
                      class="LeftPopover"
                      v-if="state.showGeneralOptions"
                   ></GeneralOptions>
+                  <div>
+                     <label for="exprComponent">Display expressions as</label>
+                     <select id="exprComponent" v-model="state.exprComponent">
+                        <option value="expr">Expression</option>
+                        <option value="text">Plain Text</option>
+                        <option value="js">JavaScript (experimental)</option>
+                     </select>
+                  </div>
                   <div
                      class="expressions"
                      v-if="
@@ -164,7 +174,8 @@
                         )"
                      :key="expr.name"
                   >
-                     <GraphExpr
+                     <component
+                        :is="lookupExprComponent(state.exprComponent)"
                         :env="state.env"
                         :expr="expr"
                         :allow-copy="previewingSave"
@@ -176,10 +187,10 @@
                            }
                         "
                         v-on:remove:expr="(x) => removeExpr(x)"
-                        v-on:error="showError"
+                        v-on:error="(x) => showError(x as never)"
                         v-on:edit="editExpression"
                         v-on:import="importExpression"
-                     ></GraphExpr>
+                     ></component>
                   </div>
                </template>
                <template #right>
