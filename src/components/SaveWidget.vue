@@ -449,8 +449,8 @@
             "
          >
             <div class="previewHeader">
-               Preview of save
-               {{ appState.selectedSave.type }}:
+               Preview of 
+               {{ appState.selectedSave.type }} save
                {{ appState.selectedSave.name }}
             </div>
             <!-- <button
