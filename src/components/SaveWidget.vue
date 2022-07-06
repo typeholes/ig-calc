@@ -1,5 +1,5 @@
 <script setup lang="ts">
-   import { onMounted, reactive } from 'vue';
+   import { computed, onMounted, reactive } from 'vue';
    import { Either, Errorable, isLeft } from '../js/Either';
    import {
       readSave,
@@ -301,6 +301,7 @@
       state.copying = undefined;
       state.newName = undefined;
       state.newDescr = undefined;
+      appState.selectedSave = appState.currentSave;
    }
 
    function deleteSave(id: SaveId) {
@@ -310,6 +311,7 @@
       writeSaveMetadata(state.saveMetaData);
       state.hasDeletedSaves = true;
       appState.selectedSaveIsDeleted = true;
+      cancel();
    }
 
    function restoreAllDeletedSaves() {
@@ -359,12 +361,16 @@
       appState.currentSave = appState.selectedSave;
       emit('unselectSave', undefined);
    }
+
+   const previewing = computed(
+      () => !SaveId.eq(appState.currentSave, appState.selectedSave)
+   );
 </script>
 
 <template>
    <div class="outer">
       <div class="saveWidget">
-         <div class="saveColumn">
+         <div class="saveColumn" v-if="!previewing">
             <div>Current Save</div>
             <button
                class="save"
@@ -408,7 +414,7 @@
                share
             </button>
          </div>
-         <div class="saveColumn">
+         <div class="saveColumn" v-if="!previewing">
             <div>Your Saves</div>
             <div v-for="[id, [description, deleted]] of saveList('local')">
                <SaveEntry
@@ -421,7 +427,7 @@
             </div>
          </div>
 
-         <div class="saveColumn">
+         <div class="saveColumn" v-if="!previewing">
             <div>Shared Saves</div>
             <div v-for="[id, [description, deleted]] of saveList('shared')">
                <SaveEntry
@@ -442,11 +448,12 @@
                !appState.selectedSaveIsDeleted
             "
          >
-            <div>
+            <div class="previewHeader">
+               Preview of save
                {{ appState.selectedSave.type }}:
                {{ appState.selectedSave.name }}
             </div>
-            <button
+            <!-- <button
                v-if="!SaveId.eq(appState.currentSave, EmptySaveId)"
                class="save"
                @click="
@@ -459,7 +466,7 @@
                "
             >
                Overwrite with current save
-            </button>
+            </button> -->
             <button
                class="load"
                @click="load(appState.selectedSave, 'restore')"
@@ -486,13 +493,13 @@
             >
                delete
             </button>
-            <button @click="unselectSave">Cancel</button>
+            <button @click="unselectSave">Close</button>
          </div>
 
          <div
             class="saveColumn"
             v-if="
-               !SaveId.eq(appState.selectedSave, appState.currentSave) &&
+               previewing &&
                appState.selectedSave.type !== 'library' &&
                appState.selectedSaveIsDeleted
             "
@@ -508,9 +515,10 @@
             <button @click="purgeDeletedSave(appState.selectedSave)">
                purge
             </button>
+            <button @click="unselectSave">Close</button>
          </div>
 
-         <div class="saveColumn">
+         <div class="saveColumn" v-if="!previewing">
             <div>Library</div>
             <div v-for="[id, [description, deleted]] of saveList('library')">
                <SaveEntry
@@ -525,14 +533,14 @@
          <div
             class="saveColumn"
             v-if="
-               !SaveId.eq(appState.selectedSave, appState.currentSave) &&
+               previewing &&
                appState.selectedSave.type == 'library' &&
                !appState.selectedSaveIsDeleted
             "
          >
-            <div>{{ appState.selectedSave.name }}</div>
+            <div class="previewHeader">{{ appState.selectedSave.name }}</div>
             <div>{{ libraryDescriptions.get(appState.selectedSave.name) }}</div>
-            <button @click="unselectSave">Cancel</button>
+            <button @click="unselectSave">Close</button>
          </div>
          <div
             class="saveColumn"
@@ -557,7 +565,7 @@
       </template>
    </div>
    <div style="grid-row: 5">
-      {{ baseUrl() + '?shared=' + state.shareString }}
+      {{ state.shareString }}
    </div>
 </template>
 
@@ -585,6 +593,10 @@
 
    .saveColumn > :first-child {
       background-color: rgb(82, 94, 90);
+   }
+
+   .saveColumn > .previewHeader {
+      background-color: rgb(50, 85, 50);
    }
 
    .saveWidget :first-child :nth-child(2) {
