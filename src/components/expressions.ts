@@ -60,7 +60,7 @@ export function parseExpr(
    s: string,
    forceName?: string | undefined
 ): Errorable<[ExprEnv, ValidExpr, string]> {
-   const result = parse(s);
+   const result = parse(s.replaceAll('**', '^'));
 
    return flatMap(result, (node) =>
       errorable(() => {
