@@ -26,7 +26,7 @@ import {
 import { Set as ISet } from 'immutable';
 import { Map as IMap } from 'immutable';
 
-import { defined, hasPropIs, isBoolean } from '../js/util';
+import { assert, defined, hasPropIs, isBoolean } from '../js/util';
 import {
    errorable,
    Errorable,
@@ -43,10 +43,10 @@ import {
    refreshTex,
    state,
 } from './uiUtil';
-import { Datum } from '../js/function-plot/FunctionPlotDatum';
+import { Datum, EvalFn } from '../js/function-plot/FunctionPlotDatum';
 import { reactive } from 'vue';
 import { simplify } from '../js/math/simplify';
-import { typeCastExpression } from '@babel/types';
+import { ExportNamespaceSpecifier, typeCastExpression } from '@babel/types';
 
 export type ExprEnv = IMap<string, ValidExpr>;
 export const emptyEnv: ExprEnv = IMap();
@@ -139,7 +139,7 @@ export function envToMathEnv(
    const mathEnv: Record<string, MathNode | number> = env
       .map((x) => getAssignmentBody(x.node))
       .toObject();
-   return reactive({ ...mathEnv, ...constants /*...tmpEntry*/ });
+   return { ...mathEnv, ...constants /*...tmpEntry*/ };
 }
 export function getGraphFnStr(
    env: ExprEnv,
@@ -219,7 +219,7 @@ export function updateExpr(key: string, value: string): ExprError | 'valid' {
    const expr = parseExpr(value);
    if (expr.name === '#error') {
       return expr as ExprError;
-   }
+   i
    if (typeof key === 'number') {
       delete expressions.anonymous[key];
    } else {
@@ -311,6 +311,30 @@ function defaultCall(fn: M.FunctionAssignmentNode): MathNode {
    return M.parse(call);
 }
 
+function toEvalFn(
+   getNode: (env: ExprEnv, expr: ValidExpr) => MathNode,
+   expr: ValidExpr,
+   env: ExprEnv
+): EvalFn {
+   const node = getNode(env, expr);
+   const body = isFunctionAssignmentNode(node)
+      ? defaultCall(node)
+      : getAssignmentBody(node);
+   const inlined = inline(body, envToMathEnv(env));
+   const firstFree = getDependencies(env, expr, 'free').first('x');
+   return (x: number) => {
+      try {
+         const result = inlined.compile().evaluate({ [firstFree]: x });
+         if (!isNumber(result)) {
+            return 0;
+         } else {
+            return result;
+         }
+      } catch (e) {
+         return 0;
+      }
+   };
+}
 export const ValidExpr = {
    toDatum: (
       expr: ValidExpr,
@@ -318,20 +342,24 @@ export const ValidExpr = {
       show: boolean,
       color = '#FFFFFF'
    ) => {
-      const body = isFunctionAssignmentNode(expr.node)
-         ? defaultCall(expr.node)
-         : getAssignmentBody(expr.node);
-      const inlined = inline(body, envToMathEnv(env));
-      const firstFree = getDependencies(env, expr, 'free').first('x');
+      const graphFn = getGraphFn(env, expr, true);
+      if (!defined(graphFn)) {
+         return Datum(() => 0, { show, color });
+      }
+      // const firstFree = getDependencies(env, expr, 'free').first('x');
+      //
       const datum = Datum(
-         (x: number) => {
-            try {
-               return inlined.compile().evaluate({ [firstFree]: x });
-            } catch (e) {
-               return 0;
-            }
-         },
-         { show, color }
+         toEvalFn(() => expr.node, expr, env),
+         { show, color },
+         undefined //  simplifying and inlining is a net loss
+         // TODO: revisit with dependency tracking to only simplify when needed
+         // () =>
+         //    toEvalFn(
+         //       (env, expr) =>
+         //          simplify(getGraphFn(env.delete('time'), expr, true)!, false),
+         //       expr,
+         //       env
+         //    )
       );
       return datum;
    },
