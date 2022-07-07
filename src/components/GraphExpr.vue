@@ -261,11 +261,7 @@
             v-if="defined(state.holdConstant) || isNumericConstant(expr.node)"
          >
             <o-field class="fullRow" label="" v-if="!state.animate"
-               ><o-slider
-                  v-model="slider.new"
-                  :step="0.01"
-                  tooltipAlways
-               ></o-slider
+               ><o-slider v-model="slider.new" :step="0.01"></o-slider
             ></o-field>
             <template v-else>
                <o-field label="From">
