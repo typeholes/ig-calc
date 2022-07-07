@@ -2,7 +2,10 @@ import { defined } from '../js/util';
 import { Map as IMap } from 'immutable';
 import { Graph, mkGraph } from '../js/function-plot/d3util';
 import { reactive, shallowReactive, shallowRef, nextTick, computed } from 'vue';
-import { FunctionPlotOptions } from '../js/function-plot/FunctionPlotOptions';
+import {
+   defaultFunctionPlotOptionsAxis,
+   FunctionPlotOptions,
+} from '../js/function-plot/FunctionPlotOptions';
 import { Interval } from '../js/function-plot/types';
 import { addTexElement, typeset } from '../js/typeset';
 import {
@@ -63,8 +66,9 @@ export const graphOptions: FunctionPlotOptions = {
    data: {}, //  reactive({}),  can't make this reactive without recursive vue updates
    width: 800,
    height: 600,
-   xDomain: reactive(Interval(0, 1)),
-   yDomain: reactive(Interval(0, 1)),
+   xDomain: reactive(Interval(10, 20)),
+   xAxis: { ...defaultFunctionPlotOptionsAxis(), type: 'linear' },
+   yDomain: reactive(Interval(10, 20)),
 };
 
 let gameLoopRunning = false;
@@ -83,7 +87,7 @@ export function init() {
 }
 
 export function initGraph() {
-   graph = mkGraph(graphOptions);
+   graph = mkGraph({ ...graphOptions });
    graph.resetZoom(Interval(-10, 10), 0);
 }
 

@@ -6,18 +6,20 @@
       getDependencies,
       envToMathEnv,
       getGraphFnStr,
+      isNumericConstant,
+      getFunctionBody,
+      getBody as getDeclarationBody,
+      getNumericConstant,
+      adjustExpr,
+      setNumericConstant,
    } from './expressions';
    import { addTexElement, typeset } from '../js/typeset';
-   import { onUpdated, onMounted, reactive } from 'vue';
-   import { MathNode, simplify } from 'mathjs';
+   import { onUpdated, onMounted, reactive, computed, watch } from 'vue';
+   import { isAssignmentNode, MathNode, simplify } from 'mathjs';
    import { derive as _derive } from '../js/math/derivatives';
    import { integrate as _integrate } from '../js/math/integrals';
    import { inline } from '../js/math/mathUtil';
    import { Errorable, errorable } from '../js/Either';
-   import {
-      getFunctionBody,
-      getBody as getDeclarationBody,
-   } from './expressions';
    import {
       addImportExpression,
       checkNewExpr,
@@ -25,7 +27,6 @@
       hasImportExpression,
       state as appState,
    } from './uiUtil';
-   import { computed } from '@vue/reactivity';
    import { defined, notBlank } from '../js/util';
    import { play } from '../js/sonify';
 
@@ -136,8 +137,11 @@
    }
 
    function refreshTex() {
-     addTexElement("tex_" + props.expr.name, props.tex ?? props.expr.node.toTex());
-     typeset();
+      addTexElement(
+         'tex_' + props.expr.name,
+         props.tex ?? props.expr.node.toTex()
+      );
+      typeset();
    }
 
    function drawGraph() {
@@ -161,6 +165,21 @@
 
    onUpdated(drawGraph);
    onMounted(drawGraph);
+
+   const slider = reactive({ new: getNumericConstant(props.expr.node) });
+   const updateSlider = computed(() => getNumericConstant(props.expr.node));
+
+   watch(updateSlider, (x) => (slider.new = x));
+
+   watch(slider, (x) => {
+      setNumericConstant(props.expr.node, slider.new);
+      if (props.expr.name == '__tmp') {
+         emit('new:expr', props.expr.node.toString());
+      } else {
+         refreshTex()
+      }
+       
+   });
 </script>
 
 <template>
@@ -192,6 +211,15 @@
                   :id="`color:${expr.name}`"
                />
             </template>
+         </div>
+         <div class="cols" v-if="isNumericConstant(expr.node)">
+            <o-field class="fullRow" label=""
+               ><o-slider
+                  v-model="slider.new"
+                  :step="0.01"
+                  tooltipAlways
+               ></o-slider
+            ></o-field>
          </div>
          <div class="cols" v-if="expr.showValue">
             <span class="fullRow">{{ graphFn(expr) }}</span>

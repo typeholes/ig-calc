@@ -1,7 +1,9 @@
 import {
    expression,
    isAssignmentNode,
+   isConstantNode,
    isFunctionAssignmentNode,
+   isNumber,
    isString,
    MathNode,
    SymbolNode,
@@ -137,7 +139,7 @@ export function envToMathEnv(
    const mathEnv: Record<string, MathNode | number> = env
       .map((x) => getAssignmentBody(x.node))
       .toObject();
-   return reactive({ ...mathEnv, ...constants, /*...tmpEntry*/ });
+   return reactive({ ...mathEnv, ...constants /*...tmpEntry*/ });
 }
 export function getGraphFnStr(
    env: ExprEnv,
@@ -321,24 +323,27 @@ export const ValidExpr = {
          : getAssignmentBody(expr.node);
       const inlined = inline(body, envToMathEnv(env));
       const firstFree = getDependencies(env, expr, 'free').first('x');
-      const datum = Datum((x: number) => {
-         try {
-            return inlined.compile().evaluate({ [firstFree]: x });
-         } catch (e) {
-            return 0;
-         }
-      }, { show, color });
-      return datum
+      const datum = Datum(
+         (x: number) => {
+            try {
+               return inlined.compile().evaluate({ [firstFree]: x });
+            } catch (e) {
+               return 0;
+            }
+         },
+         { show, color }
+      );
+      return datum;
    },
 };
 
-export function adjustExpr(expr: ValidExpr, template: string) {
+export function adjustExpr(expr: ValidExpr, template: string, addParen = true) {
    if (isFunctionAssignmentNode(expr.node)) {
       throw new Error('cannot adjust function assignment nodes');
    }
 
    const datum = graph.options.data[expr.name];
-   const sub = template.replace('%', '(%)');
+   const sub = addParen ? template.replace('%', '(%)') : template;
    if (isAssignmentNode(expr.node)) {
       const body = getBody(expr.node);
       const newBody = simplify(`${sub.replace('%', body.toString())}`);
@@ -374,4 +379,33 @@ export function buildEnv(fns: Record<string, string>) {
    }
 
    refreshTex();
+}
+
+export function isNumericConstant(node: MathNode) {
+   return isAssignmentNode(node) && isConstantNode(getAssignmentBody(node));
+}
+
+export function getNumericConstant(node: MathNode): number {
+   let result = 0;
+   if (isConstantNode(node) && isNumber(node.value)) {
+      result = node.value;
+   } else if (isAssignmentNode(node)) {
+      result = getNumericConstant(getAssignmentBody(node));
+   }
+
+   return result;
+}
+
+export function setNumericConstant(node: MathNode, value: number): number {
+   let result = 0;
+   if (isConstantNode(node) && isNumber(node.value)) {
+      node.value = value;
+   } else if (isAssignmentNode(node)) {
+      const body = getAssignmentBody(node);
+      if (isConstantNode(body)) {
+         body.value = value;
+      }
+   }
+
+   return result;
 }
