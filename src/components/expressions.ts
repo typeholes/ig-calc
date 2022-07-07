@@ -396,8 +396,7 @@ export function getNumericConstant(node: MathNode): number {
    return result;
 }
 
-export function setNumericConstant(node: MathNode, value: number): number {
-   let result = 0;
+export function setNumericConstant(node: MathNode, value: number) {
    if (isConstantNode(node) && isNumber(node.value)) {
       node.value = value;
    } else if (isAssignmentNode(node)) {
@@ -406,6 +405,10 @@ export function setNumericConstant(node: MathNode, value: number): number {
          body.value = value;
       }
    }
+}
 
-   return result;
+export function setAssignmentBody(node: MathNode, expr: string) {
+   if (isAssignmentNode(node)) {
+      node.value = M.parse(expr);
+   }
 }

@@ -12,16 +12,19 @@
       getNumericConstant,
       adjustExpr,
       setNumericConstant,
+      setAssignmentBody,
+      getAssignmentBody,
    } from './expressions';
    import { addTexElement, typeset } from '../js/typeset';
    import { onUpdated, onMounted, reactive, computed, watch } from 'vue';
-   import { isAssignmentNode, MathNode, simplify } from 'mathjs';
+   import { isAssignmentNode, MathNode, number, simplify } from 'mathjs';
    import { derive as _derive } from '../js/math/derivatives';
    import { integrate as _integrate } from '../js/math/integrals';
    import { inline } from '../js/math/mathUtil';
    import { Errorable, errorable } from '../js/Either';
    import {
       addImportExpression,
+      addToEnv,
       checkNewExpr,
       graph,
       hasImportExpression,
@@ -29,6 +32,7 @@
    } from './uiUtil';
    import { defined, notBlank } from '../js/util';
    import { play } from '../js/sonify';
+   import { libraryFns } from '../js/libraryValues';
 
    interface Props {
       expr: ValidExpr;
@@ -42,6 +46,8 @@
 
    const state = reactive({
       showMenu: false,
+      animate: false,
+      holdConstant: undefined as MathNode | undefined,
    });
 
    const isImported = computed(() => hasImportExpression(props.expr));
@@ -176,10 +182,48 @@
       if (props.expr.name == '__tmp') {
          emit('new:expr', props.expr.node.toString());
       } else {
-         refreshTex()
+         refreshTex();
       }
-       
    });
+
+   const animation = reactive({
+      from: 0,
+      to: 10,
+      period: 10,
+      fn: 'zigZag',
+   });
+   watch(animation, setAnimationExprBody);
+
+   function toggleAnimate() {
+      if (state.animate) {
+         if (isAssignmentNode(props.expr.node)) {
+            props.expr.node.value = state.holdConstant!;
+         }
+      } else {
+         state.holdConstant = getAssignmentBody(props.expr.node);
+         setAnimationExprBody();
+      }
+      state.animate = !state.animate;
+   }
+
+   function setAnimationExprBody() {
+      if (!props.env.has(animation.fn)) {
+         const fnStr = libraryFns.get('periodic')![animation.fn][0];
+         const holdExpr = appState.newExpr;
+         appState.newExpr = fnStr;
+         checkNewExpr();
+         addToEnv(fnStr, false);
+
+         appState.newExpr = holdExpr;
+         checkNewExpr();
+      }
+      setAssignmentBody(
+         props.expr.node,
+         `${animation.fn}(time, ${animation.from}, ${
+            animation.to - animation.from
+         }, ${animation.period})`
+      );
+   }
 </script>
 
 <template>
@@ -212,14 +256,38 @@
                />
             </template>
          </div>
-         <div class="cols" v-if="isNumericConstant(expr.node)">
-            <o-field class="fullRow" label=""
+         <div
+            class="cols lastSmall"
+            v-if="defined(state.holdConstant) || isNumericConstant(expr.node)"
+         >
+            <o-field class="fullRow" label="" v-if="!state.animate"
                ><o-slider
                   v-model="slider.new"
                   :step="0.01"
                   tooltipAlways
                ></o-slider
             ></o-field>
+            <template v-else>
+               <o-field label="From">
+                  <o-input type="number" v-model="animation.from"></o-input>
+               </o-field>
+               <o-field label="To">
+                  <o-input type="number" v-model="animation.to"></o-input>
+               </o-field>
+               <o-field label="Seconds per Cycle">
+                  <o-input type="number" v-model="animation.period"></o-input>
+               </o-field>
+               <o-field label="Type">
+                  <!-- TODO drive this from the periodic library -->
+                  <o-select v-model="animation.fn">
+                     <option value="sinal">sinal</option>
+                     <option value="zigZag">zigZag</option>
+                  </o-select>
+               </o-field>
+            </template>
+            <button @click="toggleAnimate">
+               {{ state.animate ? 'Make Constant' : 'Animate' }}
+            </button>
          </div>
          <div class="cols" v-if="expr.showValue">
             <span class="fullRow">{{ graphFn(expr) }}</span>
@@ -326,6 +394,7 @@
 
    .lastSmall > :last-child {
       flex: 0 1 fit-content;
+      margin-left: auto;
    }
 
    .imported {
@@ -334,5 +403,13 @@
 
    button:disabled {
       background-color: rgb(59, 20, 20);
+   }
+
+   fullRow {
+      flex: 99 0 auto;
+   }
+
+   .rightward {
+      margin-left: auto;
    }
 </style>
