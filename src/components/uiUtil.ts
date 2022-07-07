@@ -64,8 +64,8 @@ export const graphOptions: FunctionPlotOptions = {
    target: '#graph',
    //  title: "Default",
    data: {}, //  reactive({}),  can't make this reactive without recursive vue updates
-   width: 800,
-   height: 600,
+   width: Math.max(window.innerWidth / 2, 400),
+   height: Math.max(window.innerHeight / 2, 400),
    xDomain: reactive(Interval(10, 20)),
    xAxis: { ...defaultFunctionPlotOptionsAxis(), type: 'linear' },
    yDomain: reactive(Interval(10, 20)),

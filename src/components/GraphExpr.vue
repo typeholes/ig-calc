@@ -270,7 +270,7 @@
                <o-field label="To">
                   <o-input type="number" v-model="animation.to"></o-input>
                </o-field>
-               <o-field label="Seconds per Cycle">
+               <o-field label="Period">
                   <o-input type="number" v-model="animation.period"></o-input>
                </o-field>
                <o-field label="Type">
