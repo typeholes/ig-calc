@@ -5,7 +5,7 @@ import { reactive } from "vue";
 import { errorable, on } from "../../js/Either";
 import { hasProp, hasPropIs } from "../../js/function-plot/utils";
 import { isString } from "../../js/util";
-import { buildEnv } from "../expressions";
+import { buildEnv } from "../../js/expressions";
 import { addNewExpr, addToEnv, state as igCalcState } from "../uiUtil";
 import { game, GameButton, GameVar, isItemType, addGameItem } from "./game";
 

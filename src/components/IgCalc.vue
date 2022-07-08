@@ -9,7 +9,7 @@
    import SaveWidget from './SaveWidget.vue';
    import GeneralOptions from './GeneralOptions.vue';
 
-   import { getNodeName, SaveRep } from './expressions';
+   import { getNodeName, SaveRep } from '../js/expressions';
    import { defined } from '../js/util';
    import { getExpressionUiState } from './expressionUiState';
    import { globalTheme } from '../js/theme';
@@ -67,7 +67,7 @@
    }
 
    function exprNames() {
-      const names = Array.from(state.env.keys());
+      const names = Object.keys(state.env.toRecord());
       return names.filter((name) => graph.options.data[name]?.show);
    }
 
@@ -97,7 +97,7 @@
       state.newExpr = state.env.get(name)?.node.toString() ?? '';
       checkNewExpr();
       if (name.startsWith('anon:')) {
-         state.env = state.env.delete(name); // TODO: should we delete anonymous expressions on edit?
+         state.env.delete(name); // TODO: should we delete anonymous expressions on edit?
       }
    }
 </script>
@@ -164,7 +164,7 @@
                            state.showGeneralOptions
                         )
                      "
-                     v-for="expr in state.env
+                     v-for="expr in state.env.toMap()
                         .valueSeq()
                         .filter(
                            (x) =>

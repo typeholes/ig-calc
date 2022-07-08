@@ -12,11 +12,10 @@ import {
    ValidExpr,
    getNodeName,
    parseExpr,
-   ExprEnv,
    SaveRep,
    adjustExpr,
    isGraphable,
-} from './expressions';
+} from '../js/expressions';
 import DisplayData from './DisplayData.vue';
 import DisplayGraph from './DisplayGraph.vue';
 import { on } from '../js/Either';
@@ -34,6 +33,7 @@ import { actions, runAction, tick as actionsTick } from '../js/actions';
 import GraphExpr from './GraphExpr.vue';
 import TextExpr from './TextExpr.vue';
 import TextJsExpr from './TextJsExpr.vue';
+import { mkExprEnv } from '../js/exprEnv';
 
 const colors = IMap(
    'ff0000 00ff00 0000ff ffff00 ff00ff 00ffff ffffff'
@@ -76,6 +76,7 @@ export function init() {
    if (!defined(graph)) {
       initGraph();
    }
+    parseExpr(state.env, 'time = 0');
    const timeFn = state.env.get('time');
    if (!defined(timeFn)) {
       addNewExpr('time', 'time = 0');
@@ -96,7 +97,7 @@ export const state = reactive({
    hideBottom: false,
    hideLeft: false,
    hideLibrary: true,
-   env: IMap() as ExprEnv,
+   env: mkExprEnv(graphOptions),
    newExpr: '',
    parseResult: undefined as undefined | ValidExpr,
    src: 'x',
@@ -130,10 +131,8 @@ export function checkNewExpr() {
       Left: (err) => {
          state.error = err.message;
       },
-      Right: ([env, _]) => {
+      Right: ([expr, _]) => {
          state.error = undefined;
-         state.env = env;
-         const expr = env.get('__tmp')!;
          state.parseResult = expr;
          graph.options.data['__tmp'] = ValidExpr.toDatum(
             expr,
@@ -163,7 +162,7 @@ export function addToEnv(s: string, showExpr = true) {
          state.parseResult = undefined;
          return undefined;
       },
-      Right: ([env, newExpr, _]) => {
+      Right: ([newExpr, _]) => {
          newColor();
          const oldDatum = graph.options.data[name];
          graph.options.data[name] = {
@@ -171,10 +170,10 @@ export function addToEnv(s: string, showExpr = true) {
             show:
                graph.options.data['__tmp'].show &&
                showExpr &&
-               isGraphable(env, newExpr),
+               isGraphable(state.env, newExpr),
          };
          state.error = undefined;
-         state.env = env.delete('__tmp');
+         state.env.delete('__tmp');
          state.parseResult = undefined;
 
          if (defined(oldExpr)) {
@@ -197,7 +196,7 @@ export function removeExpr(name: string) {
       state.newExpr = '';
       checkNewExpr();
    } else {
-      state.env = state.env.remove(name);
+      state.env.delete(name);
       state.modified = true;
    }
 }
@@ -212,9 +211,7 @@ export function addNewExpr(name: string, newExpr: string) {
       Left: (err) => {
          throw err;
       },
-      Right: ([env, _]) => {
-         state.env = env;
-         const expr = env.get(name)!;
+      Right: ([expr, _]) => {
          const datum = graph.options.data[name];
          graph.options.data[name] = ValidExpr.toDatum(
             expr,
@@ -235,7 +232,7 @@ export function hasImportExpression(expr: ValidExpr): boolean {
 }
 
 export function loadEnv(args: { saveRep: SaveRep }) {
-   state.env = state.env.clear();
+   state.env.clear();
    if (!defined(graph)) {
       initGraph();
    } else {
@@ -285,7 +282,7 @@ export function loadEnv(args: { saveRep: SaveRep }) {
 }
 
 export function refreshDatumEnvironments() {
-   for (const expr of state.env.values()) {
+   state.env.forEach((expr) => {
       const currentDatum = graph.options.data[expr.name];
       graph.options.data[expr.name] = ValidExpr.toDatum(
          expr,
@@ -293,7 +290,7 @@ export function refreshDatumEnvironments() {
          currentDatum?.show ?? false,
          currentDatum?.color ?? currentColor()
       );
-   }
+   });
 }
 
 export const appTabs = shallowReactive({
@@ -340,7 +337,7 @@ export function gameLoop(elapsedTime) {
       time = t;
       const timeFn = state.env.get('time');
       if (defined(timeFn)) {
-         adjustExpr(timeFn, `${time}`);
+         adjustExpr(state.env, timeFn, `${time}`);
       }
    }
    window.requestAnimationFrame(gameLoop);

@@ -1,10 +1,8 @@
 <script setup lang="ts">
    import {
-      ExprEnv,
       ValidExpr,
       isGraphable,
       getDependencies,
-      envToMathEnv,
       getGraphFnStr,
       isNumericConstant,
       getFunctionBody,
@@ -14,7 +12,8 @@
       setNumericConstant,
       setAssignmentBody,
       getAssignmentBody,
-   } from './expressions';
+parseExpr,
+   } from '../js/expressions';
    import { addTexElement, typeset } from '../js/typeset';
    import { onUpdated, onMounted, reactive, computed, watch } from 'vue';
    import { isAssignmentNode, MathNode, number, simplify } from 'mathjs';
@@ -33,10 +32,10 @@
    import { defined, notBlank } from '../js/util';
    import { play } from '../js/sonify';
    import { libraryFns } from '../js/libraryValues';
+import { env } from 'yargs';
 
    interface Props {
       expr: ValidExpr;
-      env: ExprEnv;
       tex?: string;
       allowCopy: boolean;
       allowEdit: boolean;
@@ -87,7 +86,7 @@
       const result = errorable(() => {
          const inlined = inline(
             getBody(props.expr.node),
-            envToMathEnv(props.env)
+            appState.env.getMathEnv()
          );
          const dx = _derive(inlined, by);
          emit('new:expr', simplify(dx).toString());
@@ -101,7 +100,7 @@
       const result = errorable(() => {
          const inlined = inline(
             getBody(props.expr.node),
-            envToMathEnv(props.env)
+            appState.env.getMathEnv()
          );
          const dx = _integrate(inlined, by);
          emit('new:expr', simplify(dx).toString());
@@ -128,7 +127,7 @@
    }
 
    function graphFn(x) {
-      return getGraphFnStr(props.env, x);
+      return getGraphFnStr(appState.env, x);
    }
 
    function sonify() {
@@ -207,15 +206,10 @@
    }
 
    function setAnimationExprBody() {
-      if (!props.env.has(animation.fn)) {
+      if (!appState.env.has(animation.fn)) {
          const fnStr = libraryFns.get('periodic')![animation.fn][0];
-         const holdExpr = appState.newExpr;
-         appState.newExpr = fnStr;
-         checkNewExpr();
-         addToEnv(fnStr, false);
+         parseExpr(appState.env, fnStr);
 
-         appState.newExpr = holdExpr;
-         checkNewExpr();
       }
       setAssignmentBody(
          props.expr.node,
@@ -223,6 +217,7 @@
             animation.to - animation.from
          }, ${animation.period})`
       );
+//      appState.env.updateMathEnv(props.expr.name);
    }
 </script>
 
@@ -238,7 +233,7 @@
             >
                {{ props.expr.name }}
             </span>
-            <template v-if="isGraphable(env, expr)">
+            <template v-if="isGraphable(appState.env, expr)">
                <input
                   class="gridCheck"
                   type="checkbox"
@@ -295,7 +290,7 @@
          </div>
          <div class="cols">
             <div class="rows">
-               <template v-for="free in getDependencies(env, expr, 'free')">
+               <template v-for="free in getDependencies(appState.env.toMap(), expr, 'free')">
                   <span class="free">
                      {{ free }}
                      <button

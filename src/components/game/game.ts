@@ -2,7 +2,7 @@ import { isNumber } from "mathjs";
 import { reactive } from "vue";
 import { hasPropIs } from "../../js/function-plot/utils";
 import { defined, isString } from "../../js/util";
-import { getGraphFn, getDependencies, adjustExpr } from "../expressions";
+import { getGraphFn, getDependencies, adjustExpr } from "../../js/expressions";
 import { state as igCalcState, initGraph, graph, addNewExpr } from "../uiUtil";
 
 export type ItemType = "GameVar" | "GameButton";
@@ -111,18 +111,18 @@ export function buy(item: GameButton) {
     isNumber(currency) &&
     currency >= cost
   ) {
-    adjustExpr(igCalcState.env.get(item.cntFn)!, "% + 1");
+    adjustExpr(igCalcState.env, igCalcState.env.get(item.cntFn)!, "% + 1");
   }
 }
 
 export function getUsableFnNames(item: GameItem, ...uses: string[]) {
-  return igCalcState.env
-    .filter((expr) => getDependencies(igCalcState.env, expr, "free").size == 0)
+  return igCalcState.env.toMap()
+    .filter((expr) => getDependencies(igCalcState.env.toMap(), expr, "free").size == 0)
     .map((expr) => {
       if (uses.includes(expr.name)) {
         return false;
       }
-      const some = getDependencies(igCalcState.env, expr, "bound").some(
+      const some = getDependencies(igCalcState.env.toMap(), expr, "bound").some(
         (_, k) => {
           return uses.includes(k);
         }
@@ -141,7 +141,7 @@ export function addGameItem(item: GameItem, adjustCurrencies = true) {
   game.items[item.label] = item;
   if (isGameButton(item)) {
     const currencyExpr = igCalcState.env.get(item.currencyFn)!.node.toString();
-    adjustExpr(igCalcState.env.get(item.currencyFn)!, `% - (${item.costFn})`);
+    adjustExpr(igCalcState.env, igCalcState.env.get(item.currencyFn)!, `% - (${item.costFn})`);
   }
 }
 
@@ -152,7 +152,7 @@ export function updateButtonCurrency(
 ) {
   if (oldCurrencyFn !== newCurrencyFn) {
     const oldCurrencyExpr = igCalcState.env.get(oldCurrencyFn)!.node.toString();
-    adjustExpr(igCalcState.env.get(oldCurrencyFn)!, `% + (${button.costFn})`);
-    adjustExpr(igCalcState.env.get(newCurrencyFn)!, `% - (${button.costFn})`);
+    adjustExpr(igCalcState.env, igCalcState.env.get(oldCurrencyFn)!, `% + (${button.costFn})`);
+    adjustExpr(igCalcState.env, igCalcState.env.get(newCurrencyFn)!, `% - (${button.costFn})`);
   }
 }

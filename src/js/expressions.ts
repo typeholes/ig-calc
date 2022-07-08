@@ -42,14 +42,12 @@ import {
    refreshDatumEnvironments,
    refreshTex,
    state,
-} from './uiUtil';
+} from '../components/uiUtil';
 import { Datum, EvalFn } from '../js/function-plot/FunctionPlotDatum';
 import { reactive } from 'vue';
 import { simplify } from '../js/math/simplify';
 import { ExportNamespaceSpecifier, typeCastExpression } from '@babel/types';
-
-export type ExprEnv = IMap<string, ValidExpr>;
-export const emptyEnv: ExprEnv = IMap();
+import { ExprEnv } from './exprEnv';
 
 export const SaveRep = {
    toSave,
@@ -73,7 +71,7 @@ export function parseExpr(
    env: ExprEnv,
    s: string,
    forceName?: string | undefined
-): Errorable<[ExprEnv, ValidExpr, string]> {
+): Errorable<[ValidExpr, string]> {
    const result = parse(unJS(s));
 
    return flatMap(result, (node) =>
@@ -85,7 +83,8 @@ export function parseExpr(
          }
 
          const newExpr = validExpr(name, node, ISet(getVars(node)));
-         return [env.set(name, newExpr), newExpr, name];
+         env.set(name, newExpr);
+         return [newExpr, name];
       })
    );
 }
@@ -128,19 +127,6 @@ export function getBody(node: MathNode) {
    return getFunctionBody(getAssignmentBody(node));
 }
 
-export function envToMathEnv(
-   env: ExprEnv,
-   includeConstants = false
-): Record<string, number | MathNode> {
-   const constants = includeConstants ? builtinConstants.toObject() : {};
-   // const tmp = env.get('__tmp');
-   // const tmpEntry = defined(tmp) ? { [tmp.name]: tmp.node } : {};
-
-   const mathEnv: Record<string, MathNode | number> = env
-      .map((x) => getAssignmentBody(x.node))
-      .toObject();
-   return { ...mathEnv, ...constants /*...tmpEntry*/ };
-}
 export function getGraphFnStr(
    env: ExprEnv,
    expr: ValidExpr,
@@ -159,7 +145,7 @@ export function getGraphFn(
    }
    // TODO return something other than undefined when not graphable?
    const node = getBody(expr.node);
-   const mathEnv = envToMathEnv(env, subConstants);
+   const mathEnv = env.getMathEnv(subConstants);
    const inlined = inline(node, mathEnv);
    const freeVars = ISet(getFreeVars(mathEnv, inlined));
 
@@ -179,6 +165,9 @@ export function getGraphFn(
    return getFunctionBody(graphNode);
 }
 
+type ExprMap = IMap<string, ValidExpr>;
+const emptyEnv: ExprMap = IMap();
+
 export function getDependencies(
    env = emptyEnv,
    expr: ValidExpr,
@@ -193,7 +182,7 @@ export function getDependencies(
 }
 
 function transativeDependencies(
-   env: ExprEnv,
+   env: ExprMap,
    deps: ISet<string>,
    ancestors: ISet<string> = ISet()
 ): ISet<string> {
@@ -269,7 +258,7 @@ export function toSaveRep(env: ExprEnv): SaveRep {
       description: v.description,
       showExpr: v.showExpr,
    }));
-   return saveRep.toObject();
+   return saveRep;
 }
 
 function toSave(rep: SaveRep): string {
@@ -320,8 +309,8 @@ function toEvalFn(
    const body = isFunctionAssignmentNode(node)
       ? defaultCall(node)
       : getAssignmentBody(node);
-   const inlined = inline(body, envToMathEnv(env));
-   const firstFree = getDependencies(env, expr, 'free').first('x');
+   const inlined = inline(body, env.getMathEnv());
+   const firstFree = getDependencies(env.toMap(), expr, 'free').first('x');
    return (x: number) => {
       try {
          const result = inlined.compile().evaluate({ [firstFree]: x });
@@ -365,12 +354,17 @@ export const ValidExpr = {
    },
 };
 
-export function adjustExpr(expr: ValidExpr, template: string, addParen = true) {
+export function adjustExpr(
+   env: ExprEnv,
+   expr: ValidExpr,
+   template: string,
+   addParen = true
+) {
    if (isFunctionAssignmentNode(expr.node)) {
       throw new Error('cannot adjust function assignment nodes');
    }
 
-   const datum = graph.options.data[expr.name];
+   //   const datum = graph.options.data[expr.name];
    const sub = addParen ? template.replace('%', '(%)') : template;
    if (isAssignmentNode(expr.node)) {
       const body = getBody(expr.node);
@@ -381,23 +375,21 @@ export function adjustExpr(expr: ValidExpr, template: string, addParen = true) {
          `${expr.name} = ${sub.replace('%', expr.node.toString())}`
       );
    }
+   env.set(expr.name, expr);
    refreshDatumEnvironments();
    errorable(() => graph.drawLines());
 }
 
 export function buildEnv(fns: Record<string, string>) {
-   let env = IMap(state.env);
    for (const name in fns) {
-      env = env.delete(name);
+      state.env.delete(name);
       const exprStr = fns[name];
-      const result = parseExpr(env, exprStr, name);
+      const result = parseExpr(state.env, exprStr, name);
       Errorable.raise(result);
-      env = result.value[0];
    }
-   state.env = env;
 
    for (const name in fns) {
-      const expr = env.get(name)!;
+      const expr = state.env.get(name)!;
       graph.options.data[name] = ValidExpr.toDatum(
          expr,
          state.env,

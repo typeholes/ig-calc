@@ -18,7 +18,8 @@
       isSaveType,
       setStorageKey,
    } from '../js/SaveManager';
-   import { ExprEnv, toSaveRep, SaveRep } from './expressions';
+   import { toSaveRep, SaveRep } from '../js/expressions';
+   import { ExprEnv } from '../js/exprEnv';
    import { ExpressionUiState } from './expressionUiState';
    import { assert, defined } from '../js/util';
    import { graph, state as appState } from './uiUtil';
@@ -161,7 +162,7 @@
    }
 
    function getSerializedSave(): SerializedSave {
-      const saveRep = toSaveRep(props.env.filter((_, k) => k !== '__tmp'));
+      const saveRep = toSaveRep(props.env); //TODO: exclude tmp? .toMap().filter((_, k) => k !== '__tmp'));
       const serialized = SaveRep.toSave(saveRep);
       const saveObj = { ExprEnvSaveRep: serialized };
       return JSON.stringify(saveObj);
@@ -449,7 +450,7 @@
             "
          >
             <div class="previewHeader">
-               Preview of 
+               Preview of
                {{ appState.selectedSave.type }} save
                {{ appState.selectedSave.name }}
             </div>
