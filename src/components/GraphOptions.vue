@@ -22,7 +22,7 @@
       for (const name in graphOptions.data) {
          graphOptions.data[name].nSamples = state.numSamples;
       }
-     initGraph();
+      //     initGraph(); // TODO: causes graph axis to change badly
       graph.resetZoom(state.xDomain, state.y);
    }
 </script>
@@ -42,9 +42,9 @@
 
       <span class="row4 col3">yCenter</span>
       <input class="row4 col4" type="number" v-model="state.y" />
-      <span class="row5 col3">Samples</span>
+      <span class="row5 col5">Samples</span>
       <input
-         class="row4 col4"
+         class="row5 col6"
          type="number"
          min="5"
          max="10000"
