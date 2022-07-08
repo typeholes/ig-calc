@@ -66,9 +66,9 @@ export const graphOptions: FunctionPlotOptions = {
    data: {}, //  reactive({}),  can't make this reactive without recursive vue updates
    width: Math.max(window.innerWidth / 2, 400),
    height: Math.max(window.innerHeight / 2, 400),
-   xDomain: reactive(Interval(10, 20)),
+   xDomain: reactive(Interval(0, 1)),
    xAxis: { ...defaultFunctionPlotOptionsAxis(), type: 'linear' },
-   yDomain: reactive(Interval(10, 20)),
+   yDomain: reactive(Interval(0, 1)),
 };
 
 let gameLoopRunning = false;

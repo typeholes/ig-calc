@@ -31,6 +31,8 @@
    import { SaveId } from '../js/SaveManager';
    import FakeCursor from './FakeCursor.vue';
 
+   import { Set as ISet } from 'immutable';
+
    onMounted(() => {
       init();
    });
@@ -66,10 +68,10 @@
       state.showMenuBar = !state.showMenuBar;
    }
 
-   function exprNames() {
-      const names = Object.keys(state.env.toRecord());
-      return names.filter((name) => graph.options.data[name]?.show);
-   }
+const exprNames = computed(() => {
+   const names = ISet(state.env.names());
+   return names.filter((name) => graph.options.data[name]?.show).toArray();
+});
 
    const previewingSave = computed(
       () => !SaveId.eq(state.currentSave, state.selectedSave)
@@ -164,7 +166,8 @@
                            state.showGeneralOptions
                         )
                      "
-                     v-for="expr in state.env.toMap()
+                     v-for="expr in state.env
+                        .toMap()
                         .valueSeq()
                         .filter(
                            (x) =>
@@ -197,7 +200,7 @@
                   <KeepAlive>
                      <component
                         :is="displayComponents[state.displayComponent]"
-                        :names="exprNames()"
+                        :names="exprNames"
                      ></component>
                   </KeepAlive>
                </template>

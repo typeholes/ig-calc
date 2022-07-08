@@ -1,86 +1,93 @@
 <script setup lang="ts">
-import { graph } from "./uiUtil";
-import CanError from "./CanError.vue";
-import { errorable, Errorable } from "../js/Either";
-import { state as appState } from "./uiUtil";
-import { arrayRange } from "../js/function-plot/utils";
+   import { graph } from './uiUtil';
+   import CanError from './CanError.vue';
+   import { errorable, Errorable } from '../js/Either';
+   import { state as appState } from './uiUtil';
+   import { arrayRange } from '../js/function-plot/utils';
 
-const props = defineProps<{ names: string[] }>();
+   const props = defineProps<{ names: string[] }>();
 
-function names() {
-  return props.names ?? [];
-}
+   function names() {
+      return props.names ?? [];
+   }
 
-function nums() {
-  return 10;
-}
+   function nums() {
+      return 10;
+   }
 
-function formatName(name: string) {
-  if (name === "__tmp") {
-    return "temp";
-  }
-  return name.replace(/^anon: /, "");
-}
+   function formatName(name: string) {
+      if (name === '__tmp') {
+         return 'temp';
+      }
+      return name.replace(/^anon: /, '');
+   }
 
-function formatNumber(n: number) {
-  return n; // TODO
-}
+   function formatNumber(n: number) {
+      return n; // TODO
+   }
 
-function runFn(name: string, n: number) {
-  return errorable(() => {
-    const fn = graph.options.data[name].evalFn;
-    if (!(fn instanceof Function)) {
-      return "";
-    }
-    return formatNumber(fn(n));
-  });
-}
+   function runFn(name: string, n: number) {
+      return errorable(() => {
+         const fn = graph.options.data[name].evalFn;
+         if (!(fn instanceof Function)) {
+            return '';
+         }
+         return formatNumber(fn(n));
+      });
+   }
 </script>
 
 <template>
-  <div>
-    <div
-      class="dataGrid"
-      :style="{
-        gridTemplateColumns: `repeat( ${names().length + 2}, auto)`,
-      }"
-    >
-      <div style="gridcolumn: 1">free</div>
-      <template v-for="(name, idx) of names()">
-        <div
-          :style="{
-            gridColumn: idx + 2,
-            border: `1px solid ${graph.options.data[name].color ?? 'white'}`,
-          }"
-        >
-          {{ formatName(name) }}
-        </div>
-      </template>
-      <template
-        v-for="(num, rowNum) in arrayRange(appState.freeMin, appState.freeMax)"
+   <div>
+      <div
+         class="dataGrid"
+         :style="{
+            gridTemplateColumns: `repeat( ${names().length + 2}, auto)`,
+         }"
       >
-        <div :style="{ gridColumn: 1, gridRow: rowNum + 2 }">{{ num }}</div>
-        <template v-for="(name, idx) of names()">
-          <div
-            :style="{
-              gridColumn: idx + 2,
-              border: `1px solid ${graph.options.data[name].color ?? 'white'}`,
-            }"
-          >
-            <CanError :value="runFn(name, num)"></CanError>
-          </div>
-        </template>
-      </template>
-    </div>
-  </div>
+         <div style="gridcolumn: 1">free</div>
+         <template v-for="(name, idx) of names()">
+            <div
+               :style="{
+                  gridColumn: idx + 2,
+                  border: `1px solid ${
+                     graph.options.data[name].color ?? 'white'
+                  }`,
+               }"
+            >
+               {{ formatName(name) }}
+            </div>
+         </template>
+         <template
+            v-for="(num, rowNum) in arrayRange(
+               appState.freeMin,
+               appState.freeMax
+            )"
+         >
+            <div :style="{ gridColumn: 1, gridRow: rowNum + 2 }">{{ num }}</div>
+            <template v-for="(name, idx) of names()">
+               <div
+                  :style="{
+                     gridColumn: idx + 2,
+                     border: `1px solid ${
+                        graph.options.data[name].color ?? 'white'
+                     }`,
+                  }"
+               >
+                  <CanError :key="appState.newExpr" :value="runFn(name, num)"></CanError>
+               </div>
+            </template>
+         </template>
+      </div>
+   </div>
 </template>
 
 <style>
-.dataGrid {
-  display: grid;
-  border: 1px solid whitesmoke;
-  column-gap: 2px;
-  overflow: auto auto;
-  max-width: 60vw;
-}
+   .dataGrid {
+      display: grid;
+      border: 1px solid whitesmoke;
+      column-gap: 2px;
+      overflow: auto auto;
+      max-width: 60vw;
+   }
 </style>
