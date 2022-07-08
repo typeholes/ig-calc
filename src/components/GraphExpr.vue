@@ -12,7 +12,7 @@
       setNumericConstant,
       setAssignmentBody,
       getAssignmentBody,
-parseExpr,
+      parseExpr,
    } from '../js/expressions';
    import { addTexElement, typeset } from '../js/typeset';
    import { onUpdated, onMounted, reactive, computed, watch } from 'vue';
@@ -32,7 +32,6 @@ parseExpr,
    import { defined, notBlank } from '../js/util';
    import { play } from '../js/sonify';
    import { libraryFns } from '../js/libraryValues';
-import { env } from 'yargs';
 
    interface Props {
       expr: ValidExpr;
@@ -61,7 +60,7 @@ import { env } from 'yargs';
    }>();
 
    function getColor() {
-      return graph.options.data[props.expr.name].color;
+      return graph.options.data[props.expr.name]?.color ?? '#FFFFFF';
    }
 
    function updateColor(event) {
@@ -72,7 +71,7 @@ import { env } from 'yargs';
    }
 
    function getShow() {
-      return graph.options.data[props.expr.name].show;
+      return graph.options.data[props.expr.name]?.show ?? false;
    }
 
    function updateShow(event) {
@@ -209,7 +208,6 @@ import { env } from 'yargs';
       if (!appState.env.has(animation.fn)) {
          const fnStr = libraryFns.get('periodic')![animation.fn][0];
          parseExpr(appState.env, fnStr);
-
       }
       setAssignmentBody(
          props.expr.node,
@@ -217,7 +215,7 @@ import { env } from 'yargs';
             animation.to - animation.from
          }, ${animation.period})`
       );
-//      appState.env.updateMathEnv(props.expr.name);
+      appState.env.updateMathEnv(props.expr.name);
    }
 </script>
 
@@ -290,7 +288,13 @@ import { env } from 'yargs';
          </div>
          <div class="cols">
             <div class="rows">
-               <template v-for="free in getDependencies(appState.env.toMap(), expr, 'free')">
+               <template
+                  v-for="free in getDependencies(
+                     appState.env.toMap(),
+                     expr,
+                     'free'
+                  )"
+               >
                   <span class="free">
                      {{ free }}
                      <button

@@ -35,6 +35,8 @@ import TextExpr from './TextExpr.vue';
 import TextJsExpr from './TextJsExpr.vue';
 import { mkExprEnv } from '../js/exprEnv';
 
+export let graph: Graph;
+
 const colors = IMap(
    'ff0000 00ff00 0000ff ffff00 ff00ff 00ffff ffffff'
       .split(' ')
@@ -58,8 +60,6 @@ export function newColor(): string {
    return unused;
 }
 
-export let graph: Graph;
-
 export const graphOptions: FunctionPlotOptions = {
    target: '#graph',
    //  title: "Default",
@@ -76,7 +76,7 @@ export function init() {
    if (!defined(graph)) {
       initGraph();
    }
-    parseExpr(state.env, 'time = 0');
+   parseExpr(state.env, 'time = 0');
    const timeFn = state.env.get('time');
    if (!defined(timeFn)) {
       addNewExpr('time', 'time = 0');
@@ -90,6 +90,7 @@ export function init() {
 export function initGraph() {
    graph = mkGraph({ ...graphOptions });
    graph.resetZoom(Interval(-10, 10), 0);
+   return graph;
 }
 
 export const displayComponents = { DisplayData, DisplayGraph };
@@ -97,7 +98,7 @@ export const state = reactive({
    hideBottom: false,
    hideLeft: false,
    hideLibrary: true,
-   env: mkExprEnv(graphOptions),
+   env: mkExprEnv(() => graph),
    newExpr: '',
    parseResult: undefined as undefined | ValidExpr,
    src: 'x',
@@ -134,12 +135,9 @@ export function checkNewExpr() {
       Right: ([expr, _]) => {
          state.error = undefined;
          state.parseResult = expr;
-         graph.options.data['__tmp'] = ValidExpr.toDatum(
-            expr,
-            state.env,
-            true,
-            currentColor()
-         );
+         const datum = graph.options.data['__tmp'];
+         datum.show = true;
+         datum.color = currentColor();
          refreshTex(expr);
       },
    });
@@ -156,6 +154,7 @@ export function addToEnv(s: string, showExpr = true) {
    const name = state.parseResult ? getNodeName(state.parseResult.node) : '';
    const oldExpr = state.env.get(name);
    const result = parseExpr(state.env, s, name);
+   const oldDatum = graph.options.data[name];
    return on(result, {
       Left: (err) => {
          state.error = err.toString();
@@ -164,7 +163,6 @@ export function addToEnv(s: string, showExpr = true) {
       },
       Right: ([newExpr, _]) => {
          newColor();
-         const oldDatum = graph.options.data[name];
          graph.options.data[name] = {
             ...graph.options.data['__tmp'],
             show:
@@ -181,7 +179,6 @@ export function addToEnv(s: string, showExpr = true) {
             graph.options.data['__tmp'] = { ...oldDatum };
          } else {
             state.newExpr = '';
-            delete graph.options.data['__tmp'];
          }
          checkNewExpr();
          state.modified = true;
@@ -232,14 +229,10 @@ export function hasImportExpression(expr: ValidExpr): boolean {
 }
 
 export function loadEnv(args: { saveRep: SaveRep }) {
-   state.env.clear();
    if (!defined(graph)) {
       initGraph();
-   } else {
-      for (const key in graph.options.data) {
-         delete graph.options.data[key];
-      }
    }
+   state.env.clear();
    state.parseResult = undefined;
    state.newExpr = '';
    checkNewExpr();
