@@ -72,6 +72,16 @@ watch(
    }
 );
 
+watch(
+   () => props.graphItem.showGraph,
+   (show) => appState.env.showGraph(props.graphItem.name, show)
+)
+
+watch(
+   () => props.graphItem.color,
+   (color) => appState.env.colorGraph(props.graphItem.name, color)
+)
+
 function toggleShowValue() {
    props.graphItem.showValue = !props.graphItem.showValue;
 }

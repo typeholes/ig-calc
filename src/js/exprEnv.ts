@@ -5,6 +5,7 @@ import { builtinConstants } from './math/symbols';
 import { reactive } from 'vue';
 import { Graph } from './function-plot/d3util';
 import { defaultGraphItemValues, GraphConstant } from './GraphItem';
+import { Datum } from './function-plot/FunctionPlotDatum';
 
 type MathEnv = Record<string, MathNode | number>;
 
@@ -27,6 +28,8 @@ export interface ExprEnv {
    deleteConstant: (key: string) => void;
    getConstants: () => Record<string, number>;
    getGraphConstants: () => Map<string, GraphConstant>;
+   showGraph: (key: string, showGraph: boolean) => void;
+   colorGraph: (key: string, color: `#${string}`) => void;
 }
 
 export function mkExprEnv(graph: () => Graph): ExprEnv {
@@ -87,6 +90,7 @@ export function mkExprEnv(graph: () => Graph): ExprEnv {
                GraphConstant({ name: key, ...defaultGraphItemValues }, value)
             );
          }
+         graph()?.drawLines();
          return value;
       },
       deleteConstant: (key: string) => {
@@ -95,6 +99,29 @@ export function mkExprEnv(graph: () => Graph): ExprEnv {
       },
       getConstants: () => constants,
       getGraphConstants: () => graphConstants,
+      showGraph: (key: string, showGraph: boolean) => {
+         if (showGraph) {
+            if (graphConstants.has(key)) {
+               const graphConstant = graphConstants.get(key)!;
+               graph().options.data[key] = Datum(() => graphConstant.value, {
+                  show: true,
+                  color: graphConstant.color,
+                  nSamples: 3,
+               });
+               graph().drawLines();
+            }
+         } else {
+            delete graph().options.data[key];
+         }
+      },
+      colorGraph: (key: string, color: `#${string}`) => { 
+         const _graph = graph();
+            if (key in _graph.options.data) {
+               _graph.options.data[key].color = color; 
+               graph().drawLines();
+            }
+         
+      },
    };
    exprEnv.setConstant('foo', 1);
    exprEnv.setConstant('bar', 2);
