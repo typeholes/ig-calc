@@ -239,17 +239,18 @@ export function fn(name: string, ...args: MathNode[]) {
    );
 }
 
+const opMap = {
+   '+': 'add',
+   '-': 'subtract',
+   '*': 'multiply',
+   '/': 'divide',
+   '^': 'pow',
+} as const;
 export function op(
    op: '+' | '-' | '*' | '/' | '^',
    ...[left, right]: MathNode[]
 ) {
-   const name = {
-      '+': 'add',
-      '-': 'subtract',
-      '*': 'multiply',
-      '/': 'divide',
-      '^': 'pow',
-   }[op];
+   const name = opMap[op];
    return new M.OperatorNode(op, name, [left, right]);
 }
 
@@ -296,4 +297,3 @@ export function getJavaScript(node: MathNode): string {
    }
    throw new Error('node type not implemented: ' + node.type);
 }
-

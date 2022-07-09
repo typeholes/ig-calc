@@ -105,7 +105,7 @@ export const validExpr = (
    node: MathNode,
    vars: ISet<string>,
    showValue = false,
-   showExpr = false,
+   showExpr = true,
    description = undefined as string | undefined
 ): ValidExpr => ({ name, node, vars, showValue, description, showExpr });
 
@@ -170,6 +170,7 @@ const emptyEnv: ExprMap = IMap();
 
 export function getDependencies(
    env = emptyEnv,
+   constants: Record<string, number>,
    expr: ValidExpr,
    bound: 'bound' | 'free' | 'all' = 'all'
 ) {
@@ -178,7 +179,9 @@ export function getDependencies(
       return deps;
    }
 
-   return deps.filter((dep) => (bound === 'bound') === env.has(dep));
+   return deps.filter(
+      (dep) => (bound === 'bound') === (env.has(dep) || dep in constants)
+   );
 }
 
 function transativeDependencies(
@@ -309,11 +312,19 @@ function toEvalFn(
    const body = isFunctionAssignmentNode(node)
       ? defaultCall(node)
       : getAssignmentBody(node);
-   const inlined = inline(body, env.getMathEnv());
-   const firstFree = getDependencies(env.toMap(), expr, 'free').first('x');
-   return (x: number) => {
+   const mathEnv = { ...env.getMathEnv() };
+   delete mathEnv['time'];
+   const inlined = inline(body, mathEnv);
+   const firstFree = getDependencies(
+      env.toMap(),
+      env.getConstants(),
+      expr,
+      'free'
+   ).first('x');
+   const fn = inlined.compile().evaluate;
+   const ret = (x: number) => {
       try {
-         const result = inlined.compile().evaluate({ [firstFree]: x });
+         const result = fn({ [firstFree]: x, ...env.getConstants() });
          if (!isNumber(result)) {
             return 0;
          } else {
@@ -323,6 +334,13 @@ function toEvalFn(
          return 0;
       }
    };
+   console.log({
+      firstFree,
+      expr: inlined.toString(),
+      '(0)': ret(0),
+      '(1)': ret(1),
+   });
+   return ret;
 }
 export const ValidExpr = {
    toDatum: (
@@ -345,7 +363,7 @@ export const ValidExpr = {
          // () =>
          //    toEvalFn(
          //       (env, expr) =>
-         //          simplify(getGraphFn(env.delete('time'), expr, true)!, false),
+         //          simplify(getGraphFn(env/*.delete('time')*/, expr, true)!, false),
          //       expr,
          //       env
          //    )

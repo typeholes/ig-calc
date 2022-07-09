@@ -76,11 +76,7 @@ export function init() {
    if (!defined(graph)) {
       initGraph();
    }
-   parseExpr(state.env, 'time = 0');
-   const timeFn = state.env.get('time');
-   if (!defined(timeFn)) {
-      addNewExpr('time', 'time = 0');
-   }
+   state.env.setConstant('time', 0);
    if (!gameLoopRunning) {
       gameLoopRunning = true;
       window.requestAnimationFrame(gameLoop);
@@ -239,6 +235,9 @@ export function loadEnv(args: { saveRep: SaveRep }) {
 
    for (const name in args.saveRep) {
       const rep = args.saveRep[name];
+      if (rep.expr.startsWith('time =')) {
+         break;
+      } // TODO save and load envExpr constants
       state.newExpr = rep.expr;
       checkNewExpr();
       const newExpr = addToEnv(rep.expr, rep.showExpr);
@@ -328,10 +327,7 @@ export function gameLoop(elapsedTime) {
    const delta = t - time;
    if (delta >= state.tickTime) {
       time = t;
-      const timeFn = state.env.get('time');
-      if (defined(timeFn)) {
-         adjustExpr(state.env, timeFn, `${time}`);
-      }
+      state.env.setConstant('time', time);
    }
    window.requestAnimationFrame(gameLoop);
 }

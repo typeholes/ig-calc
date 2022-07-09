@@ -2,9 +2,9 @@ import { MathNode } from 'mathjs';
 import { getAssignmentBody, parseExpr, ValidExpr } from './expressions';
 import { Map as IMap } from 'immutable';
 import { builtinConstants } from './math/symbols';
-import { FunctionPlotOptions } from './function-plot/FunctionPlotOptions';
-import { reactive, ReactiveEffect } from 'vue';
+import { reactive } from 'vue';
 import { Graph } from './function-plot/d3util';
+import { defaultGraphItemValues, GraphConstant } from './GraphItem';
 
 type MathEnv = Record<string, MathNode | number>;
 
@@ -21,16 +21,27 @@ export interface ExprEnv {
    getMathEnv: (includeConstants?: boolean) => MathEnv;
    updateMathEnv: (key: string) => void;
    names: () => Set<string>;
+   hasConstant: (key: string) => boolean;
+   getConstant: (key: string) => number;
+   setConstant: (key: string, value: number) => number;
+   deleteConstant: (key: string) => void;
+   getConstants: () => Record<string, number>;
+   getGraphConstants: () => Map<string, GraphConstant>;
 }
 
 export function mkExprEnv(graph: () => Graph): ExprEnv {
-   const data: Record<string, ValidExpr> = {};
-   const mathEnv: MathEnv = {};
+   const data: Record<string, ValidExpr> = reactive({});
+   const mathEnv: MathEnv = reactive({});
    const names: Set<string> = reactive(new Set());
+   const constants: Record<string, number> = {};
+   const graphConstants: Map<string, GraphConstant> = reactive(new Map());
    const exprEnv = {
       has: (key: string) => key in data,
       get: (key: string) => data[key],
       set: (key: string, value: ValidExpr) => {
+         if (key === 'time') {
+            debugger;
+         }
          data[key] = value;
          mathEnv[key] = getAssignmentBody(value.node);
          graph().options.data[key] = ValidExpr.toDatum(value, exprEnv, false);
@@ -63,6 +74,29 @@ export function mkExprEnv(graph: () => Graph): ExprEnv {
       updateMathEnv: (key: string) =>
          (mathEnv[key] = getAssignmentBody(data[key].node)),
       names: () => names,
+      hasConstant: (key: string) => key in constants,
+      getConstant: (key: string) => constants[key],
+      setConstant: (key: string, value: number) => {
+         constants[key] = value;
+         mathEnv[key] = value;
+         if (graphConstants.has(key)) {
+            graphConstants.get(key)!.value = value;
+         } else {
+            graphConstants.set(
+               key,
+               GraphConstant({ name: key, ...defaultGraphItemValues }, value)
+            );
+         }
+         return value;
+      },
+      deleteConstant: (key: string) => {
+         delete constants[key];
+         delete mathEnv[key];
+      },
+      getConstants: () => constants,
+      getGraphConstants: () => graphConstants,
    };
+   exprEnv.setConstant('foo', 1);
+   exprEnv.setConstant('bar', 2);
    return exprEnv;
 }

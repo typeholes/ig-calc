@@ -33,6 +33,8 @@
 
    import { Set as ISet } from 'immutable';
 
+   import GraphConst from './GraphConst.vue';
+
    onMounted(() => {
       init();
    });
@@ -68,10 +70,10 @@
       state.showMenuBar = !state.showMenuBar;
    }
 
-const exprNames = computed(() => {
-   const names = ISet(state.env.names());
-   return names.filter((name) => graph.options.data[name]?.show).toArray();
-});
+   const exprNames = computed(() => {
+      const names = ISet(state.env.names());
+      return names.filter((name) => graph.options.data[name]?.show).toArray();
+   });
 
    const previewingSave = computed(
       () => !SaveId.eq(state.currentSave, state.selectedSave)
@@ -159,6 +161,16 @@ const exprNames = computed(() => {
                   </div>
                   <div
                      class="expressions"
+                     v-for="[name, graphItem] in state.env.getGraphConstants()"
+                  >
+                     <GraphConst
+                        :graphItem="graphItem"
+                        :allowCopy="false"
+                        :allowEdit="false"
+                     ></GraphConst>
+                  </div>
+                  <div
+                     class="expressions"
                      v-if="
                         !(
                            state.showHelp ||
@@ -172,7 +184,8 @@ const exprNames = computed(() => {
                         .filter(
                            (x) =>
                               x.name !== '__tmp' &&
-                              !systemFnNames.includes(x.name) &&
+                              (!systemFnNames.includes(x.name) ||
+                                 state.showHiddenExpressions) &&
                               (x.showExpr || state.showHiddenExpressions)
                         )"
                      :key="expr.name"

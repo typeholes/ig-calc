@@ -217,6 +217,9 @@
       );
       appState.env.updateMathEnv(props.expr.name);
    }
+   function toggleShowValue() {
+      props.expr.showValue = !props.expr.showValue;
+   }
 </script>
 
 <template>
@@ -279,7 +282,7 @@
             </button>
          </div>
          <div class="cols" v-if="expr.showValue">
-            <span class="fullRow">{{ graphFn(expr) }}</span>
+            <span class="fullRow"> {{ graphFn(expr) }}</span>
          </div>
          <div class="cols">
             <span class="tex" :id="'tex_' + expr.name"
@@ -291,6 +294,7 @@
                <template
                   v-for="free in getDependencies(
                      appState.env.toMap(),
+                     appState.env.getConstants(),
                      expr,
                      'free'
                   )"
@@ -344,10 +348,7 @@
             >
                Copy to current save
             </button>
-            <button
-               class="menuButton"
-               @click="expr.showValue = !expr.showValue"
-            >
+            <button class="menuButton" @click="toggleShowValue">
                {{ expr.showValue ? 'Hide Value' : 'Show Value' }}
             </button>
             <button class="menuButton" @click="sonify()">Sonify</button>
