@@ -272,7 +272,7 @@ function fromSave(s: string): Errorable<SaveRep> {
    });
 }
 
-function defaultCall(fn: M.FunctionAssignmentNode): MathNode {
+export function defaultCall(fn: M.FunctionAssignmentNode): MathNode {
    const name = fn.name;
    const args = fn.params;
    const call = `${name}(${args.join(',')})`;
@@ -373,7 +373,6 @@ export function adjustExpr(
    }
    env.set(expr.name, expr);
    refreshDatumEnvironments();
-   errorable(() => graph.drawLines());
 }
 
 export function buildEnv(fns: Record<string, string>) {

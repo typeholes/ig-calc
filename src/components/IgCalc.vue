@@ -1,11 +1,11 @@
+<!-- eslint-disable vue/no-use-v-if-with-v-for -->
 <script setup lang="ts">
-   import { computed, nextTick, onMounted } from 'vue';
+   import { computed, onMounted } from 'vue';
    import HelpScreen from './HelpScreen.vue';
    import Vsplitter from './Vsplitter.vue';
    import Hsplitter from './Hsplitter.vue';
    import FunctionSelector from './FunctionSelector.vue';
    import GraphExpr from './GraphExpr.vue';
-   import TextExpr from './TextExpr.vue';
    import SaveWidget from './SaveWidget.vue';
    import GeneralOptions from './GeneralOptions.vue';
 
@@ -33,6 +33,7 @@
    import { Set as ISet } from 'immutable';
 
    import GraphConst from './GraphConst.vue';
+   import GraphAnim from './GraphAnim.vue';
 
    onMounted(() => {
       init();
@@ -82,17 +83,18 @@
       refresh(args);
    }
 
-   function unselectSave() {}
+   function unselectSave() {
+      /* */
+   }
 
    function refresh(args: { saveRep: SaveRep }) {
       state.loading = true;
       loadEnv(args);
       init();
       state.loading = false;
-      nextTick(function () {});
    }
 
-   function importExpression(name: string) {
+   function importExpression(_name: string) {
       alert('not implemented');
    }
 
@@ -160,13 +162,25 @@
                   </div>
                   <div
                      class="expressions"
-                     v-for=" _, name of state.env.constant.toRecord()"
+                     v-for="(_, name) of state.env.constant.toRecord()"
+                     :key="name"
                   >
                      <GraphConst
                         :name="name"
-                        :allowCopy="false"
-                        :allowEdit="false"
+                        :allow-copy="false"
+                        :allow-edit="false"
                      ></GraphConst>
+                  </div>
+                  <div
+                     class="expressions"
+                     v-for="(_, name) of state.env.animated.toRecord()"
+                     :key="name"
+                  >
+                     <GraphAnim
+                        :name="name"
+                        :allow-copy="false"
+                        :allow-edit="false"
+                     ></GraphAnim>
                   </div>
                   <div
                      class="expressions"
@@ -195,16 +209,16 @@
                         :expr="expr"
                         :allow-copy="previewingSave"
                         :allow-edit="true"
-                        v-on:new:expr="
+                        @new:expr="
                            (x) => {
                               state.newExpr = x;
                               checkNewExpr();
                            }
                         "
-                        v-on:remove:expr="(x) => removeExpr(x)"
-                        v-on:error="(x) => showError(x as never)"
-                        v-on:edit="editExpression"
-                        v-on:import="importExpression"
+                        @remove:expr="(x) => removeExpr(x)"
+                        @error="(x) => showError(x as never)"
+                        @edit="editExpression"
+                        @import="importExpression"
                      ></component>
                   </div>
                </template>
@@ -255,14 +269,14 @@
                         :tex="state.env.get('__tmp')?.node?.toTex()"
                         :allow-copy="false"
                         :allow-edit="false"
-                        v-on:new:expr="
+                        @new:expr="
                            (x) => {
                               state.newExpr = x;
                               checkNewExpr();
                            }
                         "
-                        v-on:remove:expr="(x) => removeExpr(x)"
-                        v-on:error="showError"
+                        @remove:expr="(x) => removeExpr(x)"
+                        @error="showError"
                      >
                      </GraphExpr>
                      <button
@@ -283,12 +297,12 @@
                      <!-- {{ state.parseResult }} -->
                      <SaveWidget
                         :env="state.env"
-                        :expressionUiState="getExpressionUiState()"
-                        :hasUnsaved="state.modified"
-                        v-on:restore="refresh"
-                        v-on:select-save="selectSave"
-                        v-on:unselect-save="unselectSave"
-                        v-on:saved="onSave"
+                        :expression-ui-state="getExpressionUiState()"
+                        :has-unsaved="state.modified"
+                        @restore="refresh"
+                        @select-save="selectSave"
+                        @unselect-save="unselectSave"
+                        @saved="onSave"
                      ></SaveWidget>
                   </div>
                </template>

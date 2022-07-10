@@ -1,11 +1,10 @@
 <script setup lang="ts">
    import { addTexElement, typeset } from '../js/typeset';
-   import { nextTick, reactive, computed, watch } from 'vue';
+   import { reactive, computed, watch } from 'vue';
    import { MathNode } from 'mathjs';
    import { state as appState } from './uiUtil';
-   import { notBlank } from '../js/util';
-
-   import NumericInput from './NumericInput.vue';
+   import { notBlank, defined } from '../js/util';
+   import { Animation } from '../js/exprEnv';
 
    interface Props {
       name: string;
@@ -22,7 +21,7 @@
       holdConstant: undefined as MathNode | undefined,
    });
 
-   const graphState = appState.env.constant.getState(props.name);
+   const graphState = appState.env.animated.getState(props.name);
 
    //   const isImported = computed(() => hasImportExpression(props.state));
 
@@ -32,7 +31,7 @@
    }>();
 
    function remove() {
-      appState.env.constant.delete(props.name);
+      appState.env.animated.delete(props.name);
    }
 
    function edit() {
@@ -44,10 +43,10 @@
    }
 
    function graphFn() {
-      const value = appState.env.constant.get(props.name) ?? 0;
-      return props.name.startsWith('anon: ')
-         ? value.toString()
-         : `${props.name} = ${value}`;
+      const value = appState.env.animated.get(props.name);
+      return defined(value)
+         ? `${props.name} = ${Animation.toExprString(value)}`
+         : `${props.name} not found`;
    }
 
    function refreshTex() {
@@ -74,38 +73,14 @@
       }
    );
 
-   function toggleAnimate() {
-      //TODO
-   }
-
    const isImported = computed(() => false); // TODO
-
-   const slider = reactive({ min: -50, max: 50 });
-
-   let heldValue = graphState.value;
-   watch(slider, () => {
-      console.log({ heldValue });
-      // if (slider.min > slider.max) {
-      //    [slider.min, slider.max] = [slider.max, slider.min];
-      // }
-      // if (slider.min === slider.max) {
-      //       slider.min--;
-      // }
-      void nextTick(() => {
-         const [min, max] = [slider.min, slider.max].sort(); // handle reversed range;
-         graphState.value = Math.max(min, Math.min(heldValue, max));
-      });
-   });
-   //   function holdSliderValue() {
-   heldValue = graphState.value;
-   //   }
 </script>
 
 <template>
    <div
       class="cols GraphExpr lastSmall"
       :class="{ imported: isImported }"
-      v-if="name !== 'time' || appState.showHiddenExpressions"
+      v-if="name !== 'time'"
    >
       <div class="rows">
          <div class="cols">
@@ -126,37 +101,6 @@
                v-model="graphState.color"
                :id="`color:${name}`"
             />
-         </div>
-         <div class="cols lastSmall">
-            <o-field class="fullRow" label="">
-               <o-slider
-                  v-model="graphState.value"
-                  :step="0.01"
-                  :min="slider.min"
-                  :max="slider.max"
-                  style="padding: 10px"
-               >
-                  <o-slider-tick :value="slider.min">
-                     <NumericInput
-                        class="sliderCap left"
-                        v-model:value="slider.min"
-                        @click="(e) => e.stopPropagation()"
-                     ></NumericInput>
-                     <!-- :max="slider.max - 1" -->
-                  </o-slider-tick>
-                  <o-slider-tick :value="slider.max">
-                     <NumericInput
-                        class="sliderCap right"
-                        v-model:value="slider.max"
-                        @click="(e) => e.stopPropagation()"
-                     ></NumericInput>
-                     <!-- :min="slider.min + 1" -->
-                  </o-slider-tick>
-               </o-slider>
-            </o-field>
-            <button @click="toggleAnimate">
-               {{ state.animate ? 'Make Constant' : 'Animate' }}
-            </button>
          </div>
          <div class="cols">
             <span class="tex" :id="'tex_' + name">{{ state.toString() }} </span>

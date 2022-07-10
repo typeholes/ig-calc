@@ -1,5 +1,5 @@
-import { MathNode } from 'mathjs';
-import { getAssignmentBody, ValidExpr } from './expressions';
+import { isFunctionAssignmentNode, MathNode } from 'mathjs';
+import { defaultCall, getAssignmentBody, ValidExpr } from './expressions';
 import { Map as IMap } from 'immutable';
 import { builtinConstants } from './math/symbols';
 import { reactive, watch } from 'vue';
@@ -11,6 +11,9 @@ import {
    FunctionPlotDatum,
 } from './function-plot/FunctionPlotDatum';
 import { assert } from './util';
+
+import { parse as parseMathNode, isNumber } from 'mathjs';
+import { inline } from './math/mathUtil';
 
 type MathEnv = Record<string, MathNode | number>;
 
@@ -79,7 +82,6 @@ function EnvType<V>(
          item.showGraph = showGraph;
          if (showGraph) {
             graph.options.data[key] = getDatum(value, item);
-            graph.drawLines();
          } else {
             delete graph.options.data[key];
          }
@@ -91,7 +93,6 @@ function EnvType<V>(
          item.color = color;
          if (key in graph.options.data) {
             graph.options.data[key].color = color;
-            graph.drawLines();
          }
       },
       getState: (key: string) => {
@@ -122,8 +123,30 @@ function EnvType<V>(
    return envType;
 }
 
+export interface Animation {
+   fnName: string;
+   from: number;
+   to: number;
+   period: number;
+}
+
+export function Animation(
+   fnName: string,
+   from: number,
+   to: number,
+   period: number
+): Animation {
+   return { fnName, from, to, period };
+}
+Animation.toExprString = ({ fnName, from, to, period }: Animation): string =>
+   `${fnName}(time, ${from}, ${to - from}, ${period})`;
+
+Animation.toMathNode = (animation: Animation): MathNode =>
+   parseMathNode(Animation.toExprString(animation));
+
 export interface ExprEnv {
    constant: EnvType<number>;
+   animated: EnvType<Animation>;
    has: (key: string) => boolean;
    get: (key: string) => ValidExpr;
    set: (key: string, value: ValidExpr) => ValidExpr;
@@ -149,8 +172,9 @@ export function mkExprEnv(graph: () => Graph): ExprEnv {
    const data: Record<string, ValidExpr> = reactive({});
    const mathEnv: MathEnv = reactive({});
    const names: Set<string> = reactive(new Set());
-   const constants: Map<string, number> = new Map<string, number>();
-   const exprEnv = {
+   const constants = new Map<string, number>();
+   const animations = new Map<string, Animation>();
+   const exprEnv: ExprEnv = {
       constant: EnvType(
          constants,
          graph,
@@ -158,6 +182,18 @@ export function mkExprEnv(graph: () => Graph): ExprEnv {
          (x) => x,
          items,
          (v, item) => datumGetter(item, () => v, { nSamples: 2 })
+      ),
+      animated: EnvType(
+         animations,
+         graph,
+         mathEnv,
+         (x) => Animation.toMathNode(x),
+         items,
+         (v, item) =>
+            datumGetter(
+               item,
+               Animation.toEvalFn(Animation.toMathNode(v), exprEnv)
+            )
       ),
       has: (key: string) => key in data,
       get: (key: string) => data[key],
@@ -202,5 +238,32 @@ export function mkExprEnv(graph: () => Graph): ExprEnv {
    } as const;
    exprEnv.constant.set('foo', 1);
    exprEnv.constant.set('bar', 2);
+   exprEnv.animated.set('t', Animation('zigZag', 0, 5, 3));
    return exprEnv;
 }
+
+Animation.toEvalFn = (node: MathNode, env: ExprEnv): EvalFn => {
+   const body = isFunctionAssignmentNode(node)
+      ? defaultCall(node)
+      : getAssignmentBody(node);
+   const mathEnv = { ...env.getMathEnv() };
+   delete mathEnv['time'];
+   const inlined = inline(body, mathEnv);
+   console.log( 'inlined', inlined.toString())
+   // eslint-disable-next-line @typescript-eslint/unbound-method
+   const fn = inlined.compile().evaluate;
+   const ret = () => {
+      try {
+         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+         const result = fn(env.getMathEnv());
+         if (!isNumber(result)) {
+            return 0;
+         } else {
+            return result;
+         }
+      } catch (e) {
+         return 0;
+      }
+   };
+   return ret;
+};

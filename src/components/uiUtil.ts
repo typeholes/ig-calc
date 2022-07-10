@@ -338,6 +338,7 @@ export function gameLoop(elapsedTime: number) {
    if (delta >= state.tickTime) {
       time = t;
       state.env.constant.set('time', time);
+         if (defined(graph)) { graph.drawLines() };
    }
    window.requestAnimationFrame(gameLoop);
 }

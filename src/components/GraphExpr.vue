@@ -8,22 +8,20 @@
       getFunctionBody,
       getBody as getDeclarationBody,
       getNumericConstant,
-      adjustExpr,
       setNumericConstant,
       setAssignmentBody,
       getAssignmentBody,
       parseExpr,
    } from '../js/expressions';
    import { addTexElement, typeset } from '../js/typeset';
-   import { onUpdated, onMounted, reactive, computed, watch } from 'vue';
-   import { isAssignmentNode, MathNode, number, simplify } from 'mathjs';
+   import { reactive, computed, watch } from 'vue';
+   import { isAssignmentNode, MathNode, simplify } from 'mathjs';
    import { derive as _derive } from '../js/math/derivatives';
    import { integrate as _integrate } from '../js/math/integrals';
    import { inline } from '../js/math/mathUtil';
    import { Errorable, errorable } from '../js/Either';
    import {
       addImportExpression,
-      addToEnv,
       checkNewExpr,
       graph,
       hasImportExpression,
@@ -63,22 +61,26 @@
       return graph.options.data[props.expr.name]?.color ?? '#FFFFFF';
    }
 
-   function updateColor(event) {
-      const id = props.expr.name;
-      const color = event.target.value;
-      graph.options.data[id].color = color;
-      drawLines();
+   function updateColor(event: Event) {
+      const target = event.target;
+      if (target instanceof HTMLInputElement) {
+         const id = props.expr.name;
+         const color = target.value;
+         graph.options.data[id].color = color;
+      }
    }
 
    function getShow() {
       return graph.options.data[props.expr.name]?.show ?? false;
    }
 
-   function updateShow(event) {
-      const id = props.expr.name;
-      const checked = event.target.checked;
-      graph.options.data[id].show = checked;
-      drawLines();
+   function updateShow(event: Event) {
+      const target = event.target;
+      if (target instanceof HTMLInputElement) {
+         const id = props.expr.name;
+         const checked = target.checked;
+         graph.options.data[id].show = checked;
+      }
    }
 
    function derive(by: string) {
@@ -95,20 +97,20 @@
          emit('error', e);
       });
    }
-   function integrate(by: string) {
-      const result = errorable(() => {
-         const inlined = inline(
-            getBody(props.expr.node),
-            appState.env.getMathEnv()
-         );
-         const dx = _integrate(inlined, by);
-         emit('new:expr', simplify(dx).toString());
-      });
+   // function integrate(by: string) {
+   // const result = errorable(() => {
+   //       const inlined = inline(
+   //          getBody(props.expr.node),
+   //          appState.env.getMathEnv()
+   //       );
+   //       const dx = _integrate(inlined, by);
+   //       emit('new:expr', simplify(dx).toString());
+   //    });
 
-      Errorable.catch(result, (e) => {
-         emit('error', e);
-      });
-   }
+   //    Errorable.catch(result, (e) => {
+   //       emit('error', e);
+   //    });
+   // }
 
    function remove() {
       delete graph.options.data[props.expr.name];
@@ -125,7 +127,7 @@
       }
    }
 
-   function graphFn(x) {
+   function graphFn(x: ValidExpr) {
       return getGraphFnStr(appState.env, x);
    }
 
@@ -148,34 +150,21 @@
       typeset();
    }
 
-   function drawGraph() {
-      drawLines();
-   }
-
    addTexElement(
       'tex_' + props.expr.name,
       props.tex ?? props.expr.node.toTex()
    );
-   function drawLines() {
-      Errorable.catch(errorable(graph.drawLines), (error) => {
-         //    emit("error", error);
-         // TODO: verify we don't have situations where we need to display errors in the graph evaluation
-      });
-   }
 
    function copyToCurrent() {
       addImportExpression(props.expr);
    }
-
-   onUpdated(drawGraph);
-   onMounted(drawGraph);
 
    const slider = reactive({ new: getNumericConstant(props.expr.node) });
    const updateSlider = computed(() => getNumericConstant(props.expr.node));
 
    watch(updateSlider, (x) => (slider.new = x));
 
-   watch(slider, (x) => {
+   watch(slider, () => {
       setNumericConstant(props.expr.node, slider.new);
       if (props.expr.name == '__tmp') {
          emit('new:expr', props.expr.node.toString());
@@ -240,14 +229,14 @@
                   type="checkbox"
                   :checked="getShow()"
                   :value="getShow()"
-                  v-on:change="updateShow"
+                  @change="updateShow"
                   :id="`show:${expr.name}`"
                />
                <input
                   class="colorPicker"
                   type="color"
                   :value="getColor()"
-                  v-on:input="updateColor"
+                  @input="updateColor"
                   :id="`color:${expr.name}`"
                />
             </template>
@@ -294,10 +283,11 @@
                <template
                   v-for="free in getDependencies(
                      appState.env.toMap(),
-                     appState.env.getConstants(),
+                     appState.env.constant.toRecord(),
                      expr,
                      'free'
                   )"
+                  :key="free"
                >
                   <span class="free">
                      {{ free }}
