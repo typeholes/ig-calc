@@ -120,7 +120,7 @@ export function getUsableFnNames(item: GameItem, ...uses: string[]) {
          (expr) =>
             getDependencies(
                igCalcState.env.toMap(),
-               igCalcState.env.getConstants(),
+               igCalcState.env.constant.toRecord(),
                expr,
                'free'
             ).size == 0
@@ -131,7 +131,7 @@ export function getUsableFnNames(item: GameItem, ...uses: string[]) {
          }
          const some = getDependencies(
             igCalcState.env.toMap(),
-            igCalcState.env.getConstants(),
+            igCalcState.env.constant.toRecord(),
             expr,
             'bound'
          ).some((_, k) => {

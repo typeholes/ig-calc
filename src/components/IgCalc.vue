@@ -12,7 +12,6 @@
    import { getNodeName, SaveRep } from '../js/expressions';
    import { defined } from '../js/util';
    import { getExpressionUiState } from './expressionUiState';
-   import { globalTheme } from '../js/theme';
 
    import { knownSymbols } from '../js/math/symbols';
 
@@ -161,10 +160,10 @@
                   </div>
                   <div
                      class="expressions"
-                     v-for="[name, graphItem] in state.env.getGraphConstants()"
+                     v-for=" _, name of state.env.constant.toRecord()"
                   >
                      <GraphConst
-                        :graphItem="graphItem"
+                        :name="name"
                         :allowCopy="false"
                         :allowEdit="false"
                      ></GraphConst>

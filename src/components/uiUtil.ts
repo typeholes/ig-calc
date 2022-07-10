@@ -72,7 +72,7 @@ export function init() {
    if (!defined(graph)) {
       initGraph();
    }
-   state.env.setConstant('time', 0);
+   state.env.constant.set('time', 0);
    if (!gameLoopRunning) {
       gameLoopRunning = true;
       window.requestAnimationFrame(gameLoop);
@@ -337,7 +337,7 @@ export function gameLoop(elapsedTime: number) {
    const delta = t - time;
    if (delta >= state.tickTime) {
       time = t;
-      state.env.setConstant('time', time);
+      state.env.constant.set('time', time);
    }
    window.requestAnimationFrame(gameLoop);
 }

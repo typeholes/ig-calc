@@ -293,7 +293,7 @@ function toEvalFn(
    const inlined = inline(body, mathEnv);
    const firstFree = getDependencies(
       env.toMap(),
-      env.getConstants(),
+      env.constant.toRecord(),
       expr,
       'free'
    ).first('x');
@@ -302,7 +302,7 @@ function toEvalFn(
    const ret = (x: number) => {
       try {
          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-         const result = fn({ [firstFree]: x, ...env.getConstants() });
+         const result = fn({ [firstFree]: x, ...env.constant.toRecord() });
          if (!isNumber(result)) {
             return 0;
          } else {

@@ -1,140 +1,153 @@
 <script setup lang="ts">
-import { addTexElement, typeset } from '../js/typeset';
-import { nextTick, reactive, computed, watch } from 'vue';
-import { MathNode } from 'mathjs';
-import { state as appState } from './uiUtil';
-import { notBlank } from '../js/util';
+   import { addTexElement, typeset } from '../js/typeset';
+   import { nextTick, reactive, computed, watch } from 'vue';
+   import { MathNode } from 'mathjs';
+   import { state as appState } from './uiUtil';
+   import { notBlank } from '../js/util';
 
-import { GraphConstant } from '../js/GraphItem';
-import NumericInput from './NumericInput.vue';
+   import NumericInput from './NumericInput.vue';
 
-interface Props {
-   graphItem: GraphConstant;
-   tex?: string;
-   allowCopy: boolean;
-   allowEdit: boolean;
-}
-
-const props = defineProps<Props>();
-
-const state = reactive({
-   showMenu: false,
-   animate: false,
-   holdConstant: undefined as MathNode | undefined,
-});
-
-//   const isImported = computed(() => hasImportExpression(props.graphItem));
-
-const emit = defineEmits<{
-   (e: 'error', value: Error): void;
-   (e: 'edit', value: string): void;
-}>();
-
-function remove() {
-   appState.env.deleteConstant(props.graphItem.name);
-}
-
-function edit() {
-   if (props.graphItem.name.startsWith('anon: ')) {
-      remove();
-   } else {
-      emit('edit', props.graphItem.name);
+   interface Props {
+      name: string;
+      tex?: string;
+      allowCopy: boolean;
+      allowEdit: boolean;
    }
-}
 
-function graphFn() {
-   return props.graphItem.name.startsWith('anon: ')
-      ? props.graphItem.value.toString()
-      : `${props.graphItem.name} = ${props.graphItem.value}`;
-}
+   const props = defineProps<Props>();
 
-function refreshTex() {
+   const state = reactive({
+      showMenu: false,
+      animate: false,
+      holdConstant: undefined as MathNode | undefined,
+   });
+
+   const graphState = appState.env.constant.getState(props.name);
+
+   //   const isImported = computed(() => hasImportExpression(props.state));
+
+   const emit = defineEmits<{
+      (e: 'error', value: Error): void;
+      (e: 'edit', value: string): void;
+   }>();
+
+   function remove() {
+      appState.env.constant.delete(props.name);
+   }
+
+   function edit() {
+      if (props.name.startsWith('anon: ')) {
+         remove();
+      } else {
+         emit('edit', props.name);
+      }
+   }
+
+   function graphFn() {
+      const value = appState.env.constant.get(props.name) ?? 0;
+      return props.name.startsWith('anon: ')
+         ? value.toString()
+         : `${props.name} = ${value}`;
+   }
+
+   function refreshTex() {
+      addTexElement(
+         'tex_' + props.name,
+         props.tex ?? graphFn().replace('=', ':=')
+      );
+      typeset();
+   }
+
    addTexElement(
-      'tex_' + props.graphItem.name,
+      'tex_' + props.name,
       props.tex ?? graphFn().replace('=', ':=')
    );
-   typeset();
-}
 
-addTexElement(
-   'tex_' + props.graphItem.name,
-   props.tex ?? graphFn().replace('=', ':=')
-);
-
-function copyToCurrent() {
-   //         addImportExpression(props.graphItem);
-}
-
-watch(
-   () => props.graphItem.value,
-   () => {
-      refreshTex();
+   function copyToCurrent() {
+      //         addImportExpression(props.state);
    }
-);
 
-watch(
-   () => props.graphItem.showGraph,
-   (show) => appState.env.showGraph(props.graphItem.name, show)
-)
-
-watch(
-   () => props.graphItem.color,
-   (color) => appState.env.colorGraph(props.graphItem.name, color)
-)
-
-function toggleShowValue() {
-   props.graphItem.showValue = !props.graphItem.showValue;
-}
-
-function toggleAnimate() {
-   //TODO
-}
-
-const isImported = computed(() => false); // TODO
-
-const slider = reactive({ min: -50, max: 50 });
-
-let heldValue = props.graphItem.value;
-watch(slider, () => {
-   console.log({ heldValue });
-   nextTick(
-      () =>
-      (props.graphItem.value = Math.max(
-         slider.min,
-         Math.min(heldValue, slider.max)
-      ))
+   watch(
+      () => graphState.value,
+      () => {
+         refreshTex();
+      }
    );
-});
-function holdSliderValue() {
-   heldValue = props.graphItem.value;
-   console.log({ heldValue });
-}
+
+   function toggleAnimate() {
+      //TODO
+   }
+
+   const isImported = computed(() => false); // TODO
+
+   const slider = reactive({ min: -50, max: 50 });
+
+   let heldValue = graphState.value;
+   watch(slider, () => {
+      console.log({ heldValue });
+      void nextTick(
+         () =>
+            (graphState.value = Math.max(
+               slider.min,
+               Math.min(heldValue, slider.max)
+            ))
+      );
+   });
+//   function holdSliderValue() {
+      heldValue = graphState.value;
+//   }
 </script>
 
 <template>
-   <div class="cols GraphExpr lastSmall" :class="{ imported: isImported }" v-if="graphItem.name !== 'time'">
+   <div
+      class="cols GraphExpr lastSmall"
+      :class="{ imported: isImported }"
+      v-if="name !== 'time'"
+   >
       <div class="rows">
          <div class="cols">
-            <span v-if="
-               !props.graphItem.name.startsWith('anon:') &&
-               props.graphItem.name !== '__tmp'
-            ">
-               {{ props.graphItem.name }}
+            <span
+               v-if="!props.name.startsWith('anon:') && props.name !== '__tmp'"
+            >
+               {{ props.name }}
             </span>
-            <input class="gridCheck" type="checkbox" v-model="graphItem.showGraph" :id="`show:${graphItem.name}`" />
-            <input class="colorPicker" type="color" v-model="graphItem.color" :id="`color:${graphItem.name}`" />
+            <input
+               class="gridCheck"
+               type="checkbox"
+               v-model="graphState.showGraph"
+               :id="`show:${name}`"
+            />
+            <input
+               class="colorPicker"
+               type="color"
+               v-model="graphState.color"
+               :id="`color:${name}`"
+            />
          </div>
          <div class="cols lastSmall">
             <o-field class="fullRow" label="">
-               <o-slider v-model="graphItem.value" :step="0.01" :min="slider.min" :max="slider.max"
-                  style="padding: 10px">
+               <o-slider
+                  v-model="graphState.value"
+                  :step="0.01"
+                  :min="slider.min"
+                  :max="slider.max"
+                  style="padding: 10px"
+               >
                   <o-slider-tick :value="slider.min">
-                     <NumericInput class="sliderCap left" v-model:value="slider.min" :max="slider.max - 1"
-                        @click="(e) => e.stopPropagation()"></NumericInput>
+                     <NumericInput
+                        class="sliderCap left"
+                        v-model:value="slider.min"
+                        :max="slider.max - 1"
+                        @click="(e) => e.stopPropagation()"
+                     ></NumericInput>
                   </o-slider-tick>
                   <o-slider-tick :value="slider.max">
-                     <NumericInput class="sliderCap right" v-model:value="slider.max" :min="slider.min + 1"
-                        @click="(e) => e.stopPropagation()"></NumericInput>
+                     <NumericInput
+                        class="sliderCap right"
+                        v-model:value="slider.max"
+                        :min="slider.min + 1"
+                        @click="(e) => e.stopPropagation()"
+                     ></NumericInput>
                   </o-slider-tick>
                </o-slider>
             </o-field>
@@ -143,11 +156,10 @@ function holdSliderValue() {
             </button>
          </div>
          <div class="cols">
-            <span class="tex" :id="'tex_' + graphItem.name">{{ graphItem.toString() }}
-            </span>
+            <span class="tex" :id="'tex_' + name">{{ state.toString() }} </span>
          </div>
-         <div class="cols" v-if="graphItem.description">
-            <span class="fullRow">{{ graphItem.description }}</span>
+         <div class="cols" v-if="graphState.description">
+            <span class="fullRow">{{ graphState.description }}</span>
          </div>
       </div>
       <div class="rows">
@@ -155,15 +167,27 @@ function holdSliderValue() {
             &#9776;
          </button>
          <template v-if="state.showMenu">
-            <button class="menuButton" :disabled="
-               notBlank(appState.newExpr) && props.graphItem.name !== '__tmp'
-            " @click="remove()">
+            <button
+               class="menuButton"
+               :disabled="notBlank(appState.newExpr) && props.name !== '__tmp'"
+               @click="remove()"
+            >
                Remove
             </button>
-            <button class="menuButton" v-if="props.allowEdit" :disabled="notBlank(appState.newExpr)" @click="edit()">
+            <button
+               class="menuButton"
+               v-if="props.allowEdit"
+               :disabled="notBlank(appState.newExpr)"
+               @click="edit()"
+            >
                Edit
             </button>
-            <button class="menuButton" v-if="props.allowCopy" @click="copyToCurrent()" :disabled="isImported">
+            <button
+               class="menuButton"
+               v-if="props.allowCopy"
+               @click="copyToCurrent()"
+               :disabled="isImported"
+            >
                Copy to current save
             </button>
             <!-- <button class="menuButton" @click="sonify()">Sonify</button> -->
@@ -173,76 +197,76 @@ function holdSliderValue() {
 </template>
 
 <style scoped>
-.GraphExpr {
-   border: 1px solid bisque;
-   border-radius: 4px;
-}
+   .GraphExpr {
+      border: 1px solid bisque;
+      border-radius: 4px;
+   }
 
-.menuButton {
-   background-color: rgb(89, 92, 96);
-   padding: 0 1px 0;
-}
+   .menuButton {
+      background-color: rgb(89, 92, 96);
+      padding: 0 1px 0;
+   }
 
-.menuButton:disabled {
-   background-color: rgb(109, 92, 96);
-}
+   .menuButton:disabled {
+      background-color: rgb(109, 92, 96);
+   }
 
-:deep(mjx-container) {
-   background: none;
-   top: 1px;
-}
+   :deep(mjx-container) {
+      background: none;
+      top: 1px;
+   }
 
-.tex {
-   overflow: auto;
-   align-self: center;
-   width: 100%;
-   background-color: rgb(11, 37, 37);
-}
+   .tex {
+      overflow: auto;
+      align-self: center;
+      width: 100%;
+      background-color: rgb(11, 37, 37);
+   }
 
-.gridCheck {
-   width: 15px;
-   align-self: center;
-}
+   .gridCheck {
+      width: 15px;
+      align-self: center;
+   }
 
-.lastSmall> :last-child {
-   flex: 0 1 fit-content;
-   margin-left: auto;
-}
+   .lastSmall > :last-child {
+      flex: 0 1 fit-content;
+      margin-left: auto;
+   }
 
-.imported {
-   background-color: rgb(43, 51, 36);
-}
+   .imported {
+      background-color: rgb(43, 51, 36);
+   }
 
-button:disabled {
-   background-color: rgb(59, 20, 20);
-}
+   button:disabled {
+      background-color: rgb(59, 20, 20);
+   }
 
-fullRow {
-   flex: 99 0 auto;
-}
+   fullRow {
+      flex: 99 0 auto;
+   }
 
-.rightward {
-   margin-left: auto;
-}
+   .rightward {
+      margin-left: auto;
+   }
 
-.sliderCap {
-   /* text-decoration: underline #445e00; */
-   width: max-content;
-   margin-top: 5px;
-   padding: 0px 4px;
-   border: 1px solid #595958;
-   border-radius: 10px;
-}
+   .sliderCap {
+      /* text-decoration: underline #445e00; */
+      width: max-content;
+      margin-top: 5px;
+      padding: 0px 4px;
+      border: 1px solid #595958;
+      border-radius: 10px;
+   }
 
-.sliderCap.left {
-   left: 90%;
-   /* top: -15px; */
-   position: absolute;
-}
+   .sliderCap.left {
+      left: 90%;
+      /* top: -15px; */
+      position: absolute;
+   }
 
-.sliderCap.right {
-   right: 90%;
-   /* top: -15px; */
-   position: absolute
-}
+   .sliderCap.right {
+      right: 90%;
+      /* top: -15px; */
+      position: absolute;
+   }
 </style>
