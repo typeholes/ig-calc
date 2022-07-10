@@ -85,17 +85,20 @@
    let heldValue = graphState.value;
    watch(slider, () => {
       console.log({ heldValue });
-      void nextTick(
-         () =>
-            (graphState.value = Math.max(
-               slider.min,
-               Math.min(heldValue, slider.max)
-            ))
-      );
+      // if (slider.min > slider.max) {
+      //    [slider.min, slider.max] = [slider.max, slider.min];
+      // }
+      // if (slider.min === slider.max) {
+      //       slider.min--;
+      // }
+      void nextTick(() => {
+         const [min, max] = [slider.min, slider.max].sort(); // handle reversed range;
+         graphState.value = Math.max(min, Math.min(heldValue, max));
+      });
    });
-//   function holdSliderValue() {
-      heldValue = graphState.value;
-//   }
+   //   function holdSliderValue() {
+   heldValue = graphState.value;
+   //   }
 </script>
 
 <template>
@@ -137,17 +140,17 @@
                      <NumericInput
                         class="sliderCap left"
                         v-model:value="slider.min"
-                        :max="slider.max - 1"
                         @click="(e) => e.stopPropagation()"
                      ></NumericInput>
+                     <!-- :max="slider.max - 1" -->
                   </o-slider-tick>
                   <o-slider-tick :value="slider.max">
                      <NumericInput
                         class="sliderCap right"
                         v-model:value="slider.max"
-                        :min="slider.min + 1"
                         @click="(e) => e.stopPropagation()"
                      ></NumericInput>
+                     <!-- :min="slider.min + 1" -->
                   </o-slider-tick>
                </o-slider>
             </o-field>
@@ -268,5 +271,9 @@
       right: 90%;
       /* top: -15px; */
       position: absolute;
+   }
+
+   input:invalid {
+      background-color: #550000;
    }
 </style>

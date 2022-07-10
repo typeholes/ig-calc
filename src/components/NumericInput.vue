@@ -11,19 +11,18 @@
 
    const tmp = reactive({ value: props.value, valid: true });
 
-   function validate(final: boolean, e: Event) {
+   function validate(e: Event) {
       let num: undefined | number = undefined;
-      function check(p: (n: number) => boolean, fix = false) {
+      function check(p: (n: number) => boolean, msg: string, fix = false) {
          tmp.valid = p(num!);
-         if (tmp.valid) {
-            emit('update:value', num!);
-         } else if (final) {
-            tmp.value = props.value;
-            tmp.valid = true;
-         } else if (fix) {
+        if (tmp.valid) { emit('update:value', num!); }
+         if (fix) {
             tmp.value = num!;
             tmp.valid = true;
          }
+         const target = e.target as HTMLInputElement;
+         target.setCustomValidity(tmp.valid ? '' : msg);
+         //         target.reportValidity();
       }
       if (e.target instanceof HTMLInputElement) {
          const value = e.target.value;
@@ -35,41 +34,55 @@
          }
          num = parseFloat(e.target.value);
 
-         check(isValidNumber);
+         check(isValidNumber, 'invalid number');
          if (!tmp.valid) return;
 
          num = num * negate;
-         if (final) {
-            if (defined(props.min)) {
-               num = Math.max(props.min, num);
-            }
-            if (defined(props.max)) {
-               num = Math.min(props.max, num);
-            }
-         }
 
-         check(() => defined(value.match(/((^-)|[0-9.e]|(e-))$/)), true);
+         check(
+            () => defined(value.match(/((^-)|[0-9.e]|(e-))$/)),
+            'last digit invalid',
+            true
+         );
          if (!tmp.valid) return;
 
-         check((x) => x >= (props.min ?? x) && x <= (props.max ?? x));
+         check((x) => x >= (props.min ?? x), 'below minimum');
          if (!tmp.valid) return;
 
-         check(() => !defined(value.match(/^[^0-9-.]/)));
+         check((x) => x <= (props.max ?? x), 'above maximum');
          if (!tmp.valid) return;
 
-         console.log('end', { final, tmp, props });
+         check(() => !defined(value.match(/^[^0-9-.]/)), 'invalid number');
+         if (!tmp.valid) return;
+
+         console.log('end', { tmp, props });
          return;
       }
       console.log('???');
+   }
+
+   function change(e: Event) {
+      if (!tmp.valid) {
+         tmp.valid = true;
+         tmp.value = props.value;
+      }
+      tmp.value = Math.min(
+         props.max ?? tmp.value,
+         Math.max(props.min ?? tmp.value, tmp.value)
+      );
+      (e.target as HTMLInputElement).setCustomValidity(
+         tmp.valid ? '' : 'invalid'
+      );
+      emit('update:value', tmp.value);
    }
 </script>
 
 <template>
    <input
-      :style="{ borderColor: tmp.valid ? '#595958' : '#990000' }"
       v-model="tmp.value"
-      @input="(e) => validate(false, e)"
-      @change="(e) => validate(true, e)"
+      @input="(e) => validate(e)"
+      @change="(e) => change(e)"
       :size="tmp.value.toString().length"
+      :customValidity="tmp.valid"
    />
 </template>
