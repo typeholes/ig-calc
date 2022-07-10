@@ -1,5 +1,3 @@
-import { boolean } from 'mathjs';
-
 export function removeValuefromArray<T>(arr: T[], value: T): void {
    const idx = arr.indexOf(value);
    if (idx === -1) {
@@ -14,7 +12,7 @@ export function unique<T>(arr: T[]): T[] {
    return arr.filter(check);
 }
 
-export function formatNumber(n: number, pad: number = 8) {
+export function formatNumber(n: number, pad = 8) {
    if (typeof n !== 'number') {
       return n;
    }
@@ -25,7 +23,7 @@ export function formatNumber(n: number, pad: number = 8) {
    //   return fixed + '&nbsp'.repeat(pad);
 }
 
-export function callEach<F extends (...args: any) => void>(
+export function callEach<F extends (...args: unknown[]) => void>(
    f1: F,
    ...fns: typeof f1[]
 ): (...args: [...Parameters<F>]) => void {
@@ -43,7 +41,7 @@ type Transform<From, To> = (
 
 type Choose<A, B> = A extends B ? A : B;
 
-const overObj =
+export const overObj =
    <From, To>(t: Transform<From, To>) =>
    <Input extends Record<string, From>>(obj: Input) =>
       Object.fromEntries(
@@ -55,7 +53,7 @@ export function objMap<ObjT extends Record<string, From>, From, To>(
    f: (value: From) => To
 ) {
    return Object.fromEntries(
-      Object.entries(obj).map(([key, val], i, arr) => [key, f(val)])
+      Object.entries(obj).map(([key, val]) => [key, f(val)])
    ) as Choose<ObjT, Record<keyof ObjT, To>>;
 }
 
@@ -107,8 +105,8 @@ assert.props = <T extends string>(
    //  return typeof x === "object" && defined(x) &&
 };
 
-assert.is = <T>(x: unknown, f: (x: unknown) => x is T, typeName?: string) => {
-   assert(f(x), `invalid type ${typeName}`);
+assert.is = <T>(x: unknown, f: (x: unknown) => x is T, typeName?: string) : asserts x is T => {
+   assert(f(x), `invalid type ${typeName??""}`);
 };
 
 assert.propIs = <T extends string, U>(
@@ -147,6 +145,7 @@ export type Expand<T> = T extends
    | null
    | void
    | symbol
+   // eslint-disable-next-line @typescript-eslint/ban-types
    | Function
    | Date
    ? T

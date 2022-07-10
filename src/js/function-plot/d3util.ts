@@ -1,4 +1,6 @@
-import { pointer, select, selectAll } from 'd3-selection';
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/ban-ts-comment */
+import { select, } from 'd3-selection';
 import { line } from 'd3-shape';
 import { axisBottom, axisLeft } from 'd3-axis';
 import { scaleLinear, scaleLog } from 'd3-scale';
@@ -6,15 +8,11 @@ import {
    zoom as d3Zoom,
    D3ZoomEvent,
    zoomIdentity,
-   zoomTransform,
 } from 'd3-zoom';
 import { interpolateRound } from 'd3-interpolate';
 import { FunctionPlotData, FunctionPlotDatum } from './FunctionPlotDatum';
 import {
    Interval,
-   offsetInterval,
-   Point,
-   Points,
    reverseInterval,
    unInterval,
 } from './types';
@@ -23,8 +21,7 @@ import {
    FunctionPlotOptions,
 } from './FunctionPlotOptions';
 import { Rect } from '../Rect';
-import { isValidNumber, isValidPoint, onNan } from './utils';
-import { i } from 'mathjs';
+import { isValidPoint, } from './utils';
 import { Expand } from '../util';
 
 const margins = { left: 10, right: 20, top: 30, bottom: 10 };
@@ -60,8 +57,8 @@ export function mkGraph(options: FunctionPlotOptions) {
 
    //hold the original scales as zoom transforms are from the original scale
    //  not the modified scale
-   let zoomScaleX = xScale.copy();
-   let zoomScaleY = yScale.copy();
+   const zoomScaleX = xScale.copy();
+   const zoomScaleY = yScale.copy();
 
    //  const dragBox = () => canvas().select(".dragbox");
 

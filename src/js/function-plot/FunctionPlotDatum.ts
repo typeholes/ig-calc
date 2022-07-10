@@ -1,7 +1,7 @@
 import { MathNode } from 'mathjs';
 import { evalFn, scaleInterval, split } from './sampler';
 import { Interval, Point, Points } from './types';
-import utils, { pointToString } from './utils';
+import utils from './utils';
 
 export type EvalFn = (x: number) => number;
 export type Datum = { evalFn: EvalFn; compileFn?: () => EvalFn } & DatumOptions;
@@ -151,27 +151,6 @@ export interface DatumOptions {
 
    nSamples: number;
 }
-
-type DatumPrivateOptions = {
-   // helper data
-   /**
-    * @private
-    * The datum index
-    */
-   index?: number;
-
-   /**
-    * @private
-    * True if the datum is a helper function
-    */
-   isHelper?: boolean;
-
-   /**
-    * @private
-    * True to bypass the range limits, used for helper functions
-    */
-   skipBoundsCheck?: boolean;
-};
 
 export type FunctionPlotDatum = DatumOptions & {
    evalFn: EvalFn;

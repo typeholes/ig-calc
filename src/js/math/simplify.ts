@@ -1,4 +1,3 @@
-import { Repeat } from "immutable";
 import { MathNode, simplify as _simplify, parse } from "mathjs";
 import { isString } from "../util";
 import { Either, errorable } from "../Either";

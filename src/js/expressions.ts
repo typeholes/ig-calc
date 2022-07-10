@@ -1,5 +1,4 @@
 import {
-   expression,
    isAssignmentNode,
    isConstantNode,
    isFunctionAssignmentNode,
@@ -15,27 +14,14 @@ import {
    inline,
    freeVars as getFreeVars,
 } from '../js/math/mathUtil';
-import { typeset } from '../js/typeset';
 
-import {
-   builtinConstants,
-   builtinFunctions,
-   missingPlotFunctions,
-} from '../js/math/symbols';
+import { missingPlotFunctions } from '../js/math/symbols';
 
 import { Set as ISet } from 'immutable';
 import { Map as IMap } from 'immutable';
 
 import { assert, defined, hasPropIs, isBoolean } from '../js/util';
-import {
-   errorable,
-   Errorable,
-   flatMap,
-   isLeft,
-   map,
-   on,
-   raise,
-} from '../js/Either';
+import { errorable, Errorable, flatMap } from '../js/Either';
 import {
    currentColor,
    graph,
@@ -44,10 +30,11 @@ import {
    state,
 } from '../components/uiUtil';
 import { Datum, EvalFn } from '../js/function-plot/FunctionPlotDatum';
-import { reactive } from 'vue';
 import { simplify } from '../js/math/simplify';
-import { ExportNamespaceSpecifier, typeCastExpression } from '@babel/types';
 import { ExprEnv } from './exprEnv';
+
+// eslint-disable-next-line vue/prefer-import-from-vue
+import { isArray, isObject } from '@vue/shared';
 
 export const SaveRep = {
    toSave,
@@ -97,8 +84,6 @@ export interface ValidExpr {
    description: string | undefined;
    showExpr: boolean;
 }
-
-let anonCnt = 0;
 
 export const validExpr = (
    name: string,
@@ -196,11 +181,11 @@ function transativeDependencies(
    const newAncestors = deps.union(ancestors);
    return newAncestors.union(
       deps.flatMap((dep) => {
-         const children = env[dep]?.vars;
+         const children = env.get(dep)?.vars;
          if (!children) {
             return ISet();
          }
-         return transativeDependencies(children, newAncestors);
+         return transativeDependencies(env, children, newAncestors);
       })
    );
 }
@@ -226,19 +211,6 @@ export const getNodeName = (node: MathNode) =>
    isAssignmentNode(node) || isFunctionAssignmentNode(node)
       ? node.name
       : 'anon: ' + node.toString();
-
-function getDefinition(env: ExprEnv, name: string) {
-   if (!env.has(name)) {
-      return false;
-   }
-
-   const node = env.get(name)?.node!;
-   if (M.isAssignmentNode(node)) {
-      return node.value;
-   }
-
-   return false;
-}
 
 export type SaveRep = Record<
    string,
@@ -270,10 +242,14 @@ function toSave(rep: SaveRep): string {
 
 function fromSave(s: string): Errorable<SaveRep> {
    return errorable(() => {
-      const entries = Object.entries(JSON.parse(s));
+      const obj : unknown = JSON.parse(s);
+      assert.is(obj, isObject)
+      const entries: unknown = Object.entries(obj);
       const saveRep: SaveRep = {};
 
+      assert.is(entries, isArray);
       entries.forEach(([k, v]) => {
+         assert.is(k, isString)
          if (!hasPropIs(v, 'expr', isString)) {
             throw new Error('Save entry: ' + k + ' missing "expr"');
          }
@@ -321,9 +297,11 @@ function toEvalFn(
       expr,
       'free'
    ).first('x');
+   // eslint-disable-next-line @typescript-eslint/unbound-method
    const fn = inlined.compile().evaluate;
    const ret = (x: number) => {
       try {
+         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
          const result = fn({ [firstFree]: x, ...env.getConstants() });
          if (!isNumber(result)) {
             return 0;

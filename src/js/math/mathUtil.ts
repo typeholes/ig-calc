@@ -40,8 +40,8 @@ function getDerivative(
    by: string,
    args: Record<string, MathNode> = {}
 ): M.MathNode {
-   var expanded: M.MathNode = inline(node, args);
-   var derived = M.derivative(expanded, by);
+   const expanded: M.MathNode = inline(node, args);
+   const derived = M.derivative(expanded, by);
    return derived;
 }
 
@@ -80,7 +80,7 @@ export function inline(
          return inline(subbed, env, depth + 1);
       }
    }
-   return node.transform((n) => {
+   return node.transform((n: MathNode) => {
       if (isFunctionNode(n)) {
          const name = n.fn.name;
          const to = env[name];
@@ -117,41 +117,6 @@ export function inline(
    });
 }
 
-function texExpr(
-   expr: string,
-   doExpand: boolean,
-   replaceConstants: boolean,
-   args = {}
-) {
-   let parenthesis = 'keep';
-   let implicit = 'hide';
-
-   return function () {
-      let node = M.parse(expr);
-      let expanded = doExpand ? inline(node, args) : node;
-      let simplified = simplify(expanded);
-      return (
-         simplified
-            //         .transform(addHandlers)
-            .toTex({ parenthesis: parenthesis, implicit: implicit })
-      );
-   };
-}
-
-function texDerivative(expr: string, selectedVar: string, args = {}) {
-   let parenthesis = 'keep';
-   let implicit = 'hide';
-   return function () {
-      const node = M.parse(expr);
-      let derivative = getDerivative(node, selectedVar, args);
-      return (
-         derivative
-            //         .transform(addHandlers)
-            .toTex({ parenthesis: parenthesis, implicit: implicit })
-      );
-   };
-}
-
 function getDependencies(expr: string | M.MathNode, args = {}): string[] {
    const node = typeof expr === 'string' ? M.parse(expr) : expr;
 
@@ -180,8 +145,8 @@ export function subs(
             const env = Object.fromEntries(
                def.params.map((p, i) => [p, n.args[i] ?? new ConstantNode(0)])
             );
-            const ret = def.expr.transform((s) =>
-               isSymbolNode(s) && s.name in env ? (env[s.name] as MathNode) : s
+            const ret = def.expr.transform((s: MathNode) =>
+               isSymbolNode(s) && s.name in env ? (env[s.name] ) : s
             );
             return ret;
          }
@@ -205,7 +170,7 @@ export function transformNode<U>(
    node: MathNode,
    transforms: NodeTransform<MathNode, U>[]
 ): MathNode {
-   return node.transform((n) => {
+   return node.transform((n: MathNode) => {
       for (const t of transforms) {
          if (t.is(n)) {
             const check = t.when(n);

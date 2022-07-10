@@ -1,5 +1,5 @@
 import { MathNode } from 'mathjs';
-import { getAssignmentBody, parseExpr, ValidExpr } from './expressions';
+import { getAssignmentBody, ValidExpr } from './expressions';
 import { Map as IMap } from 'immutable';
 import { builtinConstants } from './math/symbols';
 import { reactive } from 'vue';
@@ -37,7 +37,7 @@ export function mkExprEnv(graph: () => Graph): ExprEnv {
    const mathEnv: MathEnv = reactive({});
    const names: Set<string> = reactive(new Set());
    const constants: Record<string, number> = {};
-   const graphConstants: Map<string, GraphConstant> = reactive(new Map());
+   const graphConstants: Map<string, GraphConstant> = reactive(new Map<string, GraphConstant>());
    const exprEnv = {
       has: (key: string) => key in data,
       get: (key: string) => data[key],
@@ -58,7 +58,7 @@ export function mkExprEnv(graph: () => Graph): ExprEnv {
          names.delete(key);
       },
       map: <T>(fn: (value: ValidExpr, key: string) => T) => {
-         const mapped = Object.entries(data).map(([k, v]) => [k, fn(v, k)]);
+         const mapped = Object.entries(data).map(([k, v]) => [k, fn(v, k)] as const);
          return Object.fromEntries(mapped);
       },
       clear: () => {
@@ -106,7 +106,7 @@ export function mkExprEnv(graph: () => Graph): ExprEnv {
                graph().options.data[key] = Datum(() => graphConstant.value, {
                   show: true,
                   color: graphConstant.color,
-                  nSamples: 3,
+                  nSamples: 2,
                });
                graph().drawLines();
             }
@@ -114,13 +114,12 @@ export function mkExprEnv(graph: () => Graph): ExprEnv {
             delete graph().options.data[key];
          }
       },
-      colorGraph: (key: string, color: `#${string}`) => { 
+      colorGraph: (key: string, color: `#${string}`) => {
          const _graph = graph();
-            if (key in _graph.options.data) {
-               _graph.options.data[key].color = color; 
-               graph().drawLines();
-            }
-         
+         if (key in _graph.options.data) {
+            _graph.options.data[key].color = color;
+            graph().drawLines();
+         }
       },
    };
    exprEnv.setConstant('foo', 1);

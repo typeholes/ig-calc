@@ -1,7 +1,7 @@
 import { defined } from '../js/util';
 import { Map as IMap } from 'immutable';
 import { Graph, mkGraph } from '../js/function-plot/d3util';
-import { reactive, shallowReactive, shallowRef, nextTick, computed } from 'vue';
+import { reactive, shallowReactive, shallowRef, nextTick, } from 'vue';
 import {
    defaultFunctionPlotOptionsAxis,
    FunctionPlotOptions,
@@ -13,7 +13,6 @@ import {
    getNodeName,
    parseExpr,
    SaveRep,
-   adjustExpr,
    isGraphable,
 } from '../js/expressions';
 import DisplayData from './DisplayData.vue';
@@ -26,15 +25,12 @@ import GameEditor from './game/GameEditor.vue';
 import GameDisplay from './game/GameDisplay.vue';
 import GameMakerTutorial from './game/GameMakerTutorial.vue';
 import GameMetaData from './game/GameMetaData.vue';
-import { FunctionPlotData } from '../js/function-plot/FunctionPlotDatum';
 import { SaveId } from '../js/SaveManager';
-import { arrayRange } from '../js/function-plot/utils';
-import { actions, runAction, tick as actionsTick } from '../js/actions';
 import GraphExpr from './GraphExpr.vue';
 import TextExpr from './TextExpr.vue';
 import TextJsExpr from './TextJsExpr.vue';
 import { mkExprEnv } from '../js/exprEnv';
-
+import { tick as actionsTick } from '../js/actions';
 export let graph: Graph;
 
 const colors = IMap(
@@ -89,7 +85,9 @@ export function initGraph() {
    return graph;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
 export const displayComponents = { DisplayData, DisplayGraph };
+
 export const state = reactive({
    hideBottom: false,
    hideLeft: false,
@@ -143,7 +141,7 @@ export function refreshTex(expr?: ValidExpr | undefined) {
    if (defined(expr)) {
       addTexElement('tex_' + expr.name, expr.node.toTex());
    }
-   nextTick(typeset);
+   void nextTick(typeset);
 }
 
 export function addToEnv(s: string, showExpr = true) {
@@ -286,30 +284,42 @@ export function refreshDatumEnvironments() {
 }
 
 export const appTabs = shallowReactive({
+   // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
    Calc: shallowRef(IgCalc),
+   // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
    Help: shallowRef(HelpScreen),
 });
 
 export const exprComponents = shallowReactive({
+   // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
    text: shallowRef(TextExpr),
+   // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
    expr: shallowRef(GraphExpr),
+   // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
    js: shallowRef(TextJsExpr),
-});
+} as const);
 
 export function lookupExprComponent(name: 'text' | 'expr' | 'js') {
+   // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
    const component = exprComponents[name];
+   // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-return
    return component.value;
 }
 
 const appGameTabs = {
+   // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
    Editor: shallowRef(GameEditor),
+   // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
    Game: shallowRef(GameDisplay),
+   // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
    'Game Maker Tutorial': shallowRef(GameMakerTutorial),
+   // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
    MetaData: shallowRef(GameMetaData),
 };
 
 export function enableGameTabs() {
    for (const name in appGameTabs) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       appTabs[name] = appGameTabs[name];
    }
 }
@@ -321,7 +331,7 @@ export function disableGameTabs() {
 }
 
 export let time = 0;
-export function gameLoop(elapsedTime) {
+export function gameLoop(elapsedTime: number) {
    actionsTick(elapsedTime);
    const t = elapsedTime / 1000;
    const delta = t - time;

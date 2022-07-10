@@ -1,18 +1,17 @@
-import { isObject } from '@vue/shared';
 import {
-   elementaryChargeDependencies,
    isArray,
    isNumber,
-   sluDependencies,
 } from 'mathjs';
-import { assert, defined, hasProp, hasPropIs, isString } from './util';
+import { assert, defined, hasPropIs, isString } from './util';
 import {
    addToEnv,
    checkNewExpr,
    state as appState,
 } from '../components/uiUtil';
 import { cursorState, goToElement } from '../components/FakeCursor';
-import { nextTick } from 'vue';
+
+// eslint-disable-next-line vue/prefer-import-from-vue
+import { isObject } from '@vue/shared';
 
 interface ActionArgs {
    args: string[];
@@ -23,7 +22,7 @@ type Action = [string, ActionArgs];
 let selectedElement: HTMLElement | undefined = undefined;
 
 const actionHandlers: Record<string, (...x: string[]) => void> = {
-   wait: () => {},
+   wait: () => { /* do nothing */ },
    alert: alert,
    setNewExpr: (x) => {
       appState.newExpr = x;
@@ -108,7 +107,7 @@ function prependAction(
    actions?.unshift([name, { delay, args }]);
 }
 
-export function runAction([name, { delay, args }]: Action) {
+export function runAction([name, { args }]: Action) {
    if (name in actionHandlers) {
       const fn = actionHandlers[name];
       fn(...args);
@@ -122,23 +121,24 @@ export function getActions(name: string, cnt: number | undefined) {
    const response = fetch(
       `${window.location.origin}/ig-calc/actions/${name}.json`
    );
-   response.then((response) => {
+   void response.then((response) => {
       if (!response.ok) {
          throw new Error(response.statusText);
       }
 
-      response.json().then((x) => (actions = parseActions(x, cnt)));
+      void response.json().then((x) => (actions = parseActions(x, cnt)));
    });
 }
 
 function parseActions(json: unknown, cnt: number | undefined): Action[] {
    const actions: Action[] = [];
    assert(isArray(json), 'actions must be a valid json array');
-   json.forEach((x) => {
+   json.forEach((x: unknown) => {
       assert.is(x, isObject);
       Object.entries(x).forEach(([k, v]) => {
          if (hasPropIs(v, 'args', isArray)) {
             const delay = hasPropIs(v, 'delay', isNumber) ? v.delay : 1;
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
             actions.push([k, { args: v.args, delay }]);
          } else if (isString(v) && defined(v)) {
             actions.push([k, { args: [v], delay: 2 }]);

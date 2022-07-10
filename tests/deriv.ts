@@ -1,6 +1,6 @@
 import * as assert from "assert";
 import { derive } from "../src/js/math/derivatives";
-import { parse, derivative as Mderivative, sin, i } from "mathjs";
+import { parse, derivative as Mderivative,  } from "mathjs";
 
 export {};
 

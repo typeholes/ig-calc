@@ -17,8 +17,8 @@ export function play(values: number[]) {
       oscillators[i].connect(gain);
       oscillators[i].type = "sine";
     }
-    gain!.connect(context!.destination);
-    gain!.gain.value = 1;
+    gain.connect(context.destination);
+    gain.gain.value = 1;
 
     for (let i = 0; i < cnt; i++) {
       oscillators[i].start(context.currentTime);

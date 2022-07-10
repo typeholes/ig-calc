@@ -47,7 +47,7 @@ export function moveTo(top: number, left: number) {
    cursorState.top = top;
    cursorState.animate = false;
    cursorState.show = false;
-   nextTick(() => {
+   void nextTick(() => {
       cursorState.show = true;
       cursorState.animate = true;
    });

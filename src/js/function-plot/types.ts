@@ -1,5 +1,3 @@
-import { interval } from "d3";
-import { MathNode } from "mathjs";
 
 export type Point = [x: number, y: number];
 export type Points = Point[];
@@ -35,6 +33,6 @@ export function reverseInterval(i: Interval): Interval {
   return { lo: i.hi, hi: i.lo };
 }
 
-export function offsetInterval(i: Interval, by): Interval {
+export function offsetInterval(i: Interval, by: number): Interval {
   return { lo: i.lo + by, hi: i.hi + by };
 }

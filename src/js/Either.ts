@@ -1,4 +1,4 @@
-import { defined, hasProp, tagged } from "./util";
+import {  hasProp, tagged } from "./util";
 
 export interface Left<L> {
   _tag: "Left";

@@ -60,7 +60,7 @@ export const librarySaveReps = libraryMap.mapEntries(([id, library]) => [
 const metaEntries = libraries.map((library) => [
   SaveId("library", library.name),
   library.description,
-]) as [SaveId, SaveDescription][];
+]) ;
 export const librarySaveMeta: IMap<SaveId, SaveDescription> = IMap(metaEntries);
 export const libraryDescriptions = librarySaveMeta.mapEntries(([k, v]) => [
   k.name,

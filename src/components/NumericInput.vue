@@ -1,41 +1,75 @@
 <script setup lang="ts">
-import { reactive } from 'vue';
-import { isValidNumber } from '../js/function-plot/utils';
-import { defined } from '../js/util';
+   import { reactive } from 'vue';
+   import { isValidNumber } from '../js/function-plot/utils';
+   import { defined } from '../js/util';
 
-const props = defineProps<{ value: number, min?: number, max?: number }>();
+   const props = defineProps<{ value: number; min?: number; max?: number }>();
 
-const emit = defineEmits<{
-   (e: 'update:value', value: number): void;
-}>();
+   const emit = defineEmits<{
+      (e: 'update:value', value: number): void;
+   }>();
 
-const tmp = reactive({ value: props.value });
+   const tmp = reactive({ value: props.value, valid: true });
 
-function validate(e: Event) {
-   if (e.target instanceof HTMLInputElement) {
-      let negate = 1;
-      let str = e.target.value;
-      if (str.endsWith('`')) {
-         negate = -1;
-         str.replace('`', '');
-      }
-      let num = parseFloat(e.target.value);
-      if (isValidNumber(num)) {
-         num = num * negate;
-         if (defined(props.min)) { num = Math.max(props.min, num) }
-         if (defined(props.max)) { num = Math.min(props.max, num) }
-
-         if (!e.target.value.match(/([.e]|e-)$/)) {
-            tmp.value = num
+   function validate(final: boolean, e: Event) {
+      let num: undefined | number = undefined;
+      function check(p: (n: number) => boolean, fix = false) {
+         tmp.valid = p(num!);
+         if (tmp.valid) {
+            emit('update:value', num!);
+         } else if (final) {
+            tmp.value = props.value;
+            tmp.valid = true;
+         } else if (fix) {
+            tmp.value = num!;
+            tmp.valid = true;
          }
-         emit('update:value', num);
-      } else {
-         tmp.value = props.value;
       }
+      if (e.target instanceof HTMLInputElement) {
+         const value = e.target.value;
+         let negate = 1;
+         let str = value.trim();
+         if (str.endsWith('`')) {
+            negate = -1;
+            str = str.replace('`', '');
+         }
+         num = parseFloat(e.target.value);
+
+         check(isValidNumber);
+         if (!tmp.valid) return;
+
+         num = num * negate;
+         if (final) {
+            if (defined(props.min)) {
+               num = Math.max(props.min, num);
+            }
+            if (defined(props.max)) {
+               num = Math.min(props.max, num);
+            }
+         }
+
+         check(() => defined(value.match(/((^-)|[0-9.e]|(e-))$/)), true);
+         if (!tmp.valid) return;
+
+         check((x) => x >= (props.min ?? x) && x <= (props.max ?? x));
+         if (!tmp.valid) return;
+
+         check(() => !defined(value.match(/^[^0-9-.]/)));
+         if (!tmp.valid) return;
+
+         console.log('end', { final, tmp, props });
+         return;
+      }
+      console.log('???');
    }
-}
 </script>
 
 <template>
-   <input v-model="tmp.value" @input="(e) => validate(e)" :size="tmp.value.toString().length" />
+   <input
+      :style="{ borderColor: tmp.valid ? '#595958' : '#990000' }"
+      v-model="tmp.value"
+      @input="(e) => validate(false, e)"
+      @change="(e) => validate(true, e)"
+      :size="tmp.value.toString().length"
+   />
 </template>

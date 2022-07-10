@@ -121,8 +121,4 @@ export interface FunctionPlotTip {
     */
    renderer?: (x: number, y: number, index: number) => string;
 
-   /**
-    * Internal reference to the {@link Chart} instance
-    */
-   owner?: any;
 }

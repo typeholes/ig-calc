@@ -1,5 +1,6 @@
 import { MathNode } from 'mathjs';
 import { Set as ISet } from 'immutable';
+import { Datum, DatumOptions, EvalFn } from './function-plot/FunctionPlotDatum';
 
 export interface GraphItem {
    type: 'node' | 'constant';
@@ -51,3 +52,9 @@ export const GraphConstant = (
    ...item,
    value,
 });
+
+const GraphItemBase = {
+   toDatum: (item: GraphItem, evalFn: EvalFn, options: Partial<DatumOptions> = {}) => Datum( evalFn, { show: item.showGraph, color: item.color, ...options}),
+} as const;
+
+GraphConstant.toDatum = (item: GraphConstant) => GraphItemBase.toDatum(item, () => item.value, {nSamples: 2})

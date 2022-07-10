@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-return */
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
 import * as M from "mathjs";
 import { hasProp } from "../util";
 import { transformNode, tx, always, C0, C1, C2, op, fn } from "./mathUtil";
@@ -6,7 +9,7 @@ import { simplify as _simplify } from "./simplify";
 const integrateTransforms = (by: string) => {
   const go = <T extends M.MathNode>(n: T) =>
     transformNode(n.clone(), integrateTransforms(by));
-  const hasBy = <T extends M.MathNode>(n: M.MathNode) =>
+  const hasBy = (n: M.MathNode) =>
     n.filter((x) => M.isSymbolNode(x) && x.name === by).length > 0;
   const goIf = <T extends M.MathNode>(b: boolean, n: T) => (b ? go(n) : n);
   const byNode = new M.SymbolNode(by);

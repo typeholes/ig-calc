@@ -1,7 +1,10 @@
+// eslint-disable-next-line vue/prefer-import-from-vue
+import { isObject } from "@vue/shared";
+
 import { isString } from "mathjs";
 import { reactive } from "vue";
 import { errorable, Errorable } from "../js/Either";
-import { hasProp, hasPropIs, isBoolean } from "../js/util";
+import { assert, hasPropIs, isBoolean } from "../js/util";
 
 interface State {
   color: string;
@@ -63,7 +66,8 @@ function toSave(s: ExpressionUiState): string {
 
 function fromSave(s: string): Errorable<ExpressionUiState> {
   return errorable(() => {
-    const obj = JSON.parse(s);
+    const obj : unknown = JSON.parse(s);
+    assert.is(obj, isObject)
     const ret: ExpressionUiState = {};
     Object.entries(obj).forEach(([k, v]) => {
       if (

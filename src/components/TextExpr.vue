@@ -1,5 +1,5 @@
 <script setup lang="ts">
-   import { ValidExpr } from './expressions';
+   import { ValidExpr } from '../js/expressions';
 
    interface props {
       expr: ValidExpr;
