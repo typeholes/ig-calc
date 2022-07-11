@@ -1,38 +1,14 @@
 <script setup lang="ts">
-   import {
-      ValidExpr,
-      isGraphable,
-      getDependencies,
-      getGraphFnStr,
-      isNumericConstant,
-      getFunctionBody,
-      getBody as getDeclarationBody,
-      getNumericConstant,
-      setNumericConstant,
-      setAssignmentBody,
-      getAssignmentBody,
-      parseExpr,
-   } from '../js/expressions';
    import { addTexElement, typeset } from '../js/typeset';
    import { reactive, computed, watch } from 'vue';
-   import { isAssignmentNode, MathNode, simplify } from 'mathjs';
-   import { derive as _derive } from '../js/math/derivatives';
-   import { integrate as _integrate } from '../js/math/integrals';
-   import { inline } from '../js/math/mathUtil';
-   import { Errorable, errorable } from '../js/Either';
-   import {
-      addImportExpression,
-      checkNewExpr,
-      graph,
-      hasImportExpression,
-      state as appState,
-   } from './uiUtil';
-   import { defined, notBlank } from '../js/util';
-   import { play } from '../js/sonify';
-   import { libraryFns } from '../js/libraryValues';
+   import { MathNode } from 'mathjs';
+   import { state as appState } from './uiUtil';
+   import { notBlank, defined } from '../js/util';
+   import { EnvExpr } from '../js/env/EnvExpr';
+   import { flattenDependencyTree } from '../js/env/exprEnv';
 
    interface Props {
-      expr: ValidExpr;
+      name: string;
       tex?: string;
       allowCopy: boolean;
       allowEdit: boolean;
@@ -46,266 +22,99 @@
       holdConstant: undefined as MathNode | undefined,
    });
 
-   const isImported = computed(() => hasImportExpression(props.expr));
+   const graphState = appState.env.expression.getState(props.name);
 
-   const getBody = (x: MathNode) => getDeclarationBody(getFunctionBody(x));
+   //   const isImported = computed(() => hasImportExpression(props.state));
 
    const emit = defineEmits<{
-      (e: 'new:expr', value: string): void;
-      (e: 'remove:expr', value: string): void;
       (e: 'error', value: Error): void;
       (e: 'edit', value: string): void;
    }>();
 
-   function getColor() {
-      return graph.options.data[props.expr.name]?.color ?? '#FFFFFF';
-   }
-
-   function updateColor(event: Event) {
-      const target = event.target;
-      if (target instanceof HTMLInputElement) {
-         const id = props.expr.name;
-         const color = target.value;
-         graph.options.data[id].color = color;
-      }
-   }
-
-   function getShow() {
-      return graph.options.data[props.expr.name]?.show ?? false;
-   }
-
-   function updateShow(event: Event) {
-      const target = event.target;
-      if (target instanceof HTMLInputElement) {
-         const id = props.expr.name;
-         const checked = target.checked;
-         graph.options.data[id].show = checked;
-      }
-   }
-
-   function derive(by: string) {
-      const result = errorable(() => {
-         const inlined = inline(
-            getBody(props.expr.node),
-            appState.env.getMathEnv()
-         );
-         const dx = _derive(inlined, by);
-         emit('new:expr', simplify(dx).toString());
-      });
-
-      Errorable.catch(result, (e) => {
-         emit('error', e);
-      });
-   }
-   // function integrate(by: string) {
-   // const result = errorable(() => {
-   //       const inlined = inline(
-   //          getBody(props.expr.node),
-   //          appState.env.getMathEnv()
-   //       );
-   //       const dx = _integrate(inlined, by);
-   //       emit('new:expr', simplify(dx).toString());
-   //    });
-
-   //    Errorable.catch(result, (e) => {
-   //       emit('error', e);
-   //    });
-   // }
-
    function remove() {
-      delete graph.options.data[props.expr.name];
-      appState.newExpr = props.expr.node.toString();
-      checkNewExpr();
-      emit('remove:expr', props.expr.name);
+      appState.env.expression.delete(props.name);
    }
 
    function edit() {
-      if (props.expr.name.startsWith('anon: ')) {
+      if (props.name.startsWith('anon: ')) {
          remove();
       } else {
-         emit('edit', props.expr.name);
+         emit('edit', props.name);
       }
    }
 
-   function graphFn(x: ValidExpr) {
-      return getGraphFnStr(appState.env, x);
-   }
-
-   function sonify() {
-      const datum = graph.options.data[props.expr.name];
-      if (defined(datum)) {
-         const samples = graph
-            .runSampler(props.expr.name, 1000)
-            .flat()
-            .map(([_, y]) => y);
-         play(samples);
-      }
+   function graphFn() {
+      const value = appState.env.expression.get(props.name);
+      return defined(value)
+         ? `${props.name} = ${EnvExpr.toExprString(value)}`
+         : `${props.name} not found`;
    }
 
    function refreshTex() {
       addTexElement(
-         'tex_' + props.expr.name,
-         props.tex ?? props.expr.node.toTex()
+         'tex_' + props.name,
+         props.tex ?? graphFn().replace('=', ':=')
       );
       typeset();
    }
 
    addTexElement(
-      'tex_' + props.expr.name,
-      props.tex ?? props.expr.node.toTex()
+      'tex_' + props.name,
+      props.tex ?? graphFn().replace('=', ':=')
    );
 
    function copyToCurrent() {
-      addImportExpression(props.expr);
+      //         addImportExpression(props.state);
    }
 
-   const slider = reactive({ new: getNumericConstant(props.expr.node) });
-   const updateSlider = computed(() => getNumericConstant(props.expr.node));
-
-   watch(updateSlider, (x) => (slider.new = x));
-
-   watch(slider, () => {
-      setNumericConstant(props.expr.node, slider.new);
-      if (props.expr.name == '__tmp') {
-         emit('new:expr', props.expr.node.toString());
-      } else {
+   watch(
+      () => graphState.value,
+      () => {
          refreshTex();
       }
-   });
+   );
 
-   const animation = reactive({
-      from: 0,
-      to: 10,
-      period: 10,
-      fn: 'zigZag',
-   });
-   watch(animation, setAnimationExprBody);
-
-   function toggleAnimate() {
-      if (state.animate) {
-         if (isAssignmentNode(props.expr.node)) {
-            props.expr.node.value = state.holdConstant!;
-         }
-      } else {
-         state.holdConstant = getAssignmentBody(props.expr.node);
-         setAnimationExprBody();
-      }
-      state.animate = !state.animate;
-   }
-
-   function setAnimationExprBody() {
-      if (!appState.env.has(animation.fn)) {
-         const fnStr = libraryFns.get('periodic')![animation.fn][0];
-         parseExpr(appState.env, fnStr);
-      }
-      setAssignmentBody(
-         props.expr.node,
-         `${animation.fn}(time, ${animation.from}, ${
-            animation.to - animation.from
-         }, ${animation.period})`
-      );
-      appState.env.updateMathEnv(props.expr.name);
-   }
-   function toggleShowValue() {
-      props.expr.showValue = !props.expr.showValue;
-   }
+   const isImported = computed(() => false); // TODO
 </script>
 
 <template>
-   <div class="cols GraphExpr lastSmall" :class="{ imported: isImported }">
+   <div
+      class="cols GraphExpr lastSmall"
+      :class="{ imported: isImported }"
+      v-if="name !== 'time'"
+   >
       <div class="rows">
          <div class="cols">
             <span
-               v-if="
-                  !props.expr.name.startsWith('anon:') &&
-                  props.expr.name !== '__tmp'
-               "
+               v-if="!props.name.startsWith('anon:') && props.name !== '__tmp'"
             >
-               {{ props.expr.name }}
+               {{ props.name }}
             </span>
-            <template v-if="isGraphable(appState.env, expr)">
-               <input
-                  class="gridCheck"
-                  type="checkbox"
-                  :checked="getShow()"
-                  :value="getShow()"
-                  @change="updateShow"
-                  :id="`show:${expr.name}`"
-               />
-               <input
-                  class="colorPicker"
-                  type="color"
-                  :value="getColor()"
-                  @input="updateColor"
-                  :id="`color:${expr.name}`"
-               />
-            </template>
-         </div>
-         <div
-            class="cols lastSmall"
-            v-if="defined(state.holdConstant) || isNumericConstant(expr.node)"
-         >
-            <o-field class="fullRow" label="" v-if="!state.animate"
-               ><o-slider v-model="slider.new" :step="0.01"></o-slider
-            ></o-field>
-            <template v-else>
-               <o-field label="From">
-                  <o-input type="number" v-model="animation.from"></o-input>
-               </o-field>
-               <o-field label="To">
-                  <o-input type="number" v-model="animation.to"></o-input>
-               </o-field>
-               <o-field label="Period">
-                  <o-input type="number" v-model="animation.period"></o-input>
-               </o-field>
-               <o-field label="Type">
-                  <!-- TODO drive this from the periodic library -->
-                  <o-select v-model="animation.fn">
-                     <option value="sinal">sinal</option>
-                     <option value="zigZag">zigZag</option>
-                  </o-select>
-               </o-field>
-            </template>
-            <button @click="toggleAnimate">
-               {{ state.animate ? 'Make Constant' : 'Animate' }}
-            </button>
-         </div>
-         <div class="cols" v-if="expr.showValue">
-            <span class="fullRow"> {{ graphFn(expr) }}</span>
+            <input
+               class="gridCheck"
+               type="checkbox"
+               v-model="graphState.showGraph"
+               :id="`show:${name}`"
+            />
+            <input
+               class="colorPicker"
+               type="color"
+               v-model="graphState.color"
+               :id="`color:${name}`"
+            />
          </div>
          <div class="cols">
-            <span class="tex" :id="'tex_' + expr.name"
-               >{{ expr.toString() }}
-            </span>
+            <span class="tex" :id="'tex_' + name">{{ state.toString() }} </span>
+         </div>
+         <div class="cols" v-if="graphState.description">
+            <span class="fullRow">{{ graphState.description }}</span>
          </div>
          <div class="cols">
-            <div class="rows">
-               <template
-                  v-for="free in getDependencies(
-                     appState.env.toMap(),
-                     appState.env.constant.toRecord(),
-                     expr,
-                     'free'
-                  )"
-                  :key="free"
-               >
-                  <span class="free">
-                     {{ free }}
-                     <button
-                        class="dx"
-                        @click="derive(free)"
-                        :id="`dx:${free}:${expr.name}`"
-                     >
-                        dx
-                     </button>
-                  </span>
-                  <!-- <button @click="integrate(free)">&#x222B</button>  integration is broken :(-->
-                  <!-- <input type="number" /> -->
-               </template>
-            </div>
-         </div>
-         <div class="cols" v-if="expr.description">
-            <span class="fullRow">{{ expr.description }}</span>
+            <span class="fullRow">{{
+               flattenDependencyTree(
+                  appState.env.getDependencies(props.name)
+               ).toJSON()
+            }}</span>
          </div>
       </div>
       <div class="rows">
@@ -315,9 +124,7 @@
          <template v-if="state.showMenu">
             <button
                class="menuButton"
-               :disabled="
-                  notBlank(appState.newExpr) && props.expr.name !== '__tmp'
-               "
+               :disabled="notBlank(appState.newExpr) && props.name !== '__tmp'"
                @click="remove()"
             >
                Remove
@@ -338,10 +145,7 @@
             >
                Copy to current save
             </button>
-            <button class="menuButton" @click="toggleShowValue">
-               {{ expr.showValue ? 'Hide Value' : 'Show Value' }}
-            </button>
-            <button class="menuButton" @click="sonify()">Sonify</button>
+            <!-- <button class="menuButton" @click="sonify()">Sonify</button> -->
          </template>
       </div>
    </div>
@@ -366,6 +170,7 @@
       background: none;
       top: 1px;
    }
+
    .tex {
       overflow: auto;
       align-self: center;
@@ -397,5 +202,30 @@
 
    .rightward {
       margin-left: auto;
+   }
+
+   .sliderCap {
+      /* text-decoration: underline #445e00; */
+      width: max-content;
+      margin-top: 5px;
+      padding: 0px 4px;
+      border: 1px solid #595958;
+      border-radius: 10px;
+   }
+
+   .sliderCap.left {
+      left: 90%;
+      /* top: -15px; */
+      position: absolute;
+   }
+
+   .sliderCap.right {
+      right: 90%;
+      /* top: -15px; */
+      position: absolute;
+   }
+
+   input:invalid {
+      background-color: #550000;
    }
 </style>

@@ -4,7 +4,7 @@
    import { MathNode } from 'mathjs';
    import { state as appState } from './uiUtil';
    import { notBlank, defined } from '../js/util';
-   import { Animation } from '../js/exprEnv';
+   import { Animation } from '../js/env/Animation';
 
    interface Props {
       name: string;

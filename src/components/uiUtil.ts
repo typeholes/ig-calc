@@ -26,10 +26,10 @@ import GameDisplay from './game/GameDisplay.vue';
 import GameMakerTutorial from './game/GameMakerTutorial.vue';
 import GameMetaData from './game/GameMetaData.vue';
 import { SaveId } from '../js/SaveManager';
-import GraphExpr from './GraphExpr.vue';
+import GraphExpr from './GraphExprOld.vue';
 import TextExpr from './TextExpr.vue';
 import TextJsExpr from './TextJsExpr.vue';
-import { mkExprEnv } from '../js/exprEnv';
+import { mkExprEnv } from '../js/env/exprEnv';
 import { tick as actionsTick } from '../js/actions';
 export let graph: Graph;
 

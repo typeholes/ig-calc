@@ -5,7 +5,7 @@
    import Vsplitter from './Vsplitter.vue';
    import Hsplitter from './Hsplitter.vue';
    import FunctionSelector from './FunctionSelector.vue';
-   import GraphExpr from './GraphExpr.vue';
+   //   import GraphExprOld from './GraphExprOld.vue';
    import SaveWidget from './SaveWidget.vue';
    import GeneralOptions from './GeneralOptions.vue';
 
@@ -34,6 +34,7 @@
 
    import GraphConst from './GraphConst.vue';
    import GraphAnim from './GraphAnim.vue';
+   import GraphExpr from './GraphExpr.vue';
 
    onMounted(() => {
       init();
@@ -184,6 +185,17 @@
                   </div>
                   <div
                      class="expressions"
+                     v-for="(_, name) of state.env.expression.toRecord()"
+                     :key="name"
+                  >
+                     <GraphExpr
+                        :name="name"
+                        :allow-copy="false"
+                        :allow-edit="false"
+                     ></GraphExpr>
+                  </div>
+                  <div
+                     class="expressions"
                      v-if="
                         !(
                            state.showHelp ||
@@ -262,7 +274,7 @@
                      v-if="!state.parseResult"
                   ></FunctionSelector>
                   <div v-if="state.parseResult">
-                     <GraphExpr
+                     <!-- <GraphExprOld
                         v-if="!state.loading"
                         :env="state.env"
                         :expr="state.env.get('__tmp')!"
@@ -278,7 +290,7 @@
                         @remove:expr="(x) => removeExpr(x)"
                         @error="showError"
                      >
-                     </GraphExpr>
+                     </GraphExprOld> -->
                      <button
                         id="addExpr"
                         v-if="!defined(state.error) && !state.loading"

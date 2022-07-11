@@ -31,7 +31,7 @@ import {
 } from '../components/uiUtil';
 import { Datum, EvalFn } from '../js/function-plot/FunctionPlotDatum';
 import { simplify } from '../js/math/simplify';
-import { ExprEnv } from './exprEnv';
+import { ExprEnv } from './env/exprEnv';
 
 // eslint-disable-next-line vue/prefer-import-from-vue
 import { isArray, isObject } from '@vue/shared';
@@ -54,6 +54,7 @@ function unJS(expr: string) {
       )
       .replace(/const ([^=]+)=(.+)/, (match, name, body) => name + '=' + body);
 }
+
 export function parseExpr(
    env: ExprEnv,
    s: string,
@@ -74,6 +75,10 @@ export function parseExpr(
          return [newExpr, name];
       })
    );
+}
+
+export function parseNode(s: string): Errorable<MathNode> {
+   return parse(unJS(s));
 }
 
 export interface ValidExpr {
@@ -156,7 +161,7 @@ const emptyEnv: ExprMap = IMap();
 export function getDependencies(
    env = emptyEnv,
    constants: Record<string, number>,
-   expr: ValidExpr,
+   expr: { vars: ISet<string> },
    bound: 'bound' | 'free' | 'all' = 'all'
 ) {
    const deps = transativeDependencies(env, expr.vars);
@@ -242,14 +247,14 @@ function toSave(rep: SaveRep): string {
 
 function fromSave(s: string): Errorable<SaveRep> {
    return errorable(() => {
-      const obj : unknown = JSON.parse(s);
-      assert.is(obj, isObject)
+      const obj: unknown = JSON.parse(s);
+      assert.is(obj, isObject);
       const entries: unknown = Object.entries(obj);
       const saveRep: SaveRep = {};
 
       assert.is(entries, isArray);
       entries.forEach(([k, v]) => {
-         assert.is(k, isString)
+         assert.is(k, isString);
          if (!hasPropIs(v, 'expr', isString)) {
             throw new Error('Save entry: ' + k + ' missing "expr"');
          }
