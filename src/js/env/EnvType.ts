@@ -8,7 +8,7 @@ import { reactive, watch } from 'vue';
 export type EnvTypeTag = 'constant' | 'animated' | 'expression';
 
 export interface EnvType<V> {
-   tag: EnvTypeTag,
+   tag: EnvTypeTag;
    has: (key: string) => boolean;
    get: (key: string) => V | undefined;
    set: (key: string, value: V) => V;
@@ -21,17 +21,25 @@ export interface EnvType<V> {
    getDependencies: (v: V) => ISet<string>;
 }
 
-
-export function EnvType<V>(
-   tag: EnvTypeTag,
-   data: Map<string, V>,
-   getGraph: () => Graph,
-   mathEnv: MathEnv,
-   getMathValue: (v: V) => MathEnv[string],
-   items: Map<string, EnvItem>,
-   getDatum: (v: V, item: EnvItem) => FunctionPlotDatum,
-   getDependencies: (v: V) => ISet<string>
-): EnvType<V> {
+export function EnvType<V>({
+   tag,
+   data,
+   getGraph,
+   mathEnv,
+   getMathValue,
+   items,
+   getDatum,
+   getDependencies,
+}: {
+   tag: EnvTypeTag;
+   data: Map<string, V>;
+   getGraph: () => Graph;
+   mathEnv: MathEnv;
+   getMathValue: (v: V) => MathEnv[string];
+   items: Map<string, EnvItem>;
+   getDatum: (v: V, item: EnvItem) => FunctionPlotDatum;
+   getDependencies: (v: V) => ISet<string>;
+}): EnvType<V> {
    const envType: EnvType<V> = {
       tag,
       getDatum,
@@ -43,12 +51,13 @@ export function EnvType<V>(
          mathEnv[key] = getMathValue(value);
          if (!items.has(key)) {
             items.set(key, {
+               name: key,
                color: '#FFFF00',
                hidden: false,
                showGraph: false,
                showValue: false,
                description: undefined,
-               typeTag: tag
+               typeTag: tag,
             });
          } else {
             const item = items.get(key);

@@ -126,8 +126,13 @@ function getDependencies(expr: string | M.MathNode, args = {}): string[] {
       ? expanded.value
       : expanded;
 
+   const params = M.isFunctionAssignmentNode(expanded) ? expanded.params : [];
+
    const filtered = body.filter(
-      (node) => M.isSymbolNode(node) && !knownSymbols.has(node.name)
+      (node) =>
+         M.isSymbolNode(node) &&
+         !knownSymbols.has(node.name) &&
+         !(params.includes(node.name))
    ) as M.SymbolNode[];
 
    const dependencies = unique(filtered.map((x) => x.name ?? ''));
@@ -146,7 +151,7 @@ export function subs(
                def.params.map((p, i) => [p, n.args[i] ?? new ConstantNode(0)])
             );
             const ret = def.expr.transform((s: MathNode) =>
-               isSymbolNode(s) && s.name in env ? (env[s.name] ) : s
+               isSymbolNode(s) && s.name in env ? env[s.name] : s
             );
             return ret;
          }

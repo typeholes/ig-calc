@@ -46,7 +46,7 @@
    function graphFn() {
       const value = appState.env.expression.get(props.name);
       return defined(value)
-         ? `${props.name} = ${EnvExpr.toExprString(value)}`
+         ? `${EnvExpr.toTex(value)}`
          : `${props.name} not found`;
    }
 
@@ -104,7 +104,12 @@
             />
          </div>
          <div class="cols">
-            <span class="tex" :id="'tex_' + name">{{ state.toString() }} </span>
+            <span
+               class="tex"
+               :class="{ error: graphState.value.error }"
+               :id="'tex_' + name"
+               >{{ state.toString() }}
+            </span>
          </div>
          <div class="cols" v-if="graphState.description">
             <span class="fullRow">{{ graphState.description }}</span>
@@ -176,6 +181,10 @@
       align-self: center;
       width: 100%;
       background-color: rgb(11, 37, 37);
+   }
+
+   .tex.error {
+      background-color: #371111;
    }
 
    .gridCheck {

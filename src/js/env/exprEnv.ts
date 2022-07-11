@@ -1,5 +1,5 @@
-import { MathNode } from 'mathjs';
-import { getAssignmentBody, ValidExpr } from '../expressions';
+import { isFunctionAssignmentNode, isNumber, MathNode } from 'mathjs';
+import { defaultCall, getAssignmentBody, ValidExpr } from '../expressions';
 import { Map as IMap } from 'immutable';
 import { builtinConstants } from '../math/symbols';
 import { reactive } from 'vue';
@@ -16,10 +16,13 @@ import { EnvType, EnvTypeTag } from './EnvType';
 
 import { Animation } from './Animation';
 import { EnvExpr } from './EnvExpr';
+import { inline } from '../math/mathUtil';
+import { state } from '../../components/uiUtil';
 
 export type MathEnv = Record<string, MathNode | number>;
 
 export interface EnvItem {
+   name: string;
    color: `#${string}`;
    hidden: boolean;
    showGraph: boolean;
@@ -62,40 +65,37 @@ export function mkExprEnv(graph: () => Graph): ExprEnv {
    const animations = new Map<string, Animation>();
    const expressions = new Map<string, EnvExpr>();
    const exprEnv: ExprEnv = {
-      constant: EnvType(
-         'constant',
-         constants,
-         graph,
+      constant: EnvType({
+         tag: 'constant',
+         data: constants,
+         getGraph: graph,
          mathEnv,
-         (x) => x,
+         getMathValue: (x) => x,
          items,
-         (v, item) => datumGetter(item, () => v, { nSamples: 2 }),
-         () => ISet()
-      ),
-      animated: EnvType(
-         'animated',
-         animations,
-         graph,
+         getDatum: (v, item) => datumGetter(item, () => v, { nSamples: 2 }),
+         getDependencies: () => ISet(),
+      }),
+      animated: EnvType({
+         tag: 'animated',
+         data: animations,
+         getGraph: graph,
          mathEnv,
-         (x) => Animation.toMathNode(x),
+         getMathValue: (x) => Animation.toMathNode(x),
          items,
-         (v, item) =>
-            datumGetter(
-               item,
-               Animation.toEvalFn(Animation.toMathNode(v), exprEnv)
-            ),
-         () => ISet(['time'])
-      ),
-      expression: EnvType(
-         'expression',
-         expressions,
-         graph,
+         getDatum: (v, item) =>
+            datumGetter(item, nodeToEvalFn(Animation.toMathNode(v), exprEnv)),
+         getDependencies: () => ISet(['time']),
+      }),
+      expression: EnvType({
+         tag: 'expression',
+         data: expressions,
+         getGraph: graph,
          mathEnv,
-         () => 0, // TODO
+         getMathValue: (v) => v.node ?? 0, // TODO
          items,
-         (v, item) => datumGetter(item, EnvExpr.toEvalFn(v)),
-         EnvExpr.getDependencies
-      ),
+         getDatum: (v, item) => datumGetter(item, EnvExpr.toEvalFn(item.name, v, exprEnv)),
+         getDependencies: EnvExpr.getDependencies,
+      }),
       has: (key: string) => key in data,
       get: (key: string) => data[key],
       set: (key: string, value: ValidExpr) => {
@@ -141,8 +141,9 @@ export function mkExprEnv(graph: () => Graph): ExprEnv {
    exprEnv.constant.set('foo', 1);
    exprEnv.constant.set('bar', 2);
    exprEnv.animated.set('t', Animation('zigZag', 0, 5, 3));
-   exprEnv.expression.set('f', EnvExpr('t * sin(x)'));
-   exprEnv.expression.set('oops', EnvExpr(')'));
+   exprEnv.expression.set('g', EnvExpr('g(x) = x * q'));
+   exprEnv.expression.set('f', EnvExpr('sin(g(t))'));
+   exprEnv.expression.set('oops', EnvExpr('foo) * bar'));
    return exprEnv;
 }
 
@@ -168,22 +169,23 @@ function getDependencies(
    const item = items.get(key)!;
    const value = env[item.typeTag].get(key)!;
    const Ivalue = value as U2I<typeof value>; // fake it as an intersection so we can call getDependencies
-   const _getDependencies = env[item.typeTag].getDependencies;
-   const deps = _getDependencies(Ivalue)
+   const local = env[item.typeTag].getDependencies(Ivalue);
+   const deps = local
       .toMap()
       .map((name) => ({
          bound: items.has(name),
-         transitive:
-            items.has(name)
-               ? getDependencies(name, env, items)
-               : (IMap() as DependencyTree),
+         transitive: items.has(name)
+            ? getDependencies(name, env, items)
+            : (IMap() as DependencyTree),
       }));
    return deps;
 }
 
 const tuple = <A, B>(a: A, b: B): [A, B] => [a, b];
 
-export function flattenDependencyTree(tree: DependencyTree): IMap<string, boolean> {
+export function flattenDependencyTree(
+   tree: DependencyTree
+): IMap<string, boolean> {
    function go(tree: DependencyTree, acc: [string, boolean][]) {
       const x = tree.toArray().map(([name, obj]) => tuple(name, obj.bound));
       acc.push(...x);
@@ -193,3 +195,33 @@ export function flattenDependencyTree(tree: DependencyTree): IMap<string, boolea
    return IMap(go(tree, []));
 }
 
+export const nodeToEvalFn = (
+   node: MathNode,
+   env: ExprEnv,
+   freeVar = '__unused'
+): EvalFn => {
+   const body = isFunctionAssignmentNode(node)
+      ? defaultCall(node)
+      : getAssignmentBody(node);
+   const mathEnv = { ...env.getMathEnv() };
+   delete mathEnv['time'];
+   const inlined = inline(body, mathEnv);
+   console.log('inlined', inlined.toString());
+   // eslint-disable-next-line @typescript-eslint/unbound-method
+   const fn = inlined.compile().evaluate;
+   const ret = (x: number) => {
+      try {
+         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+         const result = fn({ [freeVar]: x, ...env.getMathEnv() });
+         if (!isNumber(result)) {
+            return 0;
+         } else {
+            return result;
+         }
+      } catch (e) {
+         state.error = String(e);
+         return 0;
+      }
+   };
+   return ret;
+};
