@@ -32,9 +32,9 @@
 
    import { Set as ISet } from 'immutable';
 
-   import GraphConst from './GraphConst.vue';
-   import GraphAnim from './GraphAnim.vue';
-   import GraphExpr from './GraphExpr.vue';
+import GraphConst from './expression/gui/Constant.vue';
+import GraphAnim from './expression/gui/Animation.vue';
+import GraphExpr from './expression/gui/Expresssion.vue';
 
    onMounted(() => {
       init();

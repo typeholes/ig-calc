@@ -1,4 +1,4 @@
-import utils from './utils';
+import { linspace } from './utils';
 
 import { MathNode } from 'mathjs';
 import { Interval, Point, Points } from './types';
@@ -26,7 +26,7 @@ function checkAsymptote(
    const n = 10;
    const x0 = d0[0];
    const x1 = d1[0];
-   const samples = utils.linspace(x0, x1, n);
+   const samples = linspace(x0, x1, n);
    let oldY, oldX;
    for (let i = 0; i < n; i += 1) {
       const x = samples[i];

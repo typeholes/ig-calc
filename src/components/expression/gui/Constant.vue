@@ -1,11 +1,14 @@
 <script setup lang="ts">
-   import { addTexElement, typeset } from '../js/typeset';
+   import { addTexElement, typeset } from 'js/typeset';
    import { nextTick, reactive, computed, watch } from 'vue';
    import { MathNode } from 'mathjs';
-   import { state as appState } from './uiUtil';
-   import { notBlank } from '../js/util';
+   import { state as appState } from 'components/uiUtil';
+   import { notBlank } from 'js/util';
 
-   import NumericInput from './NumericInput.vue';
+   import NumericInput from 'components/NumericInput.vue';
+
+var x = 1
+console.log(x);
 
    interface Props {
       name: string;

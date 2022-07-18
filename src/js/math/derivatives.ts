@@ -1,3 +1,4 @@
+/* eslint-disable import/namespace */
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
 import * as M from 'mathjs';

@@ -1,6 +1,6 @@
 import { isFunctionAssignmentNode, isNumber, MathNode } from 'mathjs';
 import { defaultCall, getAssignmentBody, ValidExpr } from '../expressions';
-import { Map as IMap } from 'immutable';
+import {  Set as ISet, Map as IMap } from 'immutable';
 import { builtinConstants } from '../math/symbols';
 import { reactive } from 'vue';
 import { Graph } from '../function-plot/d3util';
@@ -9,8 +9,6 @@ import {
    DatumOptions,
    EvalFn,
 } from '../function-plot/FunctionPlotDatum';
-
-import { Set as ISet } from 'immutable';
 
 import { EnvType, EnvTypeTag } from './EnvType';
 

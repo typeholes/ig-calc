@@ -1,5 +1,6 @@
 import { defineConfig } from 'vite';
 import vue from '@vitejs/plugin-vue';
+import tsconfigPaths from 'vite-tsconfig-paths';
 
 // import commonjs from 'rollup-plugin-commonjs';
 // import nodeResolve from 'rollup-plugin-node-resolve';
@@ -17,6 +18,7 @@ export default defineConfig({
       //		include: ['pouchdb-live-find/dist/index.es.js']
    },
    plugins: [
+      tsconfigPaths(),
       vue(),
       //    builtins(),
       //    nodeResolve({ jsnext: true, main: true, browser: true }),

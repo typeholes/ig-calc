@@ -1,5 +1,5 @@
 import { Map as IMap } from "immutable";
-import { SaveRep } from "../components/expressions";
+import { SaveRep } from "js/expressions";
 import { SaveDescription, SaveId, SaveName } from "./SaveManager";
 
 interface Library {

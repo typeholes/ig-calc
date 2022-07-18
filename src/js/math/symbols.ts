@@ -1,6 +1,6 @@
 import { Map as IMap, Set as ISet } from "immutable";
 import * as M from "mathjs";
-import { isFunctionAssignmentNode } from "mathjs";
+import { parse as mathParse, isFunctionAssignmentNode } from "mathjs";
 
 function splitToSet(s: string) {
   return ISet(s.split(/\s+/).filter((x) => !!x));
@@ -46,7 +46,7 @@ tan atan atan2 tanh atanh
 
 function parseToEntry(s: string): [string, M.FunctionAssignmentNode] {
   console.log(s);
-  const node = M.parse(s);
+  const node = mathParse(s);
   if (!isFunctionAssignmentNode(node)) {
     throw new Error("invalid function for shadowed builtin:" + s);
   }

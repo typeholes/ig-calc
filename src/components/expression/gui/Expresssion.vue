@@ -1,11 +1,11 @@
 <script setup lang="ts">
-   import { addTexElement, typeset } from '../js/typeset';
+   import { addTexElement, typeset } from 'js/typeset';
    import { reactive, computed, watch } from 'vue';
    import { MathNode } from 'mathjs';
-   import { state as appState } from './uiUtil';
-   import { notBlank, defined } from '../js/util';
-   import { EnvExpr } from '../js/env/EnvExpr';
-   import { flattenDependencyTree } from '../js/env/exprEnv';
+   import { state as appState } from 'components/uiUtil';
+   import { notBlank, defined } from 'js/util';
+   import { EnvExpr } from 'js/env/EnvExpr';
+   import { flattenDependencyTree } from 'js/env/exprEnv';
 
    interface Props {
       name: string;

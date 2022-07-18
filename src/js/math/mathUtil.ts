@@ -1,3 +1,4 @@
+/* eslint-disable import/namespace */
 import * as M from 'mathjs';
 
 import { unique, defined, hasProp } from '../util';

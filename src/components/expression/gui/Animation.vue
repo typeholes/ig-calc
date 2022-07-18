@@ -1,10 +1,10 @@
 <script setup lang="ts">
-   import { addTexElement, typeset } from '../js/typeset';
+   import { addTexElement, typeset } from 'js/typeset';
    import { reactive, computed, watch } from 'vue';
    import { MathNode } from 'mathjs';
-   import { state as appState } from './uiUtil';
-   import { notBlank, defined } from '../js/util';
-   import { Animation } from '../js/env/Animation';
+   import { state as appState } from 'components/uiUtil';
+   import { notBlank, defined } from 'js/util';
+   import { Animation } from 'js/env/Animation';
 
    interface Props {
       name: string;

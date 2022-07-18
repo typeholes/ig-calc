@@ -1,3 +1,4 @@
+/* eslint-disable import/namespace */
 import {
    isAssignmentNode,
    isConstantNode,
@@ -17,8 +18,7 @@ import {
 
 import { missingPlotFunctions } from '../js/math/symbols';
 
-import { Set as ISet } from 'immutable';
-import { Map as IMap } from 'immutable';
+import { Set as ISet, Map as IMap } from 'immutable';
 
 import { assert, defined, hasPropIs, isBoolean } from '../js/util';
 import { errorable, Errorable, flatMap } from '../js/Either';

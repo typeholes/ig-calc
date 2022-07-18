@@ -1,3 +1,4 @@
+/* eslint-disable import/no-named-as-default-member */
 import { MathNode } from 'mathjs';
 import { evalFn, scaleInterval, split } from './sampler';
 import { Interval, Point, Points } from './types';

@@ -1,17 +1,19 @@
 {
-  "compilerOptions": {
-    "skipLibCheck": true,
-    "target": "esnext",
-    "module": "esnext",
-    "moduleResolution": "node",
-    "importHelpers": true,
-    "isolatedModules": true,
-    "noEmit": true,
-    "experimentalDecorators": true,
-    "esModuleInterop": true,
-    "noImplicitAny": false,
-    "strict": true,
-    "alwaysStrict": true,
-    "jsx": "preserve"
-  }
+   "compilerOptions": {
+      "skipLibCheck": true,
+      "target": "esnext",
+      "module": "esnext",
+      "moduleResolution": "node",
+      "importHelpers": true,
+      "isolatedModules": true,
+      "noEmit": true,
+      "experimentalDecorators": true,
+      "esModuleInterop": true,
+      "noImplicitAny": false,
+      "strict": true,
+      "alwaysStrict": true,
+      "jsx": "preserve",
+      "baseUrl": "./src",
+      "allowJs": true
+   }
 }
