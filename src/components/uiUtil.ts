@@ -1,7 +1,7 @@
 import { defined } from '../js/util';
 import { Map as IMap } from 'immutable';
 import { Graph, mkGraph } from '../js/function-plot/d3util';
-import { reactive, shallowReactive, shallowRef, nextTick, } from 'vue';
+import { reactive, shallowReactive, shallowRef, nextTick } from 'vue';
 import {
    defaultFunctionPlotOptionsAxis,
    FunctionPlotOptions,
@@ -89,6 +89,7 @@ export function initGraph() {
 export const displayComponents = { DisplayData, DisplayGraph };
 
 export const state = reactive({
+   runTimer: true,
    hideBottom: false,
    hideLeft: false,
    hideLibrary: true,
@@ -337,12 +338,14 @@ export function gameLoop(elapsedTime: number) {
    const delta = t - time;
    if (delta >= state.tickTime) {
       time = t;
-      state.env.constant.set('time', time);
-         if (defined(graph)) { graph.drawLines() };
+      if (state.runTimer) {
+         state.env.constant.set('time', time);
+         if (defined(graph)) {
+            graph.drawLines();
+         }
+      }
    }
    window.requestAnimationFrame(gameLoop);
 }
 
 export const systemFnNames = ['time'];
-
-

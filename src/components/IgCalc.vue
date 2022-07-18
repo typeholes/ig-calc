@@ -153,13 +153,25 @@
                      class="LeftPopover"
                      v-if="state.showGeneralOptions"
                   ></GeneralOptions>
-                  <div>
-                     <label for="exprComponent">Display expressions as</label>
-                     <select id="exprComponent" v-model="state.exprComponent">
-                        <option value="expr">Expression</option>
-                        <option value="text">Plain Text</option>
-                        <option value="js">JavaScript (experimental)</option>
-                     </select>
+                  <div class="cols lastSmall">
+                     <div>
+                        <label for="exprComponent"
+                           >Display expressions as</label
+                        >
+                        <select
+                           id="exprComponent"
+                           v-model="state.exprComponent"
+                        >
+                           <option value="expr">Expression</option>
+                           <option value="text">Plain Text</option>
+                           <option value="js">JavaScript (experimental)</option>
+                        </select>
+                     </div>
+                     <div>
+                        <o-checkbox v-model="state.runTimer"
+                           >Run Timer</o-checkbox
+                        >
+                     </div>
                   </div>
                   <div
                      class="expressions"

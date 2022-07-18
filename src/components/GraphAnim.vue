@@ -175,11 +175,6 @@
       align-self: center;
    }
 
-   .lastSmall > :last-child {
-      flex: 0 1 fit-content;
-      margin-left: auto;
-   }
-
    .imported {
       background-color: rgb(43, 51, 36);
    }

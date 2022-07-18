@@ -121,6 +121,11 @@
       gap: 3px;
       margin: 3px;
    }
+
+   .lastSmall > :last-child {
+      flex: 0 1 fit-content;
+      margin-left: auto;
+   }
 </style>
 
 <style>
