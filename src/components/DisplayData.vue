@@ -1,19 +1,19 @@
 <script setup lang="ts">
-   import { graph } from './uiUtil';
    import CanError from './CanError.vue';
-   import { errorable, Errorable } from '../js/Either';
+   import { errorable } from '../js/Either';
    import { state as appState } from './uiUtil';
    import { arrayRange } from '../js/function-plot/utils';
+   import { EnvItem } from '../js/env/exprEnv';
+   import { defined } from '../js/util';
+   import { Map as IMap } from 'immutable';
+import { computed } from 'vue';
 
-   const props = defineProps<{ names: string[] }>();
-
-   function names() {
-      return props.names ?? [];
+   function getNames() {
+      const names =  IMap(appState.env.items).filter ( (item) => item.showGraph);
+      return names;
    }
 
-   function nums() {
-      return 10;
-   }
+const names = computed(getNames);
 
    function formatName(name: string) {
       if (name === '__tmp') {
@@ -26,55 +26,56 @@
       return n; // TODO
    }
 
-   function runFn(name: string, n: number) {
+   function runFn(name: string, item: EnvItem, n: number) {
       return errorable(() => {
-         const fn = graph.options.data[name].evalFn;
-         if (!(fn instanceof Function)) {
-            return '';
+         const datum = appState.env.getDatum(name);
+         if (defined(datum) && datum.evalFn instanceof Function) {
+            return formatNumber(datum.evalFn(n));
          }
-         return formatNumber(fn(n));
+         return '';
       });
    }
 </script>
 
-<template>
+<template >
    <div>
       <div
          class="dataGrid"
          :style="{
-            gridTemplateColumns: `repeat( ${names().length + 2}, auto)`,
+            gridTemplateColumns: `repeat( ${names.size + 2}, auto)`,
          }"
+         :key="appState.env.constant.get('time')"
       >
          <div style="gridcolumn: 1">free</div>
-         <template v-for="(name, idx) of names()">
+         <template :key="name" v-for="([name, item], idx) of names">
             <div
                :style="{
                   gridColumn: idx + 2,
-                  border: `1px solid ${
-                     graph.options.data[name].color ?? 'white'
-                  }`,
+                  border: `1px solid ${item.color ?? 'white'}`,
                }"
             >
                {{ formatName(name) }}
             </div>
          </template>
          <template
+            :key="num"
             v-for="(num, rowNum) in arrayRange(
                appState.freeMin,
                appState.freeMax
             )"
          >
             <div :style="{ gridColumn: 1, gridRow: rowNum + 2 }">{{ num }}</div>
-            <template v-for="(name, idx) of names()">
+            <template :key="name" v-for="([name, item], idx) of names">
                <div
                   :style="{
                      gridColumn: idx + 2,
-                     border: `1px solid ${
-                        graph.options.data[name].color ?? 'white'
-                     }`,
+                     border: `1px solid ${item.color ?? 'white'}`,
                   }"
                >
-                  <CanError :key="appState.newExpr" :value="runFn(name, num)"></CanError>
+                  <CanError
+                     :key="appState.newExpr"
+                     :value="runFn(name, item, num)"
+                  ></CanError>
                </div>
             </template>
          </template>

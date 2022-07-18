@@ -72,7 +72,7 @@
    }
 
    const exprNames = computed(() => {
-      const names = ISet(state.env.names());
+      const names = ISet(state.env.names);
       return names.filter((name) => graph.options.data[name]?.show).toArray();
    });
 

@@ -46,8 +46,10 @@ export interface ExprEnv {
    toMap: () => IMap<string, ValidExpr>;
    getMathEnv: (includeConstants?: boolean) => MathEnv;
    updateMathEnv: (key: string) => void;
-   names: () => Set<string>;
+   names: Set<string>;
    getDependencies: (key: string) => DependencyTree;
+   items: Map<string, EnvItem>;
+   getDatum: (key: string) => Datum | undefined;
 }
 
 const datumGetter = (
@@ -57,7 +59,7 @@ const datumGetter = (
 ) => Datum(evalFn, { show: item.showGraph, color: item.color, ...options });
 
 export function mkExprEnv(graph: () => Graph): ExprEnv {
-   const items = new Map<string, EnvItem>();
+   const items = reactive( new Map<string, EnvItem>());
    const data: Record<string, ValidExpr> = reactive({});
    const mathEnv: MathEnv = reactive({});
    const names: Set<string> = reactive(new Set());
@@ -93,9 +95,11 @@ export function mkExprEnv(graph: () => Graph): ExprEnv {
          mathEnv,
          getMathValue: (v) => v.node ?? 0, // TODO
          items,
-         getDatum: (v, item) => datumGetter(item, EnvExpr.toEvalFn(item.name, v, exprEnv)),
+         getDatum: (v, item) =>
+            datumGetter(item, EnvExpr.toEvalFn(item.name, v, exprEnv)),
          getDependencies: EnvExpr.getDependencies,
       }),
+      items,
       has: (key: string) => key in data,
       get: (key: string) => data[key],
       set: (key: string, value: ValidExpr) => {
@@ -135,8 +139,9 @@ export function mkExprEnv(graph: () => Graph): ExprEnv {
             : mathEnv,
       updateMathEnv: (key: string) =>
          (mathEnv[key] = getAssignmentBody(data[key].node)),
-      names: () => names,
+      names: names,
       getDependencies: (key: string) => getDependencies(key, exprEnv, items),
+      getDatum: (key: string) => getDatum(key, exprEnv, items),
    } as const;
    exprEnv.constant.set('foo', 1);
    exprEnv.constant.set('bar', 2);
@@ -157,6 +162,22 @@ type DependencyTree = IMap<
    { bound: boolean; transitive: DependencyTree }
 >;
 
+function getDatum(
+   key: string,
+   env: ExprEnv,
+   items: Map<string, EnvItem>
+): Datum | undefined {
+   if (!items.has(key)) {
+      return undefined;
+   }
+
+   const item = items.get(key)!;
+   const value = env[item.typeTag].get(key)!;
+   const Ivalue = value as U2I<typeof value>; // fake it as an intersection so we can call getDependencies
+   const datum = env[item.typeTag].getDatum(Ivalue, item);
+   return datum;
+}
+
 function getDependencies(
    key: string,
    env: ExprEnv,
@@ -170,14 +191,12 @@ function getDependencies(
    const value = env[item.typeTag].get(key)!;
    const Ivalue = value as U2I<typeof value>; // fake it as an intersection so we can call getDependencies
    const local = env[item.typeTag].getDependencies(Ivalue);
-   const deps = local
-      .toMap()
-      .map((name) => ({
-         bound: items.has(name),
-         transitive: items.has(name)
-            ? getDependencies(name, env, items)
-            : (IMap() as DependencyTree),
-      }));
+   const deps = local.toMap().map((name) => ({
+      bound: items.has(name),
+      transitive: items.has(name)
+         ? getDependencies(name, env, items)
+         : (IMap() as DependencyTree),
+   }));
    return deps;
 }
 
