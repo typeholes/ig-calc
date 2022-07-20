@@ -9,11 +9,12 @@
    import SaveWidget from './SaveWidget.vue';
    import GeneralOptions from './GeneralOptions.vue';
 
-   import { getNodeName, SaveRep } from '../js/expressions';
+   import { getNodeName } from '../js/expressions';
    import { defined } from '../js/util';
-   import { getExpressionUiState } from './expressionUiState';
 
    import { knownSymbols } from '../js/math/symbols';
+
+   import { SaveRep } from 'js/env/SaveRep';
 
    import {
       graph,
@@ -93,6 +94,7 @@ import GraphExpr from './expression/gui/Expresssion.vue';
       loadEnv(args);
       init();
       state.loading = false;
+      graph.drawLines();
    }
 
    function importExpression(_name: string) {
@@ -321,7 +323,6 @@ import GraphExpr from './expression/gui/Expresssion.vue';
                      <!-- {{ state.parseResult }} -->
                      <SaveWidget
                         :env="state.env"
-                        :expression-ui-state="getExpressionUiState()"
                         :has-unsaved="state.modified"
                         @restore="refresh"
                         @select-save="selectSave"

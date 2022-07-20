@@ -141,12 +141,15 @@ export function mkExprEnv(graph: () => Graph): ExprEnv {
       getDependencies: (key: string) => getDependencies(key, exprEnv, items),
       getDatum: (key: string) => getDatum(key, exprEnv, items),
    } as const;
+/*
    exprEnv.constant.set('foo', 1);
    exprEnv.constant.set('bar', 2);
    exprEnv.animated.set('t', Animation('zigZag', 0, 5, 3));
    exprEnv.expression.set('g', EnvExpr('g(x) = x * q'));
    exprEnv.expression.set('f', EnvExpr('sin(g(t))'));
    exprEnv.expression.set('oops', EnvExpr('foo) * bar'));
+   */
+   exprEnv.expression.set('zigZag', EnvExpr("zigZag(x, min, height, width) = min + height * (acos(0.999 sin(2 pi x / width)) / pi)"));
    return exprEnv;
 }
 
@@ -223,7 +226,6 @@ export const nodeToEvalFn = (
    const mathEnv = { ...env.getMathEnv() };
    delete mathEnv['time'];
    const inlined = inline(body, mathEnv);
-   console.log('inlined', inlined.toString());
    // eslint-disable-next-line @typescript-eslint/unbound-method
    const fn = inlined.compile().evaluate;
    const ret = (x: number) => {
@@ -231,12 +233,14 @@ export const nodeToEvalFn = (
          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
          const result = fn({ [freeVar]: x, ...env.getMathEnv() });
          if (!isNumber(result)) {
+            debugger;
             return 0;
          } else {
             return result;
          }
       } catch (e) {
          state.error = String(e);
+         debugger;
          return 0;
       }
    };

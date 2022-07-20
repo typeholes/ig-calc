@@ -12,9 +12,9 @@ import {
    ValidExpr,
    getNodeName,
    parseExpr,
-   SaveRep,
    isGraphable,
 } from '../js/expressions';
+import { fromSaveRep, SaveRep } from 'js/env/SaveRep'
 import DisplayData from './DisplayData.vue';
 import DisplayGraph from './DisplayGraph.vue';
 import { on } from '../js/Either';
@@ -227,29 +227,8 @@ export function loadEnv(args: { saveRep: SaveRep }) {
    if (!defined(graph)) {
       initGraph();
    }
-   state.env.clear();
-   state.parseResult = undefined;
-   state.newExpr = '';
-   checkNewExpr();
 
-   for (const name in args.saveRep) {
-      const rep = args.saveRep[name];
-      if (rep.expr.startsWith('time =')) {
-         break;
-      } // TODO save and load envExpr constants
-      state.newExpr = rep.expr;
-      checkNewExpr();
-      const newExpr = addToEnv(rep.expr, rep.showExpr);
-      if (defined(newExpr)) {
-         newExpr.showValue = rep.showValue;
-         newExpr.description = rep.description;
-         newExpr.showExpr = rep.showExpr;
-      }
-
-      if (defined(graph.options.data[name])) {
-         graph.options.data[name].color = rep.color;
-      }
-   }
+   state.env = fromSaveRep(args.saveRep);
 
    state.modified = Object.entries(importExpressions).length === 0;
    for (const name in importExpressions) {
@@ -260,13 +239,6 @@ export function loadEnv(args: { saveRep: SaveRep }) {
       delete importExpressions[name];
    }
 
-   // set show after all expressions are added so we don't try to show one that has unloaded dependencies
-   for (const name in args.saveRep) {
-      if (defined(graph.options.data[name])) {
-         const rep = args.saveRep[name];
-         graph.options.data[name].show = rep.show && rep.showExpr;
-      }
-   }
 
    state.newExpr = '';
    checkNewExpr();

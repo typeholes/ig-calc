@@ -1,3 +1,6 @@
+import { isValidNumber } from "./function-plot/utils";
+import { isNumber as _isNumber } from "mathjs";
+
 export function removeValuefromArray<T>(arr: T[], value: T): void {
    const idx = arr.indexOf(value);
    if (idx === -1) {
@@ -89,6 +92,7 @@ export function hasPropIs<T extends string, U>(
 
 export function assert(p: boolean, msg: string): asserts p {
    if (!p) {
+      debugger;
       throw new Error(msg);
    }
 }
@@ -109,6 +113,10 @@ assert.is = <T>(x: unknown, f: (x: unknown) => x is T, typeName?: string) : asse
    assert(f(x), `invalid type ${typeName??""}`);
 };
 
+assert.mayBe = <T>(x: unknown, f: (x: unknown) => x is T, typeName?: string) : asserts x is T | undefined => {
+   assert(typeof x === 'undefined' || f(x), `invalid type ${typeName??""}`);
+};
+
 assert.propIs = <T extends string, U>(
    x: unknown,
    prop: T,
@@ -117,6 +125,17 @@ assert.propIs = <T extends string, U>(
    assert.props(x, prop);
    assert.is(x, is);
 };
+
+assert.propMayBe = <T extends string, U > (
+   x: unknown,
+   prop: T,
+   is: (x: unknown) => x is U
+): asserts x is Record<T, U | undefined> => {
+   if (!hasProp(x,prop) || !defined(x[prop])) { return }
+   assert.is(x[prop],is);
+};
+   
+
 
 export function tagged<T extends string>(
    x: unknown,
@@ -135,6 +154,14 @@ export function isString(x: unknown): x is string {
 
 export function notBlank(s: string | null | undefined): s is string {
    return defined(s) && defined(s.match(/\S/));
+}
+
+export function isNumber(x: unknown): x is number {
+   return _isNumber(x) && isValidNumber(x)
+}
+
+export function mayBe<T>(x: unknown, is: (x: unknown) => x is T) : x is (undefined | T) {
+   return typeof x === 'undefined' || is(x);
 }
 
 export type Expand<T> = T extends

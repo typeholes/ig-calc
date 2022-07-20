@@ -52,7 +52,7 @@ const defaultSaveMetadata: SaveMetaData = {
 export function isSaveType(x: unknown): x is SaveType {
    return isString(x) && ['local', 'shared', 'library'].includes(x);
 }
-interface Savable<K extends string, V> {
+export interface Savable<K extends string, V> {
    saveKey: K;
    toSave: (t: V) => string;
    fromSave: (s: string) => Errorable<V>;
@@ -157,7 +157,7 @@ export function writeSave(
 export function readSave(id: SaveId): Errorable<string> {
    return errorable(() => {
       if (id.name === 'Empty') {
-         return '{"saveName":"Default","saveDescription":"Loaded on page refresh","ExprEnvSaveRep":"{}","ExpressionUiState":"{}"}';
+         return '{"saveName":"Default","saveDescription":"Loaded on page refresh","ExprEnv":"{}","ExpressionUiState":"{}"}';
       }
 
       const saveStr = window.localStorage.getItem(
@@ -165,7 +165,7 @@ export function readSave(id: SaveId): Errorable<string> {
       );
       if (!defined(saveStr)) {
          if (id.name === 'Default') {
-            return '{"saveName":"Default","saveDescription":"Loaded on page refresh","ExprEnvSaveRep":"{}","ExpressionUiState":"{}"}';
+            return '{"saveName":"Default","saveDescription":"Loaded on page refresh","ExprEnv":"{}","ExpressionUiState":"{}"}';
          }
          throw new Error('Save ' + id.name + ' not found');
       }

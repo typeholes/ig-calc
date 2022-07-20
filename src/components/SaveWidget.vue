@@ -18,12 +18,11 @@
       isSaveType,
       setStorageKey,
    } from '../js/SaveManager';
-   import { toSaveRep, SaveRep } from '../js/expressions';
-   import { ExprEnv } from '../js/exprEnv';
-   import { ExpressionUiState } from './expressionUiState';
+   import { ExprEnv } from 'js/env/exprEnv';
    import { assert, defined } from '../js/util';
    import { graph, state as appState } from './uiUtil';
    import SaveEntry from './SaveEntry.vue';
+   import { SaveRep, toSaveRep } from 'js/env/SaveRep';
 
    import { Map as IMap } from 'immutable';
 
@@ -38,16 +37,10 @@
       libraryDescriptions,
    } from '../js/libraryValues';
    import { notBlank } from '../js/function-plot/utils';
-   import { getActions, runAction } from '../js/actions';
-
-   type SaveObjectRep = SaveId & {
-      ExprEnvSaveRep: string;
-      description: SaveDescription;
-   };
+   import { getActions } from '../js/actions';
 
    interface Props {
       env: ExprEnv;
-      expressionUiState: ExpressionUiState;
       hasUnsaved: boolean;
    }
 
@@ -106,8 +99,6 @@
             description: string;
             save: string;
          };
-         const saveRep = JSON.parse(saveObj.save) as SaveObjectRep;
-         console.log(saveRep);
 
          appState.currentSave = SaveId('shared', saveObj.name);
          writeSave(
@@ -156,15 +147,15 @@
       const uncompressed = decompressFromEncodedURIComponent(compressed);
       console.log({ uncompressed });
       state.shareString = baseUrl() + '?shared=' + compressed;
-      navigator.clipboard.writeText(state.shareString);
+      void navigator.clipboard.writeText(state.shareString);
 
       return compressed;
    }
 
    function getSerializedSave(): SerializedSave {
-      const saveRep = toSaveRep(props.env); //TODO: exclude tmp? .toMap().filter((_, k) => k !== '__tmp'));
-      const serialized = SaveRep.toSave(saveRep);
-      const saveObj = { ExprEnvSaveRep: serialized };
+      const saveRep = toSaveRep(props.env); 
+      const serialized = SaveRep.savable.toSave(saveRep);
+      const saveObj = { [SaveRep.savable.saveKey]: serialized };
       return JSON.stringify(saveObj);
    }
 
@@ -175,6 +166,9 @@
    }
 
    function load(id: SaveId, emitType: 'restore' | 'selectSave') {
+      if (defined(graph)) {
+         graph.options.data = {};
+      }
       if (id.type === 'library') {
          const fns = librarySaveReps.get(id.name)?.fns;
          assert.defined(fns);
@@ -203,10 +197,10 @@
                return;
             },
             Right: (x) => {
-               const obj = JSON.parse(x);
+               const obj : unknown = JSON.parse(x);
                const saveRep = getSaveEntry(
-                  hasSaveEntry(obj, SaveRep),
-                  SaveRep
+                  hasSaveEntry(obj, SaveRep.savable),
+                  SaveRep.savable
                );
                if (isLeft(saveRep)) {
                   emit('error', saveRep.value);
@@ -312,7 +306,7 @@
       writeSaveMetadata(state.saveMetaData);
       state.hasDeletedSaves = true;
       appState.selectedSaveIsDeleted = true;
-      cancel();
+      unselectSave();
    }
 
    function restoreAllDeletedSaves() {
@@ -417,7 +411,7 @@
          </div>
          <div class="saveColumn" v-if="!previewing">
             <div>Your Saves</div>
-            <div v-for="[id, [description, deleted]] of saveList('local')">
+            <div :key="id.name + '/' + id.name" v-for="[id, [description, deleted]] of saveList('local')">
                <SaveEntry
                   :id="id"
                   :description="description"
@@ -430,7 +424,7 @@
 
          <div class="saveColumn" v-if="!previewing">
             <div>Shared Saves</div>
-            <div v-for="[id, [description, deleted]] of saveList('shared')">
+            <div :key="id.name + '/' + id.name" v-for="[id, [description, deleted]] of saveList('shared')">
                <SaveEntry
                   :id="id"
                   :description="description"
@@ -510,10 +504,10 @@
                {{ appState.selectedSave.name }}
             </div>
 
-            <button @click="restoreDeletedSave(appState.selectedSave)">
+            <button @click="restoreDeletedSave(appState.selectedSave); unselectSave()">
                restore
             </button>
-            <button @click="purgeDeletedSave(appState.selectedSave)">
+            <button @click="purgeDeletedSave(appState.selectedSave); unselectSave()">
                purge
             </button>
             <button @click="unselectSave">Close</button>
@@ -521,7 +515,7 @@
 
          <div class="saveColumn" v-if="!previewing">
             <div>Library</div>
-            <div v-for="[id, [description, deleted]] of saveList('library')">
+            <div :key="id.name + '/' + id.name" v-for="[id, [description, deleted]] of saveList('library')">
                <SaveEntry
                   :id="id"
                   :description="description"
