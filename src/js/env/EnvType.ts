@@ -4,6 +4,7 @@ import { EnvItem, MathEnv } from './exprEnv';
 import { Graph } from '../function-plot/d3util';
 import { assert } from '../util';
 import { reactive, watch } from 'vue';
+import { state as appState } from 'components/uiUtil';
 
 export type EnvTypeTag = 'constant' | 'animated' | 'expression';
 
@@ -11,7 +12,7 @@ export interface EnvType<V> {
    tag: EnvTypeTag;
    has: (key: string) => boolean;
    get: (key: string) => V | undefined;
-   set: (key: string, value: V, props?: Partial<EnvItem>)  => V;
+   set: (key: string, value: V, props?: Partial<EnvItem>) => V;
    delete: (key: string) => void;
    toRecord: () => Record<string, V>;
    getDatum: (v: V, item: EnvItem) => Datum;
@@ -52,6 +53,7 @@ export function EnvType<V>({
       has: (key) => data.has(key),
       get: (key) => data.get(key),
       set: (key, value, props = {}) => {
+         if (key != 'time') { appState.modified = true; }
          names.add(key);
          data.set(key, value);
          mathEnv[key] = getMathValue(value);
@@ -64,7 +66,7 @@ export function EnvType<V>({
                showValue: false,
                description: undefined,
                typeTag: tag,
-               ...props
+               ...props,
             });
          } else {
             const item = items.get(key);
@@ -74,6 +76,7 @@ export function EnvType<V>({
          return value;
       },
       delete: (key) => {
+         appState.modified = true;
          data.delete(key);
          delete mathEnv[key];
          names.delete(key);
@@ -86,6 +89,10 @@ export function EnvType<V>({
          const graph = getGraph();
          const value = data.get(key);
          assert.defined(value);
+         if (item.showGraph === showGraph) {
+            return;
+         }
+         appState.modified = true;
          item.showGraph = showGraph;
          if (showGraph) {
             graph.options.data[key] = getDatum(value, item);
@@ -97,6 +104,10 @@ export function EnvType<V>({
          const item = items.get(key);
          assert.defined(item);
          const graph = getGraph();
+         if (color === item.color) {
+            return;
+         }
+         appState.modified = true;
          item.color = color;
          if (key in graph.options.data) {
             graph.options.data[key].color = color;
@@ -128,9 +139,11 @@ export function EnvType<V>({
       },
       toTex: (key, v) => {
          const tex = toTex(v);
-         const fullTex =  tex.includes('=') ? tex : '\\mathrm{' + key + '}:=' + tex;
-         console.log( { toTex: key, fullTex})
-         return fullTex
+         const fullTex = tex.includes('=')
+            ? tex
+            : '\\mathrm{' + key + '}:=' + tex;
+         console.log({ toTex: key, fullTex });
+         return fullTex;
       },
    };
    return envType;

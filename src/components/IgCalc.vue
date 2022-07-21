@@ -1,6 +1,6 @@
 <!-- eslint-disable vue/no-use-v-if-with-v-for -->
 <script setup lang="ts">
-   import { computed, onMounted } from 'vue';
+   import { computed, onMounted, } from 'vue';
    import HelpScreen from './HelpScreen.vue';
    import Vsplitter from './Vsplitter.vue';
    import Hsplitter from './Hsplitter.vue';
