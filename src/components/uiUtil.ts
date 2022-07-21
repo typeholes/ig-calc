@@ -1,7 +1,7 @@
-import { defined } from '../js/util';
+import { defined, isBoolean, isNumber } from 'js/util';
 import { Map as IMap } from 'immutable';
 import { Graph, mkGraph } from '../js/function-plot/d3util';
-import { reactive, shallowReactive, shallowRef, nextTick } from 'vue';
+import { reactive, shallowReactive, shallowRef, nextTick, watch } from 'vue';
 import {
    defaultFunctionPlotOptionsAxis,
    FunctionPlotOptions,
@@ -14,7 +14,7 @@ import {
    parseExpr,
    isGraphable,
 } from '../js/expressions';
-import { fromSaveRep, SaveRep } from 'js/env/SaveRep'
+import { fromSaveRep, SaveRep } from 'js/env/SaveRep';
 import DisplayData from './DisplayData.vue';
 import DisplayGraph from './DisplayGraph.vue';
 import { on } from '../js/Either';
@@ -25,12 +25,13 @@ import GameEditor from './game/GameEditor.vue';
 import GameDisplay from './game/GameDisplay.vue';
 import GameMakerTutorial from './game/GameMakerTutorial.vue';
 import GameMetaData from './game/GameMetaData.vue';
-import { SaveId } from '../js/SaveManager';
+import { SaveId, getStorageKey } from '../js/SaveManager';
 import GraphExpr from './GraphExprOld.vue';
 import TextExpr from './TextExpr.vue';
 import TextJsExpr from './TextJsExpr.vue';
 import { mkExprEnv } from '../js/env/exprEnv';
 import { tick as actionsTick } from '../js/actions';
+import { isString } from 'mathjs';
 export let graph: Graph;
 
 const colors = IMap(
@@ -67,8 +68,20 @@ export const graphOptions: FunctionPlotOptions = {
    yDomain: reactive(Interval(0, 1)),
 };
 
+let firstInit = true;
 let gameLoopRunning = false;
 export function init() {
+   if (firstInit) {
+      persistantStateKeys.forEach(loadStateProp);
+
+      persistantStateKeys.forEach((key) =>
+         watch(
+            () => state[key],
+            (value: unknown) => saveStateProp(key, value)
+         )
+      );
+      firstInit = false;
+   }
    if (!defined(graph)) {
       initGraph();
    }
@@ -114,6 +127,55 @@ export const state = reactive({
    freeMax: 10,
    showHiddenExpressions: false,
 });
+
+// yes, getting the keys of an object literal is silly
+// but it lets me just copy from the state object literal
+export const persistantStateKeys = Object.keys({
+   runTimer: true,
+   hideBottom: false,
+   hideLeft: false,
+   hideLibrary: true,
+   showHelp: false,
+   showGeneralOptions: false,
+   showMenuBar: false,
+   displayComponent: 'DisplayGraph' as keyof typeof displayComponents,
+   exprComponent: 'expr' as 'text' | 'expr',
+   tickTime: 0.1,
+   freeMin: 1,
+   freeMax: 10,
+   showHiddenExpressions: false,
+} as const) as (keyof typeof state)[];
+
+
+const propStorageKey = (key: string) => getStorageKey() + ':state:' + key;
+function saveStateProp(key: string, value: unknown) {
+   localStorage.setItem(propStorageKey(key), JSON.stringify(value));
+}
+
+function loadStateProp(key: keyof typeof state) {
+   const currentValue = state[key];
+   const valueStr = localStorage.getItem(propStorageKey(key));
+   if (!defined(valueStr)) {
+      return;
+   }
+
+   const newValue: unknown = JSON.parse(valueStr);
+
+   if (isString(currentValue)) {
+      // @ts-expect-error ts not narrowing based type predicates here
+      state[key] = newValue;
+   }
+
+   if (isBoolean(currentValue)) {
+      // @ts-expect-error ts not narrowing based type predicates here
+      state[key] = newValue 
+   }
+
+   if (isNumber(currentValue)) {
+      // @ts-expect-error ts not narrowing based type predicates here
+      state[key] = newValue
+   }
+}
 
 export function checkNewExpr() {
    const expr = state.newExpr.trim();
@@ -238,7 +300,6 @@ export function loadEnv(args: { saveRep: SaveRep }) {
       addToEnv(state.newExpr);
       delete importExpressions[name];
    }
-
 
    state.newExpr = '';
    checkNewExpr();

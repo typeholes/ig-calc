@@ -15,6 +15,7 @@ export function setStorageKey(key: string): SaveMetaData {
       emptySaveMetaData()
    );
 }
+export function getStorageKey(): string { return StorageKey + '' };
 
 export type SaveName = string;
 export type SaveDescription = string;
