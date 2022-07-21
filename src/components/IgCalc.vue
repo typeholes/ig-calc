@@ -4,12 +4,8 @@
    import HelpScreen from './HelpScreen.vue';
    import Vsplitter from './Vsplitter.vue';
    import Hsplitter from './Hsplitter.vue';
-   import FunctionSelector from './FunctionSelector.vue';
    import SaveWidget from './SaveWidget.vue';
    import GeneralOptions from './GeneralOptions.vue';
-
-   import { getNodeName } from '../js/expressions';
-   import { defined } from '../js/util';
 
    import { knownSymbols } from '../js/math/symbols';
 
@@ -21,25 +17,16 @@
       graph,
       state,
       displayComponents,
-      checkNewExpr,
-      addToEnv,
-      removeExpr,
       loadEnv,
       init,
-      systemFnNames,
-      lookupExprComponent,
       lookupGraphComponent,
    } from './uiUtil';
-   import { SaveId } from '../js/SaveManager';
    import FakeCursor from './FakeCursor.vue';
 
    onMounted(() => {
       init();
    });
 
-   function showError(e: Error) {
-      state.error = e.message + ' ' + e.stack;
-   }
 
    function onSave() {
       state.modified = false;
@@ -73,10 +60,6 @@
       return []; //names.filter((name) => graph.options.data[name]?.show).toArray();
    });
 
-   const previewingSave = computed(
-      () => !SaveId.eq(state.currentSave, state.selectedSave)
-   );
-
    function selectSave(args: { saveRep: SaveRep }) {
       refresh(args);
    }
@@ -91,18 +74,6 @@
       init();
       state.loading = false;
       graph.drawLines();
-   }
-
-   function importExpression(_name: string) {
-      alert('not implemented');
-   }
-
-   function editExpression(name: string) {
-      state.newExpr = state.env.get(name)?.node.toString() ?? '';
-      checkNewExpr();
-      if (name.startsWith('anon:')) {
-         state.env.delete(name); // TODO: should we delete anonymous expressions on edit?
-      }
    }
 
 </script>
@@ -187,46 +158,6 @@
                   <div class="expressions">
                      <NewExpression></NewExpression>
                   </div>
-
-                  <div
-                     class="expressions"
-                     v-if="
-                        !(
-                           state.showHelp ||
-                           state.loading ||
-                           state.showGeneralOptions
-                        )
-                     "
-                     v-for="expr in state.env
-                        .toMap()
-                        .valueSeq()
-                        .filter(
-                           (x) =>
-                              x.name !== '__tmp' &&
-                              (!systemFnNames.includes(x.name) ||
-                                 state.showHiddenExpressions) &&
-                              (x.showExpr || state.showHiddenExpressions)
-                        )"
-                     :key="expr.name"
-                  >
-                     <component
-                        :is="lookupExprComponent(state.exprComponent)"
-                        :env="state.env"
-                        :expr="expr"
-                        :allow-copy="previewingSave"
-                        :allow-edit="true"
-                        @new:expr="
-                           (x) => {
-                              state.newExpr = x;
-                              checkNewExpr();
-                           }
-                        "
-                        @remove:expr="(x) => removeExpr(x)"
-                        @error="(x) => showError(x as never)"
-                        @edit="editExpression"
-                        @import="importExpression"
-                     ></component>
-                  </div>
                </template>
                <template #right>
                   <KeepAlive>
@@ -250,55 +181,6 @@
                   {{ knownSymbols }}
                </template>
                <template #left>
-                  <input
-                     id="newExpr"
-                     class="newExpr"
-                     type="text"
-                     placeholder="Enter an expression"
-                     v-model="state.newExpr"
-                     autofocus
-                     @input="checkNewExpr()"
-                     @change="checkNewExpr()"
-                  />
-                  <pre color="red" v-if="defined(state.error)">
-              {{ state.error }}
-            </pre
-                  >
-                  <FunctionSelector
-                     v-if="!state.parseResult"
-                  ></FunctionSelector>
-                  <div v-if="state.parseResult">
-                     <!-- <GraphExprOld
-                        v-if="!state.loading"
-                        :env="state.env"
-                        :expr="state.env.get('__tmp')!"
-                        :tex="state.env.get('__tmp')?.node?.toTex()"
-                        :allow-copy="false"
-                        :allow-edit="false"
-                        @new:expr="
-                           (x) => {
-                              state.newExpr = x;
-                              checkNewExpr();
-                           }
-                        "
-                        @remove:expr="(x) => removeExpr(x)"
-                        @error="showError"
-                     >
-                     </GraphExprOld> -->
-                     <button
-                        id="addExpr"
-                        v-if="!defined(state.error) && !state.loading"
-                        :disabled="state.newExpr === ''"
-                        @click="addToEnv(state.newExpr)"
-                     >
-                        {{
-                           state.env.has(getNodeName(state.parseResult.node))
-                              ? 'Replace'
-                              : 'Add'
-                        }}
-                     </button>
-                     <br />
-                  </div>
                   <div class="saveWidget">
                      <!-- {{ state.parseResult }} -->
                      <SaveWidget
