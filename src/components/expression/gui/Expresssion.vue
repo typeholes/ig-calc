@@ -90,7 +90,7 @@
    <div
       class="cols GraphExpr lastSmall"
       :class="{ imported: isImported }"
-      v-if="name !== 'time'"
+      v-if="!graphState.hidden || appState.showHiddenExpressions"
    >
       <div class="rows">
          <div class="cols">

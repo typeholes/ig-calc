@@ -11,7 +11,7 @@ export interface EnvType<V> {
    tag: EnvTypeTag;
    has: (key: string) => boolean;
    get: (key: string) => V | undefined;
-   set: (key: string, value: V) => V;
+   set: (key: string, value: V, props?: Partial<EnvItem>)  => V;
    delete: (key: string) => void;
    toRecord: () => Record<string, V>;
    getDatum: (v: V, item: EnvItem) => Datum;
@@ -51,7 +51,7 @@ export function EnvType<V>({
       getDependencies,
       has: (key) => data.has(key),
       get: (key) => data.get(key),
-      set: (key, value) => {
+      set: (key, value, props = {}) => {
          names.add(key);
          data.set(key, value);
          mathEnv[key] = getMathValue(value);
@@ -64,6 +64,7 @@ export function EnvType<V>({
                showValue: false,
                description: undefined,
                typeTag: tag,
+               ...props
             });
          } else {
             const item = items.get(key);

@@ -28,16 +28,20 @@ export interface EnvItem {
    description: string | undefined;
    typeTag: EnvTypeTag;
 }
-export function defaultEnvItem(typeTag: EnvTypeTag, name: string, description = '') : EnvItem {
-   return { 
+export function defaultEnvItem(
+   typeTag: EnvTypeTag,
+   name: string,
+   description = ''
+): EnvItem {
+   return {
       name,
       color: `#00FFFF`,
-   hidden: false,
-   showGraph: false,
-   showValue: false,
-   description,
-   typeTag,
-   }
+      hidden: false,
+      showGraph: false,
+      showValue: false,
+      description,
+      typeTag,
+   };
 }
 
 export interface ExprEnv {
@@ -112,7 +116,7 @@ export function mkExprEnv(graph: () => Graph): ExprEnv {
          getDatum: (v, item) =>
             datumGetter(item, EnvExpr.toEvalFn(item.name, v, exprEnv)),
          getDependencies: EnvExpr.getDependencies,
-         toTex: EnvExpr.toTex
+         toTex: EnvExpr.toTex,
       }),
       items,
       has: (key: string) => key in data,
@@ -158,20 +162,6 @@ export function mkExprEnv(graph: () => Graph): ExprEnv {
       getDependencies: (key: string) => getDependencies(key, exprEnv, items),
       getDatum: (key: string) => getDatum(key, exprEnv, items),
    } as const;
-   /*
-   exprEnv.constant.set('foo', 1);
-   exprEnv.constant.set('bar', 2);
-   exprEnv.animated.set('t', Animation('zigZag', 0, 5, 3));
-   exprEnv.expression.set('g', EnvExpr('g(x) = x * q'));
-   exprEnv.expression.set('f', EnvExpr('sin(g(t))'));
-   exprEnv.expression.set('oops', EnvExpr('foo) * bar'));
-   */
-   exprEnv.expression.set(
-      'zigZag',
-      EnvExpr(
-         'zigZag(x, min, height, width) = min + height * (acos(0.999 sin(2 pi x / width)) / pi)'
-      )
-   );
    return exprEnv;
 }
 

@@ -104,6 +104,7 @@
          state.env.delete(name); // TODO: should we delete anonymous expressions on edit?
       }
    }
+
 </script>
 
 <template>

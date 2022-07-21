@@ -3,7 +3,8 @@
    import { reactive, computed, watch } from 'vue';
    import { MathNode } from 'mathjs';
    import { state as appState } from 'components/uiUtil';
-   import { notBlank, defined } from 'js/util';
+   import { notBlank, defined, assert } from 'js/util';
+   import { libraries } from 'js/libraryValues';
 
    interface Props {
       name: string;
@@ -53,7 +54,7 @@
       typeset();
    }
 
-   refreshTex();
+   updateAnimation();
 
    function copyToCurrent() {
       //         addImportExpression(props.state);
@@ -65,6 +66,18 @@
          refreshTex();
       }
    );
+
+   function updateAnimation() {
+      const fnName = graphState.value.fnName;
+      if (!defined(appState.env.expression.get(fnName))) {
+         const fn = libraries.get('periodic')?.expression[fnName][0];
+         assert(defined(fn), 'missing periodic function: ' + fnName);
+         appState.env.expression.set(fnName, fn, { hidden: true });
+         appState.env.items.get(fnName)!.hidden = true;
+      }
+      appState.env.animated.set(props.name, graphState.value, { hidden:  true});
+      refreshTex();
+   }
 
    const isImported = computed(() => false); // TODO
 </script>
@@ -94,6 +107,39 @@
                v-model="graphState.color"
                :id="`color:${name}`"
             />
+         </div>
+         <div class="cols lastSmall">
+            <o-field label="From">
+               <o-input
+                  type="number"
+                  v-model="graphState.value.from"
+                  @change="updateAnimation"
+               ></o-input>
+            </o-field>
+            <o-field label="To">
+               <o-input
+                  type="number"
+                  v-model="graphState.value.to"
+                  @change="updateAnimation"
+               ></o-input>
+            </o-field>
+            <o-field label="Period">
+               <o-input
+                  type="number"
+                  v-model="graphState.value.period"
+                  @change="updateAnimation"
+               ></o-input>
+            </o-field>
+            <o-field label="Type">
+               <!-- TODO drive this from the periodic library -->
+               <o-select
+                  v-model="graphState.value.fnName"
+                  @change="updateAnimation"
+               >
+                  <option value="sinal">sinal</option>
+                  <option value="zigZag">zigZag</option>
+               </o-select>
+            </o-field>
          </div>
          <div class="cols">
             <span class="tex" :id="'tex_' + name">{{ state.toString() }} </span>
