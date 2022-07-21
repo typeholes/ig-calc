@@ -5,7 +5,6 @@
    import Vsplitter from './Vsplitter.vue';
    import Hsplitter from './Hsplitter.vue';
    import FunctionSelector from './FunctionSelector.vue';
-   //   import GraphExprOld from './GraphExprOld.vue';
    import SaveWidget from './SaveWidget.vue';
    import GeneralOptions from './GeneralOptions.vue';
 
@@ -15,6 +14,8 @@
    import { knownSymbols } from '../js/math/symbols';
 
    import { SaveRep } from 'js/env/SaveRep';
+
+   import NewExpression from './NewExpression.vue';
 
    import {
       graph,
@@ -27,15 +28,10 @@
       init,
       systemFnNames,
       lookupExprComponent,
+      lookupGraphComponent,
    } from './uiUtil';
    import { SaveId } from '../js/SaveManager';
    import FakeCursor from './FakeCursor.vue';
-
-   import { Set as ISet } from 'immutable';
-
-import GraphConst from './expression/gui/Constant.vue';
-import GraphAnim from './expression/gui/Animation.vue';
-import GraphExpr from './expression/gui/Expresssion.vue';
 
    onMounted(() => {
       init();
@@ -73,8 +69,8 @@ import GraphExpr from './expression/gui/Expresssion.vue';
    }
 
    const exprNames = computed(() => {
-      const names = ISet(state.env.names);
-      return names.filter((name) => graph.options.data[name]?.show).toArray();
+      //      const names = ISet(state.env.names);
+      return []; //names.filter((name) => graph.options.data[name]?.show).toArray();
    });
 
    const previewingSave = computed(
@@ -177,37 +173,20 @@ import GraphExpr from './expression/gui/Expresssion.vue';
                   </div>
                   <div
                      class="expressions"
-                     v-for="(_, name) of state.env.constant.toRecord()"
                      :key="name"
+                     v-for="name in state.env.names"
                   >
-                     <GraphConst
+                     <component
+                        :is="lookupGraphComponent(name)"
                         :name="name"
                         :allow-copy="false"
                         :allow-edit="false"
-                     ></GraphConst>
+                     ></component>
                   </div>
-                  <div
-                     class="expressions"
-                     v-for="(_, name) of state.env.animated.toRecord()"
-                     :key="name"
-                  >
-                     <GraphAnim
-                        :name="name"
-                        :allow-copy="false"
-                        :allow-edit="false"
-                     ></GraphAnim>
+                  <div class="expressions">
+                     <NewExpression></NewExpression>
                   </div>
-                  <div
-                     class="expressions"
-                     v-for="(_, name) of state.env.expression.toRecord()"
-                     :key="name"
-                  >
-                     <GraphExpr
-                        :name="name"
-                        :allow-copy="false"
-                        :allow-edit="false"
-                     ></GraphExpr>
-                  </div>
+
                   <div
                      class="expressions"
                      v-if="

@@ -4,7 +4,6 @@
    import { MathNode } from 'mathjs';
    import { state as appState } from 'components/uiUtil';
    import { notBlank, defined } from 'js/util';
-   import { Animation } from 'js/env/Animation';
 
    interface Props {
       name: string;
@@ -42,25 +41,19 @@
       }
    }
 
-   function graphFn() {
+   function getTex() {
       const value = appState.env.animated.get(props.name);
       return defined(value)
-         ? `${props.name} = ${Animation.toExprString(value)}`
+         ? appState.env.animated.toTex(props.name, value)
          : `${props.name} not found`;
    }
 
    function refreshTex() {
-      addTexElement(
-         'tex_' + props.name,
-         props.tex ?? graphFn().replace('=', ':=')
-      );
+      addTexElement('tex_' + props.name, getTex());
       typeset();
    }
 
-   addTexElement(
-      'tex_' + props.name,
-      props.tex ?? graphFn().replace('=', ':=')
-   );
+   refreshTex();
 
    function copyToCurrent() {
       //         addImportExpression(props.state);

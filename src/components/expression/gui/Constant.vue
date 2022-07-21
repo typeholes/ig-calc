@@ -3,7 +3,7 @@
    import { nextTick, reactive, computed, watch } from 'vue';
    import { MathNode } from 'mathjs';
    import { state as appState } from 'components/uiUtil';
-   import { notBlank } from 'js/util';
+   import { defined, notBlank } from 'js/util';
 
    import NumericInput from 'components/NumericInput.vue';
 
@@ -46,25 +46,20 @@ console.log(x);
       }
    }
 
-   function graphFn() {
-      const value = appState.env.constant.get(props.name) ?? 0;
-      return props.name.startsWith('anon: ')
-         ? value.toString()
-         : `${props.name} = ${value}`;
+   function getTex() {
+      const value = appState.env.constant.get(props.name);
+      return defined(value)
+         ? appState.env.constant.toTex(props.name, value)
+         : `${props.name} not found`;
    }
 
    function refreshTex() {
-      addTexElement(
-         'tex_' + props.name,
-         props.tex ?? graphFn().replace('=', ':=')
-      );
+      addTexElement('tex_' + props.name, getTex());
       typeset();
    }
 
-   addTexElement(
-      'tex_' + props.name,
-      props.tex ?? graphFn().replace('=', ':=')
-   );
+refreshTex();
+
 
    function copyToCurrent() {
       //         addImportExpression(props.state);

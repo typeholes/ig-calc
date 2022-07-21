@@ -45,7 +45,7 @@ EnvExpr.toEvalFn = (name: string, expr: EnvExpr, exprEnv: ExprEnv): EvalFn => {
    if (defined(expr.node)) {
       const vars = flattenDependencyTree(exprEnv.getDependencies(name));
       const free = vars.filter((x) => !x);
-       const first = free.keySeq().first();
+      const first = free.keySeq().first();
       return nodeToEvalFn(expr.node, exprEnv, first ?? '__unused');
    }
 

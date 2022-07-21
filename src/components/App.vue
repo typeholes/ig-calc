@@ -134,6 +134,9 @@
       transform: translateY(2px);
    }
 
+   button:disabled {
+      background-color: rgb(59, 20, 20);
+   }
    /* body {
     overflow: hidden;
    } */

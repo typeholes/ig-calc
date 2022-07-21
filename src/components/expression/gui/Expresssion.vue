@@ -4,7 +4,6 @@
    import { MathNode } from 'mathjs';
    import { state as appState } from 'components/uiUtil';
    import { notBlank, defined } from 'js/util';
-   import { EnvExpr } from 'js/env/EnvExpr';
    import { flattenDependencyTree } from 'js/env/exprEnv';
 
    interface Props {
@@ -43,25 +42,19 @@
       }
    }
 
-   function graphFn() {
+   function getTex() {
       const value = appState.env.expression.get(props.name);
       return defined(value)
-         ? `${EnvExpr.toTex(value)}`
+         ? appState.env.expression.toTex(props.name, value)
          : `${props.name} not found`;
    }
 
    function refreshTex() {
-      addTexElement(
-         'tex_' + props.name,
-         props.tex ?? graphFn().replace('=', ':=')
-      );
+      addTexElement('tex_' + props.name, getTex());
       typeset();
    }
 
-   addTexElement(
-      'tex_' + props.name,
-      props.tex ?? graphFn().replace('=', ':=')
-   );
+   refreshTex();
 
    function copyToCurrent() {
       //         addImportExpression(props.state);
@@ -192,7 +185,6 @@
       align-self: center;
    }
 
-
    .imported {
       background-color: rgb(43, 51, 36);
    }
@@ -233,6 +225,4 @@
    input:invalid {
       background-color: #550000;
    }
-
-   
 </style>

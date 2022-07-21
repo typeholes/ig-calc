@@ -1,3 +1,6 @@
+import GraphConst from './expression/gui/Constant.vue';
+import GraphAnim from './expression/gui/Animation.vue';
+import GraphExpr from './expression/gui/Expresssion.vue';
 import { defined, isBoolean, isNumber } from 'js/util';
 import { Map as IMap } from 'immutable';
 import { Graph, mkGraph } from '../js/function-plot/d3util';
@@ -26,7 +29,6 @@ import GameDisplay from './game/GameDisplay.vue';
 import GameMakerTutorial from './game/GameMakerTutorial.vue';
 import GameMetaData from './game/GameMetaData.vue';
 import { SaveId, getStorageKey } from '../js/SaveManager';
-import GraphExpr from './GraphExprOld.vue';
 import TextExpr from './TextExpr.vue';
 import TextJsExpr from './TextJsExpr.vue';
 import { mkExprEnv } from '../js/env/exprEnv';
@@ -146,7 +148,6 @@ export const persistantStateKeys = Object.keys({
    showHiddenExpressions: false,
 } as const) as (keyof typeof state)[];
 
-
 const propStorageKey = (key: string) => getStorageKey() + ':state:' + key;
 function saveStateProp(key: string, value: unknown) {
    localStorage.setItem(propStorageKey(key), JSON.stringify(value));
@@ -168,12 +169,12 @@ function loadStateProp(key: keyof typeof state) {
 
    if (isBoolean(currentValue)) {
       // @ts-expect-error ts not narrowing based type predicates here
-      state[key] = newValue 
+      state[key] = newValue;
    }
 
    if (isNumber(currentValue)) {
       // @ts-expect-error ts not narrowing based type predicates here
-      state[key] = newValue
+      state[key] = newValue;
    }
 }
 
@@ -315,6 +316,23 @@ export function refreshDatumEnvironments() {
          currentDatum?.color ?? currentColor()
       );
    });
+}
+
+export const graphComponents = {
+   // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+   constant: shallowRef(GraphConst),
+   // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+   animated: shallowRef(GraphAnim),
+   // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+   expression: shallowRef(GraphExpr),
+};
+
+export function lookupGraphComponent(name: string) {
+   const tag = state.env.items.get(name)?.typeTag ?? '';
+   // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+   const component = graphComponents[tag];
+   // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-return
+   return component.value;
 }
 
 export const appTabs = shallowReactive({

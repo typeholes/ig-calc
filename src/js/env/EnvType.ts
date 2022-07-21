@@ -19,9 +19,11 @@ export interface EnvType<V> {
    colorGraph: (key: string, color: `#${string}`) => void;
    getState: (key: string) => EnvItem & { value: V };
    getDependencies: (v: V) => ISet<string>;
+   toTex: (key: string, v: V) => string;
 }
 
 export function EnvType<V>({
+   names,
    tag,
    data,
    getGraph,
@@ -30,7 +32,9 @@ export function EnvType<V>({
    items,
    getDatum,
    getDependencies,
+   toTex,
 }: {
+   names: Set<string>;
    tag: EnvTypeTag;
    data: Map<string, V>;
    getGraph: () => Graph;
@@ -39,6 +43,7 @@ export function EnvType<V>({
    items: Map<string, EnvItem>;
    getDatum: (v: V, item: EnvItem) => FunctionPlotDatum;
    getDependencies: (v: V) => ISet<string>;
+   toTex: (v: V) => string;
 }): EnvType<V> {
    const envType: EnvType<V> = {
       tag,
@@ -47,6 +52,7 @@ export function EnvType<V>({
       has: (key) => data.has(key),
       get: (key) => data.get(key),
       set: (key, value) => {
+         names.add(key);
          data.set(key, value);
          mathEnv[key] = getMathValue(value);
          if (!items.has(key)) {
@@ -69,6 +75,7 @@ export function EnvType<V>({
       delete: (key) => {
          data.delete(key);
          delete mathEnv[key];
+         names.delete(key);
          // leave envItem so it can be reused by another item with the same name
       },
       toRecord: () => Object.fromEntries(data.entries()),
@@ -117,6 +124,12 @@ export function EnvType<V>({
             (color) => envType.colorGraph(key, color)
          );
          return state as typeof state & { value: V }; // UnwrapRef<V> should just be V
+      },
+      toTex: (key, v) => {
+         const tex = toTex(v);
+         const fullTex =  tex.includes('=') ? tex : '\\mathrm{' + key + '}:=' + tex;
+         console.log( { toTex: key, fullTex})
+         return fullTex
       },
    };
    return envType;

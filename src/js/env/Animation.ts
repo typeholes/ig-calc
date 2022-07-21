@@ -1,4 +1,4 @@
-import { MathNode, parse as parseMathNode } from "mathjs";
+import { MathNode, parse as parseMathNode } from 'mathjs';
 
 export interface Animation {
    fnName: string;
@@ -20,3 +20,6 @@ Animation.toExprString = ({ fnName, from, to, period }: Animation): string =>
 
 Animation.toMathNode = (animation: Animation): MathNode =>
    parseMathNode(Animation.toExprString(animation));
+
+Animation.toTex = (animation: Animation): string =>
+   Animation.toMathNode(animation).toTex();

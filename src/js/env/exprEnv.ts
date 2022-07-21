@@ -1,6 +1,6 @@
 import { isFunctionAssignmentNode, isNumber, MathNode } from 'mathjs';
 import { defaultCall, getAssignmentBody, ValidExpr } from '../expressions';
-import {  Set as ISet, Map as IMap } from 'immutable';
+import { Set as ISet, Map as IMap } from 'immutable';
 import { builtinConstants } from '../math/symbols';
 import { reactive } from 'vue';
 import { Graph } from '../function-plot/d3util';
@@ -57,7 +57,7 @@ const datumGetter = (
 ) => Datum(evalFn, { show: item.showGraph, color: item.color, ...options });
 
 export function mkExprEnv(graph: () => Graph): ExprEnv {
-   const items = reactive( new Map<string, EnvItem>());
+   const items = reactive(new Map<string, EnvItem>());
    const data: Record<string, ValidExpr> = reactive({});
    const mathEnv: MathEnv = reactive({});
    const names: Set<string> = reactive(new Set());
@@ -66,6 +66,7 @@ export function mkExprEnv(graph: () => Graph): ExprEnv {
    const expressions = new Map<string, EnvExpr>();
    const exprEnv: ExprEnv = {
       constant: EnvType({
+         names,
          tag: 'constant',
          data: constants,
          getGraph: graph,
@@ -74,8 +75,10 @@ export function mkExprEnv(graph: () => Graph): ExprEnv {
          items,
          getDatum: (v, item) => datumGetter(item, () => v, { nSamples: 2 }),
          getDependencies: () => ISet(),
+         toTex: (v) => v.toString(),
       }),
       animated: EnvType({
+         names,
          tag: 'animated',
          data: animations,
          getGraph: graph,
@@ -85,8 +88,10 @@ export function mkExprEnv(graph: () => Graph): ExprEnv {
          getDatum: (v, item) =>
             datumGetter(item, nodeToEvalFn(Animation.toMathNode(v), exprEnv)),
          getDependencies: () => ISet(['time']),
+         toTex: Animation.toTex,
       }),
       expression: EnvType({
+         names,
          tag: 'expression',
          data: expressions,
          getGraph: graph,
@@ -96,6 +101,7 @@ export function mkExprEnv(graph: () => Graph): ExprEnv {
          getDatum: (v, item) =>
             datumGetter(item, EnvExpr.toEvalFn(item.name, v, exprEnv)),
          getDependencies: EnvExpr.getDependencies,
+         toTex: EnvExpr.toTex
       }),
       items,
       has: (key: string) => key in data,
@@ -141,7 +147,7 @@ export function mkExprEnv(graph: () => Graph): ExprEnv {
       getDependencies: (key: string) => getDependencies(key, exprEnv, items),
       getDatum: (key: string) => getDatum(key, exprEnv, items),
    } as const;
-/*
+   /*
    exprEnv.constant.set('foo', 1);
    exprEnv.constant.set('bar', 2);
    exprEnv.animated.set('t', Animation('zigZag', 0, 5, 3));
@@ -149,7 +155,12 @@ export function mkExprEnv(graph: () => Graph): ExprEnv {
    exprEnv.expression.set('f', EnvExpr('sin(g(t))'));
    exprEnv.expression.set('oops', EnvExpr('foo) * bar'));
    */
-   exprEnv.expression.set('zigZag', EnvExpr("zigZag(x, min, height, width) = min + height * (acos(0.999 sin(2 pi x / width)) / pi)"));
+   exprEnv.expression.set(
+      'zigZag',
+      EnvExpr(
+         'zigZag(x, min, height, width) = min + height * (acos(0.999 sin(2 pi x / width)) / pi)'
+      )
+   );
    return exprEnv;
 }
 

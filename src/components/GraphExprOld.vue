@@ -383,9 +383,6 @@
       background-color: rgb(43, 51, 36);
    }
 
-   button:disabled {
-      background-color: rgb(59, 20, 20);
-   }
 
    fullRow {
       flex: 99 0 auto;
