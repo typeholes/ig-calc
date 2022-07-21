@@ -193,6 +193,7 @@
                   debugger;
                   removeSave(id);
                   window.location.reload();
+                  return;
                }
 
                emit(emitType as keyof typeof emit, {
