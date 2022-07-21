@@ -27,7 +27,7 @@ export const SaveRep: { savable: Savable<'ExprEnv', SaveRep> } = {
 };
 
 export type SaveRep = IMap<string, SaveRepValue>;
-type SaveRepValue = EnvItem & {
+export type SaveRepValue = EnvItem & {
    constant: undefined | number;
    animated: undefined | Animation;
    expression: undefined | string;

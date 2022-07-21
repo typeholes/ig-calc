@@ -28,6 +28,17 @@ export interface EnvItem {
    description: string | undefined;
    typeTag: EnvTypeTag;
 }
+export function defaultEnvItem(typeTag: EnvTypeTag, name: string, description = '') : EnvItem {
+   return { 
+      name,
+      color: `#00FFFF`,
+   hidden: false,
+   showGraph: false,
+   showValue: false,
+   description,
+   typeTag,
+   }
+}
 
 export interface ExprEnv {
    constant: EnvType<number>;

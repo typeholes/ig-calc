@@ -31,11 +31,7 @@
       decompressFromEncodedURIComponent,
    } from 'lz-string';
    import { Interval } from '../js/function-plot/types';
-   import {
-      librarySaveMeta,
-      librarySaveReps,
-      libraryDescriptions,
-   } from '../js/libraryValues';
+   import { librarySaveReps, libraryDescriptions } from '../js/libraryValues';
    import { notBlank } from '../js/function-plot/utils';
    import { getActions } from '../js/actions';
 
@@ -153,7 +149,7 @@
    }
 
    function getSerializedSave(): SerializedSave {
-      const saveRep = toSaveRep(props.env); 
+      const saveRep = toSaveRep(props.env);
       const serialized = SaveRep.savable.toSave(saveRep);
       const saveObj = { [SaveRep.savable.saveKey]: serialized };
       return JSON.stringify(saveObj);
@@ -170,19 +166,8 @@
          graph.options.data = {};
       }
       if (id.type === 'library') {
-         const fns = librarySaveReps.get(id.name)?.fns;
-         assert.defined(fns);
-         const saveRep: SaveRep = IMap(fns)
-            .map((fn) => ({
-               expr: fn.expr,
-               show: false,
-               color: '#FFFF00',
-               showValue: false,
-               description: fn.description,
-               showExpr: true,
-            }))
-            .toObject();
-         console.log({ saveRep });
+         const saveRep = librarySaveReps.get(id.name);
+         assert(defined(saveRep), 'Missing SaveRep for library: ' + id.name);
          emit(emitType as keyof typeof emit, { saveRep });
 
          if (emitType === 'restore') {
@@ -197,7 +182,7 @@
                return;
             },
             Right: (x) => {
-               const obj : unknown = JSON.parse(x);
+               const obj: unknown = JSON.parse(x);
                const saveRep = getSaveEntry(
                   hasSaveEntry(obj, SaveRep.savable),
                   SaveRep.savable
@@ -225,7 +210,10 @@
       type: SaveType
    ): IMap<SaveId, readonly [SaveDescription, boolean]> {
       if (type === 'library') {
-         return librarySaveMeta.map((v) => [v, false] as const);
+         return libraryDescriptions.mapEntries(([name, description]) => [
+            SaveId('library', name),
+            [description, false],
+         ]);
       }
       const saveMap = IMap(state.saveMetaData[type]).map(
          (v) => [v, false] as const
@@ -411,7 +399,10 @@
          </div>
          <div class="saveColumn" v-if="!previewing">
             <div>Your Saves</div>
-            <div :key="id.name + '/' + id.name" v-for="[id, [description, deleted]] of saveList('local')">
+            <div
+               :key="id.name + '/' + id.name"
+               v-for="[id, [description, deleted]] of saveList('local')"
+            >
                <SaveEntry
                   :id="id"
                   :description="description"
@@ -424,7 +415,10 @@
 
          <div class="saveColumn" v-if="!previewing">
             <div>Shared Saves</div>
-            <div :key="id.name + '/' + id.name" v-for="[id, [description, deleted]] of saveList('shared')">
+            <div
+               :key="id.name + '/' + id.name"
+               v-for="[id, [description, deleted]] of saveList('shared')"
+            >
                <SaveEntry
                   :id="id"
                   :description="description"
@@ -504,10 +498,20 @@
                {{ appState.selectedSave.name }}
             </div>
 
-            <button @click="restoreDeletedSave(appState.selectedSave); unselectSave()">
+            <button
+               @click="
+                  restoreDeletedSave(appState.selectedSave);
+                  unselectSave();
+               "
+            >
                restore
             </button>
-            <button @click="purgeDeletedSave(appState.selectedSave); unselectSave()">
+            <button
+               @click="
+                  purgeDeletedSave(appState.selectedSave);
+                  unselectSave();
+               "
+            >
                purge
             </button>
             <button @click="unselectSave">Close</button>
@@ -515,7 +519,10 @@
 
          <div class="saveColumn" v-if="!previewing">
             <div>Library</div>
-            <div :key="id.name + '/' + id.name" v-for="[id, [description, deleted]] of saveList('library')">
+            <div
+               :key="id.name + '/' + id.name"
+               v-for="[id, [description, deleted]] of saveList('library')"
+            >
                <SaveEntry
                   :id="id"
                   :description="description"
