@@ -17,6 +17,7 @@
       SerializedSave,
       isSaveType,
       setStorageKey,
+      removeSave,
    } from '../js/SaveManager';
    import { ExprEnv } from 'js/env/exprEnv';
    import { assert, defined } from '../js/util';
@@ -188,8 +189,10 @@
                   SaveRep.savable
                );
                if (isLeft(saveRep)) {
-                  emit('error', saveRep.value);
-                  return;
+                  // old save.  delete it and reload
+                  debugger;
+                  removeSave(id);
+                  window.location.reload();
                }
 
                emit(emitType as keyof typeof emit, {

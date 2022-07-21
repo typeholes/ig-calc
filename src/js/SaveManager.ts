@@ -1,4 +1,4 @@
-import { errorable, Errorable } from './Either';
+import { errorable, Errorable, Left } from './Either';
 import { assert, defined, hasPropIs, isString } from './util';
 
 // eslint-disable-next-line vue/prefer-import-from-vue
@@ -15,7 +15,9 @@ export function setStorageKey(key: string): SaveMetaData {
       emptySaveMetaData()
    );
 }
-export function getStorageKey(): string { return StorageKey + '' };
+export function getStorageKey(): string {
+   return StorageKey + '';
+}
 
 export type SaveName = string;
 export type SaveDescription = string;
@@ -69,9 +71,12 @@ export function addSaveEntry<S, K extends string, V>(
 }
 
 export function getSaveEntry<S extends Record<K, string>, K extends string, V>(
-   save: S,
+   save: S | undefined,
    saveable: Savable<K, V>
 ) {
+   if (!defined(save)) {
+      return Left(new Error('corrupt save for entry ' + saveable.saveKey));
+   }
    return saveable.fromSave(save[saveable.saveKey]);
 }
 
@@ -80,14 +85,14 @@ export function hasSaveEntry<K extends string, V>(
    savable: Savable<K, V>
 ) {
    if (!hasPropIs(save, savable.saveKey, isString)) {
-      throw new Error('save does not contain entry for ' + savable.saveKey);
+      return undefined;
    }
    return save;
 }
 
 export function parseSaveMetaData(s: string): Errorable<SaveMetaData> {
    return errorable(() => {
-      const obj : unknown = JSON.parse(s);
+      const obj: unknown = JSON.parse(s);
       assert.propIs(
          obj,
          'local',
@@ -105,7 +110,7 @@ export function parseSaveMetaData(s: string): Errorable<SaveMetaData> {
       );
 
       for (const type in obj) {
-         const t : unknown = obj[type];
+         const t: unknown = obj[type];
          assert.is(t, isObject);
          for (const name in t) {
             assert.is(t[name], isString);
@@ -153,6 +158,10 @@ export function writeSave(
       StorageKey + '/' + id.type + '/' + id.name,
       saveStr
    );
+}
+
+export function removeSave(id: SaveId) {
+   window.localStorage.removeItem(StorageKey + '/' + id.type + '/' + id.name);
 }
 
 export function readSave(id: SaveId): Errorable<string> {
