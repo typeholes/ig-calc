@@ -1,10 +1,10 @@
 <script setup lang="ts">
    import { addTexElement, typeset } from 'js/typeset';
    import { reactive, computed, watch } from 'vue';
-   import { MathNode } from 'mathjs';
    import { state as appState } from 'components/uiUtil';
    import { notBlank, defined } from 'js/util';
    import { flattenDependencyTree } from 'js/env/exprEnv';
+   import { EnvExpr } from 'js/env/EnvExpr';
 
    interface Props {
       name: string;
@@ -15,13 +15,13 @@
 
    const props = defineProps<Props>();
 
+   let graphState = appState.env.expression.getState(props.name);
+
    const state = reactive({
       showMenu: false,
       animate: false,
-      holdConstant: undefined as MathNode | undefined,
+      error: defined(graphState.value.error),
    });
-
-   const graphState = appState.env.expression.getState(props.name);
 
    //   const isImported = computed(() => hasImportExpression(props.state));
 
@@ -68,6 +68,22 @@
    );
 
    const isImported = computed(() => false); // TODO
+
+   function updateExpr(event: Event) {
+      if (event.target instanceof HTMLInputElement) {
+         const expr = EnvExpr(event.target.value);
+         appState.env.expression.set(props.name, expr);
+         if (!defined(expr.error)) {
+            state.error = false;
+         }
+         refreshTex();
+      }
+   }
+
+   function syncGraphState() {
+      graphState = appState.env.expression.getState(props.name);
+      state.error = defined(graphState.value.error);
+   }
 </script>
 
 <template>
@@ -83,12 +99,13 @@
             >
                {{ props.name }}
             </span>
-            <input
+            <o-input
                class="gridCheck"
                type="checkbox"
                v-model="graphState.showGraph"
                :id="`show:${name}`"
-            />
+            >
+            </o-input>
             <input
                class="colorPicker"
                type="color"
@@ -96,10 +113,19 @@
                :id="`color:${name}`"
             />
          </div>
+         <o-field style="width: 98%">
+            <o-input
+               style="margin-left: 7px"
+               v-model="graphState.value.expr"
+               @input="updateExpr"
+               @blur="syncGraphState"
+            >
+            </o-input>
+         </o-field>
          <div class="cols">
             <span
                class="tex"
-               :class="{ error: graphState.value.error }"
+               :class="{ error: state.error }"
                :id="'tex_' + name"
                >{{ state.toString() }}
             </span>
