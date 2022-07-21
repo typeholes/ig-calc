@@ -7,49 +7,72 @@
 
    const state = reactive({
       name: '',
-      type: 'constant' as EnvTypeTag,
    });
 
    const disableAdd = computed(
-      () => state.name === 'time' || appState.env.items.has(state.name)
+      () =>
+         state.name === '' ||
+         state.name === 'time' ||
+         appState.env.items.has(state.name)
    );
 
-   function addExpr() {
+   function addExpr(type: EnvTypeTag) {
       const newName = state.name;
       state.name = '';
-      if (state.type === 'constant') {
+      if (type === 'constant') {
          appState.env.constant.set(newName, 0);
          return;
       }
-      if (state.type === 'expression') {
+      if (type === 'expression') {
          appState.env.expression.set(newName, EnvExpr(`${newName} = sin(x)`));
          return;
       }
-      if (state.type === 'animated') {
+      if (type === 'animated') {
          appState.env.animated.set(newName, Animation('zigZag', 0, 5, 3));
          return;
       }
+   }
+
+   const buttonTypeText: Record<EnvTypeTag, (s: string) => string> = {
+      constant: (name: string) => `${name} = 0`,
+      animated: (name: string) => `${name}(time)`,
+      expression: (name: string) => `${name} = x`,
+   } as const;
+
+   function buttonText(name: string, type: EnvTypeTag) {
+      const shortName = name.substring(0, 4);
+      const formatter: (s: string) => string = buttonTypeText[type];
+      return formatter(shortName);
    }
 </script>
 
 <template>
    <div class="cols NewExpr">
-      <o-field label="Name"><o-input v-model="state.name"></o-input></o-field>
-      <o-field label="Type">
-         <o-select v-model="state.type">
-            <option>constant</option>
-            <option value="animated">periodic</option>
-            <option>expression</option>
-         </o-select>
+      <o-field label-class="textCentered" label="New expression name"
+         ><o-input v-model="state.name"></o-input>
       </o-field>
-      <o-button :disabled="disableAdd" @click="addExpr">+</o-button>
+      <template :key="type" v-for="(_, type) in buttonTypeText">
+         <o-button :disabled="disableAdd" @click="addExpr(type)">
+            {{ buttonText(state.name, type) }}
+         </o-button>
+      </template>
       <div></div>
    </div>
 </template>
 
-<style>
+<style >
    .NewExpr {
       border: 1px solid bisque;
       border-radius: 4px;
+      gap: 3px;
+      padding: 2px;
+   }
+
+   button {
+      border-radius: 7px;
+   }
+   
+   .textCentered {
+    text-align: center;
    }
 </style>
