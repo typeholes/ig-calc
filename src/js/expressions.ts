@@ -277,9 +277,9 @@ function fromSave(s: string): Errorable<SaveRep> {
    });
 }
 
-export function defaultCall(fn: M.FunctionAssignmentNode): MathNode {
+export function defaultCall(fn: M.FunctionAssignmentNode, names: Set<string>): MathNode {
    const name = fn.name;
-   const args = fn.params;
+   const args = fn.params.map( (x) => names.has(x) ? x : '__unused');
    const call = `${name}(${args.join(',')})`;
    return M.parse(call);
 }
@@ -291,7 +291,7 @@ function toEvalFn(
 ): EvalFn {
    const node = getNode(env, expr);
    const body = isFunctionAssignmentNode(node)
-      ? defaultCall(node)
+      ? defaultCall(node, env.names)
       : getAssignmentBody(node);
    const mathEnv = { ...env.getMathEnv() };
    delete mathEnv['time'];

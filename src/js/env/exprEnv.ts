@@ -230,10 +230,10 @@ export function flattenDependencyTree(
 export const nodeToEvalFn = (
    node: MathNode,
    env: ExprEnv,
-   freeVar = '__unused'
+   freeVar = '__unused'  
 ): EvalFn => {
    const body = isFunctionAssignmentNode(node)
-      ? defaultCall(node)
+      ? defaultCall(node, env.names)
       : getAssignmentBody(node);
    const mathEnv = { ...env.getMathEnv() };
    delete mathEnv['time'];
