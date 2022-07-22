@@ -129,7 +129,7 @@
                         :allow-edit="false"
                      ></component>
                   </div>
-                  <div class="expressions">
+                  <div class="expressions" v-if="state.saveEditable">
                      <NewExpression></NewExpression>
                   </div>
                </template>

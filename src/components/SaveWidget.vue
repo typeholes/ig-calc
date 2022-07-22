@@ -103,11 +103,13 @@
          );
          load(newSaveId, 'restore');
          selectSave(newSaveId);
+         appState.saveEditable = true;
          const keyParam = storageKey === '' ? '' : `&StorageKey=${storageKey}`;
          window.location.href =
             baseUrl() + `?saveType=shared&saveName=${saveObj.name}${keyParam}`;
       } else {
          load(DefaultSaveId, 'restore');
+         appState.saveEditable = true;
       }
    });
 

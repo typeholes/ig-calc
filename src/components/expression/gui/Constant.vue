@@ -125,7 +125,7 @@ refreshTex();
                :id="`color:${name}`"
             />
          </div>
-         <div class="cols lastSmall">
+         <div class="cols lastSmall" v-if="appState.saveEditable">
             <o-field class="fullRow" label="">
                <o-slider
                   v-model="graphState.value"

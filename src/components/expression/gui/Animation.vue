@@ -108,7 +108,7 @@
                :id="`color:${name}`"
             />
          </div>
-         <div class="cols lastSmall">
+         <div class="cols lastSmall" v-if="appState.saveEditable">
             <o-field label="From">
                <o-input
                   type="number"

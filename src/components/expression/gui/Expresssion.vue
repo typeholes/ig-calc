@@ -112,7 +112,7 @@
                :id="`color:${name}`"
             />
          </div>
-         <o-field style="width: 98%">
+         <o-field style="width: 98%" v-if="appState.saveEditable">
             <o-input
                style="margin-left: 7px"
                v-model="graphState.value.expr"
