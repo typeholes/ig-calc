@@ -69,20 +69,19 @@ export const graphOptions: FunctionPlotOptions = {
    yDomain: reactive(Interval(0, 1)),
 };
 
-let firstInit = true;
+export function loadPersistantOptions() {
+   persistantStateKeys.forEach(loadStateProp);
+
+   persistantStateKeys.forEach((key) =>
+      watch(
+         () => state[key],
+         (value: unknown) => saveStateProp(key, value)
+      )
+   );
+}
+
 let gameLoopRunning = false;
 export function initUI() {
-   if (firstInit) {
-      persistantStateKeys.forEach(loadStateProp);
-
-      persistantStateKeys.forEach((key) =>
-         watch(
-            () => state[key],
-            (value: unknown) => saveStateProp(key, value)
-         )
-      );
-      firstInit = false;
-   }
    if (!defined(graph)) {
       initGraph();
    }

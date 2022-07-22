@@ -16,11 +16,13 @@
       displayComponents,
       initUI,
       lookupGraphComponent,
+      loadPersistantOptions,
    } from './uiUtil';
    import FakeCursor from './FakeCursor.vue';
 
    onMounted(() => {
       initUI();
+      loadPersistantOptions();
    });
 
    function help() {
