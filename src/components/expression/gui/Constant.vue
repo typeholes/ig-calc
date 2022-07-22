@@ -167,7 +167,7 @@ refreshTex();
          <button class="menuButton" @click="state.showMenu = !state.showMenu">
             &#9776;
          </button>
-         <template v-if="state.showMenu">
+         <template v-if="state.showMenu && appState.saveEditable">
             <button
                class="menuButton"
                :disabled="notBlank(appState.newExpr) && props.name !== '__tmp'"

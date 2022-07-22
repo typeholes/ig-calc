@@ -1,6 +1,6 @@
 <!-- eslint-disable vue/no-use-v-if-with-v-for -->
 <script setup lang="ts">
-   import { computed, onMounted, } from 'vue';
+   import { computed, onMounted } from 'vue';
    import HelpScreen from './HelpScreen.vue';
    import Vsplitter from './Vsplitter.vue';
    import Hsplitter from './Hsplitter.vue';
@@ -9,28 +9,19 @@
 
    import { knownSymbols } from '../js/math/symbols';
 
-   import { SaveRep } from 'js/env/SaveRep';
-
    import NewExpression from './NewExpression.vue';
 
    import {
-      graph,
       state,
       displayComponents,
-      loadEnv,
-      init,
+      initUI,
       lookupGraphComponent,
    } from './uiUtil';
    import FakeCursor from './FakeCursor.vue';
 
    onMounted(() => {
-      init();
+      initUI();
    });
-
-
-   function onSave() {
-      state.modified = false;
-   }
 
    function help() {
       state.showHelp = !state.showHelp;
@@ -59,23 +50,6 @@
       //      const names = ISet(state.env.names);
       return []; //names.filter((name) => graph.options.data[name]?.show).toArray();
    });
-
-   function selectSave(args: { saveRep: SaveRep }) {
-      refresh(args);
-   }
-
-   function unselectSave() {
-      /* */
-   }
-
-   function refresh(args: { saveRep: SaveRep }) {
-      state.loading = true;
-      loadEnv(args);
-      init();
-      state.loading = false;
-      graph.drawLines();
-   }
-
 </script>
 
 <template>
@@ -182,15 +156,7 @@
                </template>
                <template #left>
                   <div class="saveWidget">
-                     <!-- {{ state.parseResult }} -->
-                     <SaveWidget
-                        :env="state.env"
-                        :has-unsaved="state.modified"
-                        @restore="refresh"
-                        @select-save="selectSave"
-                        @unselect-save="unselectSave"
-                        @saved="onSave"
-                     ></SaveWidget>
+                     <SaveWidget></SaveWidget>
                   </div>
                </template>
             </Vsplitter>

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-   import { computed, onMounted, reactive } from 'vue';
+   import { watch, computed, onMounted, reactive } from 'vue';
    import { Either, Errorable, isLeft } from '../js/Either';
    import {
       readSave,
@@ -21,9 +21,9 @@
    } from '../js/SaveManager';
    import { ExprEnv } from 'js/env/exprEnv';
    import { assert, defined } from '../js/util';
-   import { graph, state as appState } from './uiUtil';
+   import { graph, initUI, state as appState } from './uiUtil';
    import SaveEntry from './SaveEntry.vue';
-   import { SaveRep, toSaveRep } from 'js/env/SaveRep';
+   import { fromSaveRep, SaveRep, toSaveRep } from 'js/env/SaveRep';
 
    import { Map as IMap } from 'immutable';
 
@@ -31,17 +31,13 @@
       compressToEncodedURIComponent,
       decompressFromEncodedURIComponent,
    } from 'lz-string';
-   import { Interval } from '../js/function-plot/types';
    import { librarySaveReps, libraryDescriptions } from '../js/libraryValues';
    import { notBlank } from '../js/function-plot/utils';
    import { getActions } from '../js/actions';
 
-   interface Props {
-      env: ExprEnv;
-      hasUnsaved: boolean;
-   }
-
    const state = reactive({
+      currentSave: DefaultSaveId,
+      selectedSave: DefaultSaveId,
       copying: undefined as SaveId | undefined,
       newName: undefined as string | undefined,
       newDescr: undefined as string | undefined,
@@ -52,10 +48,12 @@
       hasDeletedSaves: false,
       saveMetaData: Errorable.handle(
          readSaveMetadata(),
-         (error) => emit('error', error),
+         (error) => (appState.error = error.message),
          emptySaveMetaData()
       ),
    });
+
+   const environments = new Map<SaveId, ExprEnv>();
 
    onMounted(() => {
       const search = window.location.search.slice(1);
@@ -80,7 +78,6 @@
          if (isSaveType(saveType) && notBlank(saveName)) {
             const saveId = SaveId(saveType, saveName);
             load(saveId, 'restore');
-            appState.selectedSave = { ...saveId };
             return;
          }
       }
@@ -97,33 +94,22 @@
             save: string;
          };
 
-         appState.currentSave = SaveId('shared', saveObj.name);
+         const newSaveId = SaveId('shared', saveObj.name);
          writeSave(
             state.saveMetaData,
-            appState.currentSave,
+            newSaveId,
             saveObj.description,
             saveObj.save
          );
-         load(appState.currentSave, 'restore');
-         selectSave(appState.currentSave, false);
+         load(newSaveId, 'restore');
+         selectSave(newSaveId);
          const keyParam = storageKey === '' ? '' : `&StorageKey=${storageKey}`;
          window.location.href =
             baseUrl() + `?saveType=shared&saveName=${saveObj.name}${keyParam}`;
       } else {
-         console.log('not shared');
          load(DefaultSaveId, 'restore');
       }
    });
-
-   const props = defineProps<Props>();
-
-   const emit = defineEmits<{
-      (e: 'selectSave', value: { saveRep: SaveRep }): void;
-      (e: 'unselectSave', value: undefined): void;
-      (e: 'restore', value: { saveRep: SaveRep }): void;
-      (e: 'error', value: Error): void;
-      (e: 'saved', value: SaveId): void;
-   }>();
 
    function baseUrl(): string {
       return (
@@ -150,7 +136,7 @@
    }
 
    function getSerializedSave(): SerializedSave {
-      const saveRep = toSaveRep(props.env);
+      const saveRep = toSaveRep(appState.env);
       const serialized = SaveRep.savable.toSave(saveRep);
       const saveObj = { [SaveRep.savable.saveKey]: serialized };
       return JSON.stringify(saveObj);
@@ -158,29 +144,40 @@
 
    function save(id: SaveId, description: SaveDescription) {
       writeSave(state.saveMetaData, id, description, getSerializedSave());
-
-      emit('saved', appState.currentSave);
+      appState.modified = false;
    }
 
-   function load(id: SaveId, emitType: 'restore' | 'selectSave') {
+   function load(id: SaveId, loadAction: 'restore' | 'preview') {
+      initUI();
       if (defined(graph)) {
          graph.options.data = {};
       }
+
+      const env = environments.get(id) ?? loadSave(id);
+      if (!defined(env)) {
+         return;
+      }
+
+      state.selectedSave = id;
+      if (loadAction === 'restore') {
+         state.currentSave = id;
+      }
+      appState.env = env;
+      initUI();
+   }
+
+   function loadSave(id: SaveId): ExprEnv | undefined {
       if (id.type === 'library') {
          const saveRep = librarySaveReps.get(id.name);
          assert(defined(saveRep), 'Missing SaveRep for library: ' + id.name);
-         emit(emitType as keyof typeof emit, { saveRep });
-
-         if (emitType === 'restore') {
-            appState.currentSave = id;
-         }
-         graph.options.title = id.name;
-         graph.resetZoom(Interval(-10, 10), 0);
+         const env = fromSaveRep(saveRep);
+         environments.set(id, env);
+         return env;
       } else {
-         Either.on(readSave(id), {
+         return Either.on(readSave(id), {
             Left: (x) => {
-               emit('error', x);
-               return;
+               appState.error = x.message;
+               return undefined;
             },
             Right: (x) => {
                const obj: unknown = JSON.parse(x);
@@ -193,18 +190,12 @@
                   debugger;
                   removeSave(id);
                   window.location.reload();
-                  return;
+                  return undefined;
                }
 
-               emit(emitType as keyof typeof emit, {
-                  saveRep: saveRep.value,
-               });
-
-               if (emitType === 'restore') {
-                  appState.currentSave = id;
-               }
-               graph.options.title = id.name;
-               graph.resetZoom(Interval(-10, 10), 0);
+               const env = fromSaveRep(saveRep.value);
+               environments.set(id, env);
+               return env;
             },
          });
       }
@@ -266,7 +257,7 @@
       if (defined(state.copying)) {
          const fromSave = Errorable.raise(readSave(state.copying)).value;
          writeSave(state.saveMetaData, id, descr, fromSave);
-         selectSave(id, false);
+         selectSave(id);
       } else {
          save(id, descr);
       }
@@ -280,6 +271,9 @@
    }
 
    function purgeAllDeletedSaves(): void {
+      if (selectedSaveIsDeleted.value) {
+         unselectSave();
+      }
       state.deletedSaves = emptySaveMetaData();
       state.hasDeletedSaves = false;
    }
@@ -288,7 +282,6 @@
       state.copying = undefined;
       state.newName = undefined;
       state.newDescr = undefined;
-      appState.selectedSave = appState.currentSave;
    }
 
    function deleteSave(id: SaveId) {
@@ -297,7 +290,6 @@
       delete state.saveMetaData[id.type][id.name];
       writeSaveMetadata(state.saveMetaData);
       state.hasDeletedSaves = true;
-      appState.selectedSaveIsDeleted = true;
       unselectSave();
    }
 
@@ -326,31 +318,28 @@
       checkForDeletedSaves();
    }
 
-   const tmpSaveId = SaveId('local', '__tmp');
-
-   function selectSave(id: SaveId, deleted: boolean) {
-      if (SaveId.eq(id, appState.currentSave)) {
-         return;
-      }
-      appState.selectedSave = id;
-      appState.selectedSaveIsDeleted = deleted;
-      if (id.type === 'library') {
-         save(tmpSaveId, id.name);
-      } else {
-         save(tmpSaveId, state.saveMetaData[id.type][id.name]);
-      }
-      load(id, 'selectSave');
+   function selectSave(id: SaveId) {
+      load(id, 'preview');
    }
 
    function unselectSave() {
-      appState.selectedSave = appState.currentSave;
-      load(tmpSaveId, 'restore');
-      appState.currentSave = appState.selectedSave;
-      emit('unselectSave', undefined);
+      if (!previewing.value) {
+         return;
+      }
+      load(state.currentSave, 'preview');
    }
 
    const previewing = computed(
-      () => !SaveId.eq(appState.currentSave, appState.selectedSave)
+      () => !SaveId.eq(state.currentSave, state.selectedSave)
+   );
+
+   watch(previewing, (x) => {
+      appState.saveEditable = !x;
+   });
+
+   const selectedSaveIsDeleted = computed(
+      () =>
+         state.selectedSave.name in state.deletedSaves[state.selectedSave.type]
    );
 </script>
 
@@ -361,12 +350,15 @@
             <div>Current Save</div>
             <button
                class="save"
-               v-if="props.hasUnsaved"
+               v-if="
+                  appState.modified &&
+                  !SaveId.eq(state.currentSave, EmptySaveId)
+               "
                @click="
                   save(
-                     appState.currentSave,
-                     state.saveMetaData[appState.currentSave.type][
-                        appState.currentSave.name
+                     state.currentSave,
+                     state.saveMetaData[state.currentSave.type][
+                        state.currentSave.name
                      ]
                   )
                "
@@ -374,29 +366,26 @@
                save
             </button>
             <SaveEntry
-               :id="appState.currentSave"
+               :id="state.currentSave"
                :description="
-                  state.saveMetaData[appState.currentSave.type][
-                     appState.currentSave.name
+                  state.saveMetaData[state.currentSave.type][
+                     state.currentSave.name
                   ]
                "
                :show-description="true"
                :deleted="false"
             ></SaveEntry>
             <button
-               v-if="
-                  !defined(state.copying) &&
-                  SaveId.eq(appState.currentSave, appState.selectedSave)
-               "
+               v-if="!defined(state.copying) && !previewing"
                class="copy"
-               @click="copy(appState.currentSave)"
+               @click="copy(state.currentSave)"
             >
                copy
             </button>
             <button
                class="share"
-               v-if="SaveId.eq(appState.currentSave, appState.selectedSave)"
-               @click="share(appState.currentSave)"
+               v-if="!previewing"
+               @click="share(state.currentSave)"
             >
                share
             </button>
@@ -412,7 +401,7 @@
                   :description="description"
                   :show-description="state.showDescriptions"
                   :deleted="deleted"
-                  @click="selectSave(id, deleted)"
+                  @click="selectSave(id)"
                ></SaveEntry>
             </div>
          </div>
@@ -428,7 +417,7 @@
                   :description="description"
                   :show-description="state.showDescriptions"
                   :deleted="deleted"
-                  @click="selectSave(id, deleted)"
+                  @click="selectSave(id)"
                ></SaveEntry>
             </div>
          </div>
@@ -436,15 +425,15 @@
          <div
             class="saveColumn"
             v-if="
-               !SaveId.eq(appState.selectedSave, appState.currentSave) &&
-               appState.selectedSave.type !== 'library' &&
-               !appState.selectedSaveIsDeleted
+               previewing &&
+               state.selectedSave.type !== 'library' &&
+               !selectedSaveIsDeleted
             "
          >
             <div class="previewHeader">
                Preview of
-               {{ appState.selectedSave.type }} save
-               {{ appState.selectedSave.name }}
+               {{ state.selectedSave.type }} save
+               {{ state.selectedSave.name }}
             </div>
             <!-- <button
                v-if="!SaveId.eq(appState.currentSave, EmptySaveId)"
@@ -460,29 +449,26 @@
             >
                Overwrite with current save
             </button> -->
-            <button
-               class="load"
-               @click="load(appState.selectedSave, 'restore')"
-            >
+            <button class="load" @click="load(state.selectedSave, 'restore')">
                load
             </button>
             <button
                v-if="!defined(state.copying)"
                class="copy"
-               @click="copy(appState.selectedSave)"
+               @click="copy(state.selectedSave)"
             >
                copy
             </button>
-            <button class="share" @click="share(appState.selectedSave)">
+            <button class="share" @click="share(state.selectedSave)">
                share
             </button>
             <button
                v-if="
-                  !SaveId.eq(appState.selectedSave, EmptySaveId) &&
-                  !SaveId.eq(appState.selectedSave, DefaultSaveId)
+                  !SaveId.eq(state.selectedSave, EmptySaveId) &&
+                  !SaveId.eq(state.selectedSave, DefaultSaveId)
                "
                class="delete"
-               @click="deleteSave(appState.selectedSave)"
+               @click="deleteSave(state.selectedSave)"
             >
                delete
             </button>
@@ -493,26 +479,21 @@
             class="saveColumn"
             v-if="
                previewing &&
-               appState.selectedSave.type !== 'library' &&
-               appState.selectedSaveIsDeleted
+               state.selectedSave.type !== 'library' &&
+               selectedSaveIsDeleted
             "
          >
             <div>
-               {{ appState.selectedSave.type }}:
-               {{ appState.selectedSave.name }}
+               {{ state.selectedSave.type }}:
+               {{ state.selectedSave.name }}
             </div>
 
-            <button
-               @click="
-                  restoreDeletedSave(appState.selectedSave);
-                  unselectSave();
-               "
-            >
+            <button @click="restoreDeletedSave(state.selectedSave)">
                restore
             </button>
             <button
                @click="
-                  purgeDeletedSave(appState.selectedSave);
+                  purgeDeletedSave(state.selectedSave);
                   unselectSave();
                "
             >
@@ -532,7 +513,7 @@
                   :description="description"
                   :show-description="state.showDescriptions"
                   :deleted="deleted"
-                  @click="selectSave(id, deleted)"
+                  @click="selectSave(id)"
                ></SaveEntry>
             </div>
          </div>
@@ -540,12 +521,12 @@
             class="saveColumn"
             v-if="
                previewing &&
-               appState.selectedSave.type == 'library' &&
-               !appState.selectedSaveIsDeleted
+               state.selectedSave.type == 'library' &&
+               !selectedSaveIsDeleted
             "
          >
-            <div class="previewHeader">{{ appState.selectedSave.name }}</div>
-            <div>{{ libraryDescriptions.get(appState.selectedSave.name) }}</div>
+            <div class="previewHeader">{{ state.selectedSave.name }}</div>
+            <div>{{ libraryDescriptions.get(state.selectedSave.name) }}</div>
             <button @click="unselectSave">Close</button>
          </div>
          <div

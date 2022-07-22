@@ -17,7 +17,6 @@ import {
    parseExpr,
    isGraphable,
 } from '../js/expressions';
-import { fromSaveRep, SaveRep } from 'js/env/SaveRep';
 import DisplayData from './DisplayData.vue';
 import DisplayGraph from './DisplayGraph.vue';
 import { on } from '../js/Either';
@@ -28,7 +27,7 @@ import GameEditor from './game/GameEditor.vue';
 import GameDisplay from './game/GameDisplay.vue';
 import GameMakerTutorial from './game/GameMakerTutorial.vue';
 import GameMetaData from './game/GameMetaData.vue';
-import { SaveId, getStorageKey } from '../js/SaveManager';
+import { getStorageKey } from '../js/SaveManager';
 import TextExpr from './TextExpr.vue';
 import TextJsExpr from './TextJsExpr.vue';
 import { mkExprEnv } from '../js/env/exprEnv';
@@ -72,7 +71,7 @@ export const graphOptions: FunctionPlotOptions = {
 
 let firstInit = true;
 let gameLoopRunning = false;
-export function init() {
+export function initUI() {
    if (firstInit) {
       persistantStateKeys.forEach(loadStateProp);
 
@@ -92,6 +91,9 @@ export function init() {
       gameLoopRunning = true;
       window.requestAnimationFrame(gameLoop);
    }
+
+   graph.resetZoom(Interval(-10, 10), 0);
+   graph.drawLines();
 }
 
 export function initGraph() {
@@ -115,19 +117,16 @@ export const state = reactive({
    error: undefined as undefined | string,
    info: '',
    showHelp: false,
-   loading: false,
    modified: false,
    showGeneralOptions: false,
    showMenuBar: false,
    displayComponent: 'DisplayGraph' as keyof typeof displayComponents,
    exprComponent: 'expr' as 'text' | 'expr',
-   currentSave: SaveId('local', 'Default'),
-   selectedSave: SaveId('local', 'Default'),
-   selectedSaveIsDeleted: false,
    tickTime: 0.1,
    freeMin: 1,
    freeMax: 10,
    showHiddenExpressions: false,
+   saveEditable: false,
 });
 
 // yes, getting the keys of an object literal is silly
@@ -284,26 +283,6 @@ export function addImportExpression(expr: ValidExpr) {
 }
 export function hasImportExpression(expr: ValidExpr): boolean {
    return defined(importExpressions[expr.name]);
-}
-
-export function loadEnv(args: { saveRep: SaveRep }) {
-   if (!defined(graph)) {
-      initGraph();
-   }
-
-   state.env = fromSaveRep(args.saveRep);
-
-   state.modified = Object.entries(importExpressions).length === 0;
-   for (const name in importExpressions) {
-      const expr = importExpressions[name];
-      state.newExpr = expr.node.toString();
-      checkNewExpr();
-      addToEnv(state.newExpr);
-      delete importExpressions[name];
-   }
-
-   state.newExpr = '';
-   checkNewExpr();
 }
 
 export function refreshDatumEnvironments() {

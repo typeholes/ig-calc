@@ -29,5 +29,5 @@ export default defineConfig({
       //    json()
    ],
    define: { global: {} },
-   build: { target: 'esnext', sourcemap: true },
+   build: { target: 'esnext', sourcemap: true, minify: false },
 });
