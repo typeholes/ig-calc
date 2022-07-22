@@ -99,13 +99,12 @@
             >
                {{ props.name }}
             </span>
-            <o-input
+            <input
                class="gridCheck"
                type="checkbox"
                v-model="graphState.showGraph"
                :id="`show:${name}`"
-            >
-            </o-input>
+            />
             <input
                class="colorPicker"
                type="color"
