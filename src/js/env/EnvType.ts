@@ -99,6 +99,7 @@ export function EnvType<V>({
          } else {
             delete graph.options.data[key];
          }
+         if (!appState.runTimer) { graph.drawLines()}
       },
       colorGraph: (key: string, color: `#${string}`) => {
          const item = items.get(key);
@@ -112,6 +113,7 @@ export function EnvType<V>({
          if (key in graph.options.data) {
             graph.options.data[key].color = color;
          }
+         if (!appState.runTimer) { graph.drawLines()}
       },
       getState: (key: string) => {
          const item = items.get(key);
