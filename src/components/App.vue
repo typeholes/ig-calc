@@ -1,7 +1,7 @@
 <script setup lang="ts">
    import { globalTheme } from '../js/theme';
    import { reactive } from 'vue';
-   import { appTabs as tabs } from './uiUtil';
+   import { appTabs as tabs, state as appState } from './uiUtil';
 
    const theme = globalTheme ?? {};
 
@@ -17,12 +17,28 @@
 </script>
 
 <template>
-   <div class="main">
+   <div class="main firstSmall lastSmall">
+      <div class="col1">
+         <o-field>
+            <o-switch
+               v-model="appState.exprBarExpanded"
+               expand
+            ></o-switch>
+         </o-field>
+      </div>
       <template v-for="(_, tabName, col) in tabs">
-         <button :class="`tab col${col + 1}`" @click="setTab(tabName)">
+         <button :class="`tab col${col + 2}`" @click="setTab(tabName)">
             {{ tabName }}
          </button>
       </template>
+      <div class="col4">
+         <o-field>
+            <o-switch
+               v-model="appState.saveBarExpanded"
+               expand
+            ></o-switch>
+         </o-field>
+      </div>
       <div class="pane">
          <KeepAlive :include="tabs.Calc.value.name">
             <component :is="state.tab"></component>
@@ -52,14 +68,19 @@
 
    .main {
       display: grid;
-      grid-auto-columns: 1fr;
+      grid-template-columns: min-content 1fr 1fr min-content;
       row-gap: 5px;
+   }
+
+   .transparent {
+      background-color: aliceblue;
+      opacity: 90%;
    }
 
    .pane {
       grid-row: 2;
       grid-column-start: 1;
-      grid-column-end: v-bind(numTabs() + 1);
+      grid-column-end: v-bind(numTabs() + 3);
    }
 
    .tab {
@@ -115,13 +136,21 @@
       gap: 3px;
       width: 100%;
    }
+
    .cols {
       display: flex;
       flex-direction: row;
       gap: 3px;
       margin: 3px;
    }
+   .cols.wrap {
+      flex-wrap: wrap;
+   }
 
+   .firstSmall > :first-child {
+      flex: 0 1 fit-content;
+      margin-right: auto;
+   }
    .lastSmall > :last-child {
       flex: 0 1 fit-content;
       margin-left: auto;
@@ -140,4 +169,57 @@
    /* body {
     overflow: hidden;
    } */
+
+   .o-side {
+      backdrop-filter: blur(80%);
+      isolation: isolate;
+      display: contents;
+   }
+
+   .o-side__content--mini {
+      background-color: #f22222;
+      color: white;
+      width: 10%;
+      isolation: isolate;
+   }
+   .o-side__content {
+      background-color: #222222;
+      color: white;
+
+      mix-blend-mode: lighten;
+   }
+
+   .o-side__content select {
+      background-color: black;
+      color: white;
+   }
+   .o-side__content input {
+      background-color: transparent;
+      color: white;
+   }
+   .o-side__content .tex {
+      opacity: 100%;
+   }
+
+   .GraphExpr {
+      background-color: black;
+   }
+
+   .transparent {
+      background-color: black;
+   }
+
+   .o-side .expr-bar {
+      background-color: black;
+      margin-top: 3%;
+   }
+
+   .save-area {
+      position: absolute;
+      bottom: -1px;
+   }
+
+   .o-switch .o-switch__check {
+      background-color: rgb(82, 87, 90);
+   }
 </style>

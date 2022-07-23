@@ -93,7 +93,7 @@
       v-if="!graphState.hidden || appState.showHiddenExpressions"
    >
       <div class="rows">
-         <div class="cols">
+         <div class="cols wrap">
             <span
                v-if="!props.name.startsWith('anon:') && props.name !== '__tmp'"
             >
@@ -112,6 +112,7 @@
                :id="`color:${name}`"
             />
          </div>
+         <template v-if="appState.exprBarExpanded">
          <o-field style="width: 98%" v-if="appState.saveEditable">
             <o-input
                style="margin-left: 7px"
@@ -139,8 +140,9 @@
                ).toJSON()
             }}</span>
          </div>
+         </template>
       </div>
-      <div class="rows">
+      <div class="rows" v-if="appState.exprBarExpanded">
          <button class="menuButton" @click="state.showMenu = !state.showMenu">
             &#9776;
          </button>

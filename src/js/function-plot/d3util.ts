@@ -1,27 +1,19 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/ban-ts-comment */
-import { select, } from 'd3-selection';
+import { select } from 'd3-selection';
 import { line } from 'd3-shape';
 import { axisBottom, axisLeft } from 'd3-axis';
 import { scaleLinear, scaleLog } from 'd3-scale';
-import {
-   zoom as d3Zoom,
-   D3ZoomEvent,
-   zoomIdentity,
-} from 'd3-zoom';
+import { zoom as d3Zoom, D3ZoomEvent, zoomIdentity } from 'd3-zoom';
 import { interpolateRound } from 'd3-interpolate';
 import { FunctionPlotData, FunctionPlotDatum } from './FunctionPlotDatum';
-import {
-   Interval,
-   reverseInterval,
-   unInterval,
-} from './types';
+import { Interval, reverseInterval, unInterval } from './types';
 import {
    defaultFunctionPlotOptionsAxis,
    FunctionPlotOptions,
 } from './FunctionPlotOptions';
 import { Rect } from '../Rect';
-import { isValidPoint, } from './utils';
+import { isValidPoint } from './utils';
 import { Expand } from '../util';
 
 const margins = { left: 10, right: 20, top: 30, bottom: 10 };
@@ -116,7 +108,7 @@ export function mkGraph(options: FunctionPlotOptions) {
       .attr(
          'transform',
          `translate(${canvasRect.right()},-${canvasRect.top()}) `
-      ); //
+      );
 
    root()
       .selectAll('text.title')
@@ -221,11 +213,14 @@ export function mkGraph(options: FunctionPlotOptions) {
             .text(options.title ?? '');
       },
       drawAxis: () => {
-         root()
+         const x = root()
             .select('.x.axis')
             //@ts-ignore
-            .call(xAxis)
-            .selectAll('.tick')
+            .call(xAxis);
+
+         x.selectAll('.domain').attr('stroke', 'black');
+
+         x.selectAll('.tick')
             .data(function () {
                return select(this).selectChildren().select('text');
             })
@@ -234,18 +229,23 @@ export function mkGraph(options: FunctionPlotOptions) {
                d && +select(d).text() === 0 ? '.5' : '.2'
             );
 
-         root()
+            x.selectAll('.tick').select('text').attr('opacity', '.3');
+         const y = root()
             .select('.y.axis')
             //@ts-ignore
-            .call(yAxis)
-            .selectAll('.tick')
+            .call(yAxis);
+
+         y.selectAll('.domain').attr('stroke', 'black');
+         y.selectAll('.tick')
             .data(function () {
                return select(this).selectChildren().select('text');
             })
             .select('line')
             .attr('opacity', (d) =>
                d && +select(d).text() === 0 ? '.5' : '.2'
-            );
+         );
+            
+            y.selectAll('.tick').select('text').attr('opacity', '.3');
       },
       drawLines: () => {
          root()

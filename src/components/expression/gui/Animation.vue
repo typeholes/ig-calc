@@ -75,7 +75,7 @@
          appState.env.expression.set(fnName, fn, { hidden: true });
          appState.env.items.get(fnName)!.hidden = true;
       }
-      appState.env.animated.set(props.name, graphState.value, { hidden:  true});
+      appState.env.animated.set(props.name, graphState.value, { hidden: true });
       refreshTex();
    }
 
@@ -89,7 +89,7 @@
       v-if="name !== 'time'"
    >
       <div class="rows">
-         <div class="cols">
+         <div class="cols wrap">
             <span
                v-if="!props.name.startsWith('anon:') && props.name !== '__tmp'"
             >
@@ -108,47 +108,51 @@
                :id="`color:${name}`"
             />
          </div>
-         <div class="cols lastSmall" v-if="appState.saveEditable">
-            <o-field label="From">
-               <o-input
-                  type="number"
-                  v-model="graphState.value.from"
-                  @change="updateAnimation"
-               ></o-input>
-            </o-field>
-            <o-field label="To">
-               <o-input
-                  type="number"
-                  v-model="graphState.value.to"
-                  @change="updateAnimation"
-               ></o-input>
-            </o-field>
-            <o-field label="Period">
-               <o-input
-                  type="number"
-                  v-model="graphState.value.period"
-                  @change="updateAnimation"
-               ></o-input>
-            </o-field>
-            <o-field label="Type">
-               <!-- TODO drive this from the periodic library -->
-               <o-select
-                  v-model="graphState.value.fnName"
-                  @change="updateAnimation"
-               >
-                  <option value="sinal">sinal</option>
-                  <option value="zigZag">zigZag</option>
-               </o-select>
-            </o-field>
-         </div>
-         <div class="cols">
-            <span class="tex" :id="'tex_' + name">{{ state.toString() }} </span>
-         </div>
-         <div class="cols" v-if="graphState.description">
-            <span class="fullRow">{{ graphState.description }}</span>
-         </div>
+         <template v-if="appState.exprBarExpanded">
+            <div class="cols lastSmall" v-if="appState.saveEditable">
+               <o-field label="From">
+                  <o-input
+                     type="number"
+                     v-model="graphState.value.from"
+                     @change="updateAnimation"
+                  ></o-input>
+               </o-field>
+               <o-field label="To">
+                  <o-input
+                     type="number"
+                     v-model="graphState.value.to"
+                     @change="updateAnimation"
+                  ></o-input>
+               </o-field>
+               <o-field label="Period">
+                  <o-input
+                     type="number"
+                     v-model="graphState.value.period"
+                     @change="updateAnimation"
+                  ></o-input>
+               </o-field>
+               <o-field label="Type">
+                  <!-- TODO drive this from the periodic library -->
+                  <o-select
+                     v-model="graphState.value.fnName"
+                     @change="updateAnimation"
+                  >
+                     <option value="sinal">sinal</option>
+                     <option value="zigZag">zigZag</option>
+                  </o-select>
+               </o-field>
+            </div>
+            <div class="cols">
+               <span class="tex" :id="'tex_' + name"
+                  >{{ state.toString() }}
+               </span>
+            </div>
+            <div class="cols" v-if="graphState.description">
+               <span class="fullRow">{{ graphState.description }}</span>
+            </div>
+         </template>
       </div>
-      <div class="rows">
+      <div class="rows" v-if="appState.exprBarExpanded">
          <button class="menuButton" @click="state.showMenu = !state.showMenu">
             &#9776;
          </button>

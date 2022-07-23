@@ -3,7 +3,6 @@
    import { computed, onMounted } from 'vue';
    import HelpScreen from './HelpScreen.vue';
    import Vsplitter from './Vsplitter.vue';
-   import Hsplitter from './Hsplitter.vue';
    import SaveWidget from './SaveWidget.vue';
    import GeneralOptions from './GeneralOptions.vue';
 
@@ -11,9 +10,11 @@
 
    import NewExpression from './NewExpression.vue';
 
+   import DisplayGraph from './DisplayGraph.vue';
+   import DisplayData from './DisplayData.vue';
+
    import {
       state,
-      displayComponents,
       initUI,
       lookupGraphComponent,
       loadPersistantOptions,
@@ -52,12 +53,14 @@
       //      const names = ISet(state.env.names);
       return []; //names.filter((name) => graph.options.data[name]?.show).toArray();
    });
+
+   function saveCollapse() {}
 </script>
 
 <template>
    <div class="ig-calc">
       <FakeCursor></FakeCursor>
-      <div class="menuBar">
+      <div class="menuBar" v-if="false">
          <button class="menuButton" @click="showMenu">&#9776;</button>
          <div v-if="state.showMenuBar">
             <br />
@@ -79,91 +82,88 @@
             </div>
          </div>
       </div>
-      <Hsplitter
-         top-col-spec="1fr"
-         bottom-col-spec="1fr"
-         v-model:collapsed="state.hideBottom"
-      >
-         <template #top>
-            <Vsplitter
-               left-col-spec="1fr"
-               right-col-spec="1fr"
-               v-model:collapsed="state.hideLeft"
-            >
-               <template #left>
-                  <HelpScreen
-                     class="LeftPopover"
-                     v-if="state.showHelp"
-                  ></HelpScreen>
-                  <GeneralOptions
-                     class="LeftPopover"
-                     v-if="state.showGeneralOptions"
-                  ></GeneralOptions>
-                  <div class="cols lastSmall">
-                     <div>
-                        <label for="exprComponent"
-                           >Display expressions as</label
-                        >
-                        <select
-                           id="exprComponent"
-                           v-model="state.exprComponent"
-                        >
-                           <option value="expr">Expression</option>
-                           <option value="text">Plain Text</option>
-                           <option value="js">JavaScript (experimental)</option>
-                        </select>
-                     </div>
-                     <div>
-                        <o-checkbox v-model="state.runTimer"
-                           >Run Timer</o-checkbox
-                        >
-                     </div>
+      <section class="transparent">
+         <o-sidebar
+            :fullwidth="false"
+            :fullheight="true"
+            :overlay="false"
+            :can-cancel="false"
+            content-class="expr-bar"
+            :reduce="!state.exprBarExpanded"
+            open
+         >
+            <div class="transparent">
+               <HelpScreen
+                  class="LeftPopover"
+                  v-if="state.showHelp"
+               ></HelpScreen>
+               <GeneralOptions
+                  class="LeftPopover"
+                  v-if="state.showGeneralOptions"
+               ></GeneralOptions>
+               <div class="cols lastSmall" v-if="state.exprBarExpanded">
+                  <div>
+                     <label for="exprComponent">Display expressions as</label>
+                     <select id="exprComponent" v-model="state.exprComponent">
+                        <option value="expr">Expression</option>
+                        <option value="text">Plain Text</option>
+                        <option value="js">JavaScript (experimental)</option>
+                     </select>
                   </div>
-                  <div
-                     class="expressions"
-                     :key="name"
-                     v-for="name in state.env.names"
-                  >
-                     <component
-                        :is="lookupGraphComponent(name)"
-                        :name="name"
-                        :allow-copy="false"
-                        :allow-edit="false"
-                     ></component>
+                  <div>
+                     <o-checkbox v-model="state.runTimer">Run Timer</o-checkbox>
                   </div>
-                  <div class="expressions" v-if="state.saveEditable">
-                     <NewExpression></NewExpression>
-                  </div>
-               </template>
-               <template #right>
-                  <KeepAlive>
-                     <component
-                        :is="displayComponents[state.displayComponent]"
-                        :names="exprNames"
-                     ></component>
-                  </KeepAlive>
-               </template>
-            </Vsplitter>
-         </template>
-         <template #bottom>
-            <Vsplitter
-               collapse-direction="right"
-               left-col-spec="1fr"
-               right-col-spec="1fr"
-               v-model:collapsed="state.hideLibrary"
-            >
-               <template #right>
-                  TODO: format this <br />
-                  {{ knownSymbols }}
-               </template>
-               <template #left>
-                  <div class="saveWidget">
-                     <SaveWidget></SaveWidget>
-                  </div>
-               </template>
-            </Vsplitter>
-         </template>
-      </Hsplitter>
+               </div>
+               <div
+                  class="expressions"
+                  :key="name"
+                  v-for="name in state.env.names"
+               >
+                  <component
+                     :is="lookupGraphComponent(name)"
+                     :name="name"
+                     :allow-copy="false"
+                     :allow-edit="false"
+                  ></component>
+               </div>
+               <div
+                  class="expressions"
+                  v-if="state.saveEditable && state.exprBarExpanded"
+               >
+                  <NewExpression></NewExpression>
+               </div>
+            </div>
+         </o-sidebar>
+      </section>
+      <div class="rightward">
+         <o-tabs type="toggle" position="right" vertical variant="success">
+            <o-tab-item label="Graph">
+               <DisplayGraph></DisplayGraph>
+            </o-tab-item>
+            <o-tab-item label="Grid">
+               <DisplayData :names="exprNames"></DisplayData>
+            </o-tab-item>
+         </o-tabs>
+      </div>
+      <o-collapse class="save-area" :open="false">
+         <template #trigger="saveCollapse"> saves here </template>
+         <Vsplitter
+            collapse-direction="right"
+            left-col-spec="1fr"
+            right-col-spec="1fr"
+            v-model:collapsed="state.hideLibrary"
+         >
+            <template #right>
+               TODO: format this <br />
+               {{ knownSymbols }}
+            </template>
+            <template #left>
+               <div class="saveWidget">
+                  <SaveWidget></SaveWidget>
+               </div>
+            </template>
+         </Vsplitter>
+      </o-collapse>
       <!-- 
     <pre>
         {{ JSON.stringify(getExpressionUiState(), null, "\t") }}
@@ -220,5 +220,10 @@
 
    .newExpr {
       width: 99.7%;
+   }
+
+   .rightward {
+      position: absolute;
+      right: -1px;
    }
 </style>

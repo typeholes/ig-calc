@@ -72,10 +72,6 @@ refreshTex();
       }
    );
 
-   function toggleAnimate() {
-      //TODO
-   }
-
    const isImported = computed(() => false); // TODO
 
    const slider = reactive({ min: -50, max: 50 });
@@ -106,8 +102,9 @@ refreshTex();
       v-if="name !== 'time' || appState.showHiddenExpressions"
    >
       <div class="rows">
-         <div class="cols">
-            <span
+         <div class="cols wrap">
+            <span 
+            :style="{display: appState.exprBarExpanded ? 'inline' : 'block'}"
                v-if="!props.name.startsWith('anon:') && props.name !== '__tmp'"
             >
                {{ props.name }}
@@ -125,9 +122,11 @@ refreshTex();
                :id="`color:${name}`"
             />
          </div>
+         <template v-if="appState.exprBarExpanded">
          <div class="cols lastSmall" v-if="appState.saveEditable">
             <o-field class="fullRow" label="">
                <o-slider
+               expand
                   v-model="graphState.value"
                   :step="0.01"
                   :min="slider.min"
@@ -152,9 +151,6 @@ refreshTex();
                   </o-slider-tick>
                </o-slider>
             </o-field>
-            <button @click="toggleAnimate">
-               {{ state.animate ? 'Make Constant' : 'Animate' }}
-            </button>
          </div>
          <div class="cols">
             <span class="tex" :id="'tex_' + name">{{ state.toString() }} </span>
@@ -162,8 +158,9 @@ refreshTex();
          <div class="cols" v-if="graphState.description">
             <span class="fullRow">{{ graphState.description }}</span>
          </div>
+         </template>
       </div>
-      <div class="rows">
+      <div class="rows" v-if="appState.saveEditable && appState.exprBarExpanded">
          <button class="menuButton" @click="state.showMenu = !state.showMenu">
             &#9776;
          </button>
@@ -269,4 +266,5 @@ refreshTex();
    input:invalid {
       background-color: #550000;
    }
+   
 </style>
