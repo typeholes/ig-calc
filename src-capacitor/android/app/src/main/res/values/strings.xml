@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">IG Calc</string>
+    <string name="title_activity_main">IG Calc</string>
+    <string name="package_name">org.igcalc.typeholes.app</string>
+    <string name="custom_url_scheme">org.igcalc.typeholes.app</string>
+</resources>
