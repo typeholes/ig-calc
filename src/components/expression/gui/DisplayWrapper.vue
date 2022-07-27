@@ -8,6 +8,10 @@ import { EnvTypeTag } from 'src/js/env/EnvType';
 import DisplayAnimation from './DisplayAnimation.vue';
 import DisplayConstant from './DisplayConstant.vue';
 import DisplayExpression from './DisplayExpresssion.vue';
+import AColor from 'src/components/qDefaulted/AColor.vue';
+import ABtnDropdown from 'src/components/qDefaulted/ABtnDropdown.vue';
+
+import { matColorLens } from '@quasar/extras/material-icons';
 
 interface Props {
   name: string;
@@ -59,12 +63,13 @@ onUpdated(refreshTex);
           {{ props.name }}
         </span>
         <a-toggle v-model="graphState.showGraph" :id="`show:${name}`" />
-        <input
-          class="colorPicker"
-          type="color"
-          v-model="graphState.color"
-          :id="`color:${name}`"
-        />
+        <a-btn-dropdown
+          :dropdown-icon="matColorLens"
+          label="&nbsp'&nbsp;&nbsp;"
+          class="color"
+        >
+          <a-color no-header v-model="graphState.color" :id="`color:${name}`" />
+        </a-btn-dropdown>
       </div>
       <template v-if="appState.exprBarExpanded">
         <q-tab-panels :model-value="props.type">
@@ -108,76 +113,12 @@ onUpdated(refreshTex);
   </div>
 </template>
 
-<style scoped>
-.GraphExpr {
-  border: 1px solid bisque;
-  border-radius: 4px;
+<style>
+.color {
+  background-color: v-bind('graphState.color');
 }
-
-.menuButton {
-  background-color: rgb(89, 92, 96);
-  padding: 0 1px 0;
-}
-
-.menuButton:disabled {
-  background-color: rgb(109, 92, 96);
-}
-
-:deep(mjx-container) {
-  background: none;
-  top: 1px;
-}
-
-.tex {
-  overflow: auto;
-  align-self: center;
-  width: 100%;
-  background-color: rgb(11, 37, 37);
-}
-
-.gridCheck {
-  width: 15px;
-  align-self: center;
-}
-
-.imported {
-  background-color: rgb(43, 51, 36);
-}
-
-button:disabled {
-  background-color: rgb(59, 20, 20);
-}
-
-fullRow {
-  flex: 99 0 auto;
-}
-
-.rightward {
-  margin-left: auto;
-}
-
-.sliderCap {
-  /* text-decoration: underline #445e00; */
-  width: max-content;
-  margin-top: 5px;
-  padding: 0px 4px;
-  border: 1px solid #595958;
-  border-radius: 10px;
-}
-
-.sliderCap.left {
-  left: 90%;
-  /* top: -15px; */
-  position: absolute;
-}
-
-.sliderCap.right {
-  right: 90%;
-  /* top: -15px; */
-  position: absolute;
-}
-
-input:invalid {
-  background-color: #550000;
+.color .q-icon {
+  background-color: black !important;
+  border-radius: 100px;
 }
 </style>

@@ -1,17 +1,13 @@
 <script>
-import { QBtn } from 'quasar';
+import { QBtnDropdown } from 'quasar';
 import { defineComponent } from 'vue';
 
-const { props } = QBtn;
+const { props } = QBtnDropdown;
 
 export default defineComponent({
   props: {
     ...props,
     glossy: {
-      type: Boolean,
-      default: true,
-    },
-    push: {
       type: Boolean,
       default: true,
     },
@@ -24,6 +20,6 @@ export default defineComponent({
       default: true,
     },
   },
-  setup: QBtn.setup,
+  setup: QBtnDropdown.setup,
 });
 </script>

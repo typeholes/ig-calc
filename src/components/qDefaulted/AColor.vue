@@ -1,20 +1,12 @@
 <script>
-import { QBtn } from 'quasar';
+import { QColor } from 'quasar';
 import { defineComponent } from 'vue';
 
-const { props } = QBtn;
+const { props } = QColor;
 
 export default defineComponent({
   props: {
     ...props,
-    glossy: {
-      type: Boolean,
-      default: true,
-    },
-    push: {
-      type: Boolean,
-      default: true,
-    },
     dense: {
       type: Boolean,
       default: true,
@@ -24,6 +16,6 @@ export default defineComponent({
       default: true,
     },
   },
-  setup: QBtn.setup,
+  setup: QColor.setup,
 });
 </script>
