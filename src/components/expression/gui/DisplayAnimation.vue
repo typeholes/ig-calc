@@ -76,7 +76,7 @@ function updateAnimation() {
     <!-- TODO drive this from the periodic library -->
     <a-select
       v-model="state.fnName"
-      @change="updateAnimation"
+      @update:model-value="updateAnimation"
       :options="['sinal', 'zigZag']"
     />
   </div>
