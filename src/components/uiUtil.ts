@@ -1,5 +1,3 @@
-import GraphConst from './expression/gui/DisplayConstant.vue';
-import GraphAnim from './expression/gui/DisplayAnimation.vue';
 import GraphExpr from './expression/gui/DisplayExpresssion.vue';
 import { defined, isBoolean, isNumber } from '../js/util';
 import { Map as IMap } from 'immutable';
@@ -183,7 +181,7 @@ export function checkNewExpr() {
     Left: (err) => {
       state.error = err.message;
     },
-    Right: ([expr, _]) => {
+    Right: ([expr, ]) => {
       state.error = undefined;
       state.parseResult = expr;
       const datum = graph.options.data['__tmp'];
@@ -212,7 +210,7 @@ export function addToEnv(s: string, showExpr = true) {
       state.parseResult = undefined;
       return undefined;
     },
-    Right: ([newExpr, _]) => {
+    Right: ([newExpr, ]) => {
       newColor();
       graph.options.data[name] = {
         ...graph.options.data['__tmp'],
@@ -259,7 +257,7 @@ export function addNewExpr(name: string, newExpr: string) {
     Left: (err) => {
       throw err;
     },
-    Right: ([expr, _]) => {
+    Right: ([expr, ]) => {
       const datum = graph.options.data[name];
       graph.options.data[name] = ValidExpr.toDatum(
         expr,
@@ -290,8 +288,6 @@ export function refreshDatumEnvironments() {
     );
   });
 }
-
-
 
 export const appTabs = shallowReactive({
   // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
@@ -330,13 +326,13 @@ const appGameTabs = {
 export function enableGameTabs() {
   for (const name in appGameTabs) {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    appTabs[name] = appGameTabs[name];
+    //TODO:    appTabs[name] = appGameTabs[name];
   }
 }
 
 export function disableGameTabs() {
   for (const name in appGameTabs) {
-    delete appTabs[name];
+    //TODO:    delete appTabs[name];
   }
 }
 

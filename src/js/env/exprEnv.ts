@@ -44,7 +44,13 @@ export function defaultEnvItem(
    };
 }
 
-export interface ExprEnv {
+
+type ExprEnvIndexable = {
+   constant: EnvType<number>;
+   animated: EnvType<Animation>;
+   expression: EnvType<EnvExpr>;
+}
+export interface ExprEnv extends ExprEnvIndexable {
    constant: EnvType<number>;
    animated: EnvType<Animation>;
    expression: EnvType<EnvExpr>;

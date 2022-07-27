@@ -4,10 +4,16 @@ import { EnvTypeTag } from '../js/env/EnvType';
 import { state as appState } from './uiUtil';
 import { EnvExpr } from '../js/env/EnvExpr';
 import { Animation } from '../js/env/Animation';
+import AInput from './qDefaulted/AInput.vue';
+import ABtn from './qDefaulted/ABtn.vue';
 
 const state = reactive({
   name: '',
 });
+
+function validateName(name: string) {
+  return appState.env.items.has(name) ? 'Name already exists' : true;
+}
 
 const disableAdd = computed(
   () =>
@@ -17,6 +23,9 @@ const disableAdd = computed(
 );
 
 function addExpr(type: EnvTypeTag) {
+  if (state.name === '') {
+    return;
+  }
   const newName = state.name;
   state.name = '';
   if (type === 'constant') {
@@ -47,16 +56,25 @@ function buttonText(name: string, type: EnvTypeTag) {
 </script>
 
 <template>
-  <div class="cols NewExpr">
+  <div class="rows NewExpr">
     <div label-class="textCentered" label="New expression name">
-      <input v-model="state.name" />
+      <a-input v-model="state.name" outlined :rules="[validateName]" />
     </div>
-    <template :key="type" v-for="(_, type) in buttonTypeText">
-      <button :disabled="disableAdd" @click="addExpr(type)">
-        {{ buttonText(state.name, type) }}
-      </button>
-    </template>
-    <div></div>
+    <div class="cols">
+      <template :key="type" v-for="(_, type) in buttonTypeText">
+        <a-btn
+          :disable="disableAdd"
+          @click="addExpr(type)"
+          :label="buttonText(state.name, type)"
+          no-caps
+          color="primary"
+          glossy
+          rounded
+          push
+        />
+      </template>
+      <div></div>
+    </div>
   </div>
 </template>
 
