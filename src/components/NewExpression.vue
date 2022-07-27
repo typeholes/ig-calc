@@ -68,7 +68,6 @@ function buttonText(name: string, type: EnvTypeTag) {
           :label="buttonText(state.name, type)"
           no-caps
           color="primary"
-          glossy
           rounded
           push
         />

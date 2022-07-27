@@ -1,10 +1,10 @@
 <template>
   <q-layout view="hHh lpR lFr">
-    <q-header elevated class="bg-primary text-white" height-hint="98">
-      <q-toolbar>
+    <q-header elevated class="bg-transparent text-primary" height-hint="98">
+      <q-toolbar class="bg-transparent">
         <q-btn dense flat round icon="menu" @click="toggleLeftDrawer" />
 
-        <q-toolbar-title>
+        <q-toolbar-title class="bg-transparent">
           <q-tabs align="center" v-model="panel">
             <q-tab name="graph" label="Graph" />
             <q-tab name="grid" label="Grid" />
@@ -16,11 +16,11 @@
       </q-toolbar>
     </q-header>
 
-    <q-drawer show-if-above v-model="leftDrawerOpen" side="left" elevated>
+    <q-drawer show-if-above v-model="leftDrawerOpen" side="left" elevated overlay>
       <ExpressionPane />
     </q-drawer>
 
-    <q-drawer show-if-above v-model="rightDrawerOpen" side="right" elevated>
+    <q-drawer show-if-above v-model="rightDrawerOpen" side="right" elevated overlay>
       <!-- drawer content -->
     </q-drawer>
 

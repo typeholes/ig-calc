@@ -16,7 +16,7 @@ import { Rect } from '../Rect';
 import { isValidPoint } from './utils';
 import { Expand } from '../util';
 
-const margins = { left: 10, right: 20, top: 30, bottom: 10 };
+const margins = { left: 10, right: 20, top: 0, bottom: 10 };
 
 let nextGraphId = 0;
 export function mkGraph(options: FunctionPlotOptions) {

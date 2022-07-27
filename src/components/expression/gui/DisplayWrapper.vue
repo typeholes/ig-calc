@@ -115,7 +115,7 @@ onUpdated(refreshTex);
 
 <style>
 .color {
-  background-color: v-bind('graphState.color');
+  background-color: v-bind('graphState.color + "88"');
 }
 .color .q-icon {
   background-color: black !important;

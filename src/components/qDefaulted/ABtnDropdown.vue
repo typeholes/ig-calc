@@ -7,7 +7,7 @@ const { props } = QBtnDropdown;
 export default defineComponent({
   props: {
     ...props,
-    glossy: {
+    glassy: {
       type: Boolean,
       default: true,
     },

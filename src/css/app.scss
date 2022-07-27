@@ -1,27 +1,45 @@
 // app global css in SCSS form
 
-   .rows {
-      display: flex;
-      flex-direction: column;
-      gap: 3px;
-      width: 100%;
-   }
+.rows {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  width: 100%;
+}
 
-   .cols {
-      display: flex;
-      flex-direction: row;
-      gap: 3px;
-      margin: 3px;
-   }
-   .cols.wrap {
-      flex-wrap: wrap;
-   }
+.cols {
+  display: flex;
+  flex-direction: row;
+  gap: 3px;
+  margin: 3px;
+}
+.cols.wrap {
+  flex-wrap: wrap;
+}
 
-   .firstSmall > :first-child {
-      flex: 0 1 fit-content;
-      margin-right: auto;
-   }
-   .lastSmall > :last-child {
-      flex: 0 1 fit-content;
-      margin-left: auto;
-   }
+.firstSmall > :first-child {
+  flex: 0 1 fit-content;
+  margin-right: auto;
+}
+.lastSmall > :last-child {
+  flex: 0 1 fit-content;
+  margin-left: auto;
+}
+
+.q-drawer__content {
+  background-color: transparent;
+}
+
+aside.q-drawer {
+  background-color: transparent;
+  backdrop-filter: brightness(85%) blur(2px);
+  isolation: isolate;
+}
+
+.q-page-container {
+  padding-top: 0 !important;
+}
+
+.bg-transparent {
+  backdrop-filter: brightness(85%) blur(2px);
+}
