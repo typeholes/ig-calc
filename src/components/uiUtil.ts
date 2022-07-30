@@ -11,18 +11,12 @@ import { Interval } from '../js/function-plot/types';
 import { addTexElement, typeset } from '../js/typeset';
 import {
   ValidExpr,
-  getNodeName,
   parseExpr,
-  isGraphable,
 } from '../js/expressions';
 import { on } from '../js/Either';
 
 import IgCalc from './IgCalc.vue';
 import HelpScreen from './HelpScreen.vue';
-import GameEditor from './game/GameEditor.vue';
-import GameDisplay from './game/GameDisplay.vue';
-import GameMakerTutorial from './game/GameMakerTutorial.vue';
-import GameMetaData from './game/GameMetaData.vue';
 import { getStorageKey } from '../js/SaveManager';
 import TextExpr from './TextExpr.vue';
 import TextJsExpr from './TextJsExpr.vue';
