@@ -39,11 +39,6 @@ function updateAnimation() {
   graphState.value.period = isValidNumber(period) ? period : 1;
   graphState.value.fnName = state.fnName;
 
-  if (!defined(appState.env.expression.get(fnName))) {
-    const fn = libraries.get('periodic')?.expression[fnName][0];
-    assert(defined(fn), 'missing periodic function: ' + fnName);
-    appState.env.expression.set(fnName, fn, { hidden: true });
-  }
   appState.env.animated.set(props.name, graphState.value );
   props.update()
 }

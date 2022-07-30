@@ -16,6 +16,8 @@ import { Animation } from './Animation';
 import { EnvExpr } from './EnvExpr';
 import { inline } from '../math/mathUtil';
 import { state as appState } from '../../components/uiUtil';
+import { assert, defined } from '../util';
+import { libraries } from '../libraryValues';
 
 export type MathEnv = Record<string, MathNode | number>;
 
@@ -84,8 +86,8 @@ export function mkExprEnv(graph: () => Graph): ExprEnv {
     dirty: false,
     constant: EnvType({
       onChange: () => {
-        exprEnv.dirty = true
-      console.log( appState.env === exprEnv );
+        exprEnv.dirty = true;
+        console.log(appState.env === exprEnv);
       },
       names,
       tag: 'constant',
@@ -99,7 +101,9 @@ export function mkExprEnv(graph: () => Graph): ExprEnv {
       toTex: (v) => v.toString(),
     }),
     animated: EnvType({
-      onChange: () => { exprEnv.dirty = true},
+      onChange: () => {
+        exprEnv.dirty = true;
+      },
       names,
       tag: 'animated',
       data: animations,
@@ -107,13 +111,24 @@ export function mkExprEnv(graph: () => Graph): ExprEnv {
       mathEnv,
       getMathValue: (x) => Animation.toMathNode(x),
       items,
-      getDatum: (v, item) =>
-        datumGetter(item, nodeToEvalFn(Animation.toMathNode(v), exprEnv)),
+      getDatum: (v, item) => {
+        if (!defined(exprEnv.expression.get(v.fnName))) {
+          const fn = libraries.get('periodic')?.expression[v.fnName][0];
+          assert(defined(fn), 'missing periodic function: ' + v.fnName);
+          exprEnv.expression.set(v.fnName, fn, { hidden: true });
+        }
+        return datumGetter(
+          item,
+          nodeToEvalFn(Animation.toMathNode(v), exprEnv)
+        );
+      },
       getDependencies: () => ISet(['time']),
       toTex: Animation.toTex,
     }),
     expression: EnvType({
-      onChange: () => { exprEnv.dirty = true},
+      onChange: () => {
+        exprEnv.dirty = true;
+      },
       names,
       tag: 'expression',
       data: expressions,
