@@ -248,7 +248,7 @@ export function gameLoop(elapsedTime: number) {
   if (delta >= state.tickTime) {
     time = t;
     if (state.runTimer) {
-      state.env.constant.set('time', time);
+      state.env.constant.set('time', time, { hidden: true });
       if (defined(graph)) {
         graph.drawLines();
       }

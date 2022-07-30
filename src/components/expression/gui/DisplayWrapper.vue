@@ -23,6 +23,9 @@ const props = defineProps<Props>();
 const env = appState.env[props.type];
 const graphState = env.getState(props.name);
 
+const show =
+  appState.showHiddenExpressions || !appState.env.items.get(props.name)?.hidden;
+
 const state = reactive({
   showMenu: false,
 });
@@ -56,7 +59,7 @@ onUpdated(refreshTex);
 </script>
 
 <template>
-  <div class="cols GraphExpr lastSmall" v-if="name !== 'time'">
+  <div class="cols GraphExpr lastSmall" v-if="show">
     <div class="rows">
       <div class="cols wrap">
         <span v-if="!props.name.startsWith('anon:') && props.name !== '__tmp'">
