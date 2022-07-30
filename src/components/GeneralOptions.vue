@@ -2,8 +2,6 @@
 import { reactive } from "vue";
 import {
   graphOptions,
-  enableGameTabs,
-  disableGameTabs,
   state as appState,
 } from "./uiUtil";
 import GraphOptions from "./GraphOptions.vue";
@@ -14,14 +12,6 @@ const state = reactive({
   showGameTabs: false,
 });
 
-function toggleGameTabs() {
-  state.showGameTabs = !state.showGameTabs;
-  if (state.showGameTabs) {
-    enableGameTabs();
-  } else {
-    disableGameTabs();
-  }
-}
 </script>
 
 <template>
@@ -40,15 +30,6 @@ function toggleGameTabs() {
       class="row4 col2"
       type="checkbox"
       v-model="appState.showHiddenExpressions"
-    />
-    <span class="row4 col4">
-      Show Game Tabs ( Exprimental and often broken feature )</span
-    >
-    <input
-      class="row4 col5"
-      type="checkbox"
-      :value="state.showGameTabs"
-      @change="toggleGameTabs"
     />
   </div>
 </template>

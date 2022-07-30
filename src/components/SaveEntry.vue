@@ -1,52 +1,90 @@
 <script setup lang="ts">
-import { defineProps, reactive, ref } from "vue";
-import { SaveId } from "../js/SaveManager";
+import { computed, defineProps } from 'vue';
+import { SaveId } from '../js/SaveManager';
+
+import AExpansion from 'src/components/qDefaulted/AExpansion.vue';
+import ABtn from './qDefaulted/ABtn.vue';
+
+import {
+  matShare,
+  matContentCopy,
+  matSave,
+  matPreview,
+} from '@quasar/extras/material-icons';
+import {
+  state,
+  selectSave,
+  environments,
+  save,
+  restoreDeletedSave,
+  purgeDeletedSave,
+  unselectSave,
+  copy,
+  share,
+} from './SaveWidget';
+import { defined } from 'src/js/util';
 
 interface Props {
   id: SaveId;
-  description?: string;
-  showDescription?: boolean;
-  deleted: boolean;
+  isCurrent: boolean;
+  description: string;
 }
+
+const deleted = computed(() =>
+  defined(state.deletedSaves[props.id.type][props.id.name])
+);
+
+// const dirty = computed(() => {
+//   const dirty = environments.get(props.id)?.dirty;
+//   return dirty;
+// });
 
 const props = defineProps<Props>();
 </script>
 
 <template>
-  <div :class="{ saveEntry: true, deleted: props.deleted }">
-    <div>{{ id.name }}</div>
-    <div class="description" v-if="showDescription">{{ description }}</div>
-  </div>
+  <q-item :active="isCurrent" active-class="bg-primary text-white">
+    <q-item-section side>
+      <a-btn
+        :icon="matPreview"
+        color="primary"
+        v-if="!isCurrent"
+        @click="selectSave(id)"
+      />
+      <a-btn
+        :icon="matSave"
+        color="warning"
+        v-if="id.type !== 'library' && environments.get(props.id)?.dirty"
+        @click="save(id, state.saveMetaData[id.type][id.name])"
+      />
+    </q-item-section>
+
+    <q-item-section>
+      <a-expansion :label="id.name">
+        {{ description }}
+      </a-expansion>
+    </q-item-section>
+
+    <q-item-section side class="cols inline" v-if="id.type !== 'library'">
+      <template v-if="deleted">
+        <a-btn
+          color="primary"
+          @click="restoreDeletedSave(id)"
+          label="Restore"
+        />
+        <a-btn
+          color="primary"
+          @click="
+            purgeDeletedSave(id);
+            unselectSave();
+          "
+          label="Purge"
+        />
+      </template>
+      <template v-else>
+        <a-btn color="primary" @click="copy(id)" :icon="matContentCopy" />
+        <a-btn color="primary" @click="share(id)" :icon="matShare" />
+      </template>
+    </q-item-section>
+  </q-item>
 </template>
-
-<style scoped>
-.saveEntry {
-  display: flex;
-  flex-direction: column;
-  border: 1px solid rgb(108, 180, 243);
-  border-radius: 5px;
-  text-align: left;
-  padding: 2px;
-  background-color: rgb(57, 57, 57);
-}
-
-.saveEntry.deleted {
-  border-color: red;
-  background-color: rgb(87, 57, 57);
-  border-style: dashed;
-  text-decoration: line-through;
-}
-
-.saveEntry.deleted > div {
-  background-color: rgb(87, 57, 57);
-  text-decoration: line-through;
-}
-.saveEntry > div {
-  background-color: rgb(57, 57, 57);
-}
-
-div .description {
-  background-color: rgb(27, 27, 27);
-  flex: auto;
-}
-</style>

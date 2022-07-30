@@ -4,8 +4,6 @@ import {
 } from 'mathjs';
 import { assert, defined, hasPropIs, isString } from './util';
 import {
-   addToEnv,
-   checkNewExpr,
    state as appState,
 } from '../components/uiUtil';
 import { cursorState, goToElement } from '../components/FakeCursor';
@@ -25,28 +23,28 @@ const actionHandlers: Record<string, (...x: string[]) => void> = {
    wait: () => { /* do nothing */ },
    alert: alert,
    setNewExpr: (x) => {
-      appState.newExpr = x;
-      checkNewExpr();
+      // appState.newExpr = x;
+      // checkNewExpr();
    },
    addExpr: (expr, short) => {
-      if (short === 'short') {
-         appState.newExpr = expr;
-         checkNewExpr();
-         addToEnv(expr, true);
-      } else {
-         // TODO: function to append multiple actions so we don't have to do them in reverse order
-         prependAction('wait', 2);
-         prependAction('click', 0.5);
-         prependAction('wait', 2);
-         prependAction('goto', 2.5, 'addExpr');
-         prependAction('wait', 2);
-         prependAction('type', 1, expr);
-         prependAction('wait', 2);
-         prependAction('click', 0.5);
-         prependAction('wait', 2);
-         prependAction('goto', 2.5, 'newExpr');
-         prependAction('wait', 2);
-      }
+      // if (short === 'short') {
+      //    appState.newExpr = expr;
+      //    checkNewExpr();
+      //    addToEnv(expr, true);
+      // } else {
+      //    // TODO: function to append multiple actions so we don't have to do them in reverse order
+      //    prependAction('wait', 2);
+      //    prependAction('click', 0.5);
+      //    prependAction('wait', 2);
+      //    prependAction('goto', 2.5, 'addExpr');
+      //    prependAction('wait', 2);
+      //    prependAction('type', 1, expr);
+      //    prependAction('wait', 2);
+      //    prependAction('click', 0.5);
+      //    prependAction('wait', 2);
+      //    prependAction('goto', 2.5, 'newExpr');
+      //    prependAction('wait', 2);
+      // }
    },
    showCursor: () => {
       cursorState.show = true;

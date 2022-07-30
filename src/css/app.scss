@@ -16,6 +16,9 @@
 .cols.wrap {
   flex-wrap: wrap;
 }
+.cols.inline {
+  display: inline-flex
+}
 
 .firstSmall > :first-child {
   flex: 0 1 fit-content;
@@ -43,3 +46,4 @@ aside.q-drawer {
 .bg-transparent {
   backdrop-filter: brightness(85%) blur(2px);
 }
+

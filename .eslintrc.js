@@ -71,6 +71,7 @@ module.exports = {
   // add your custom rules here
   rules: {
     'forbidden-non-null-assertion': 'off',
+    '@typescript-eslint/no-non-null-assertion': 'off',
     'prefer-promise-reject-errors': 'off',
 
     // quotes: ['warn', 'single', { avoidEscape: true }],

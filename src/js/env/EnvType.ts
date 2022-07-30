@@ -24,6 +24,7 @@ export interface EnvType<V> {
 }
 
 export function EnvType<V>({
+  onChange,
    names,
    tag,
    data,
@@ -35,6 +36,7 @@ export function EnvType<V>({
    getDependencies,
    toTex,
 }: {
+  onChange: ()=>void;
    names: Set<string>;
    tag: EnvTypeTag;
    data: Map<string, V>;
@@ -53,7 +55,7 @@ export function EnvType<V>({
       has: (key) => data.has(key),
       get: (key) => data.get(key),
       set: (key, value, props = {}) => {
-         if (key != 'time') { appState.modified = true; }
+         if (key != 'time') { onChange() }
          names.add(key);
          data.set(key, value);
          mathEnv[key] = getMathValue(value);
@@ -76,7 +78,7 @@ export function EnvType<V>({
          return value;
       },
       delete: (key) => {
-         appState.modified = true;
+         if (key != 'time') { onChange() }
          data.delete(key);
          delete mathEnv[key];
          names.delete(key);
@@ -84,6 +86,7 @@ export function EnvType<V>({
       },
       toRecord: () => Object.fromEntries(data.entries()),
       showGraph: (key: string, showGraph: boolean) => {
+         if (key != 'time') { onChange() }
          const item = items.get(key);
          assert.defined(item);
          const graph = getGraph();
@@ -92,7 +95,6 @@ export function EnvType<V>({
          if (item.showGraph === showGraph) {
             return;
          }
-         appState.modified = true;
          item.showGraph = showGraph;
          if (showGraph) {
             graph.options.data[key] = getDatum(value, item);
@@ -102,13 +104,13 @@ export function EnvType<V>({
          if (!appState.runTimer) { graph.drawLines()}
       },
       colorGraph: (key: string, color: `#${string}`) => {
+         if (key != 'time') { onChange() }
          const item = items.get(key);
          assert.defined(item);
          const graph = getGraph();
          if (color === item.color) {
             return;
          }
-         appState.modified = true;
          item.color = color;
          if (key in graph.options.data) {
             graph.options.data[key].color = color;

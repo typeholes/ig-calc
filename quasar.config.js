@@ -57,7 +57,8 @@ module.exports = configure(function (/* ctx */) {
     build: {
       target: {
         browser: [ 'es2019', 'edge88', 'firefox78', 'chrome87', 'safari13.1' ],
-        node: 'node16'
+        node: 'node16',
+        devTool: 'eval-source-map',
       },
 
       // vueRouterMode: 'hash', // available values: 'hash', 'history'

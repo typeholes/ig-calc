@@ -92,7 +92,7 @@ export function hasPropIs<T extends string, U>(
 
 export function assert(p: boolean, msg: string): asserts p {
    if (!p) {
-      debugger;
+      // debugger;
       throw new Error(msg);
    }
 }

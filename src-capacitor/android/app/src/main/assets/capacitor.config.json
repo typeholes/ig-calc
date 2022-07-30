@@ -3,8 +3,5 @@
   "appName": "IG Calc",
   "bundledWebRuntime": false,
   "npmClient": "yarn",
-  "webDir": "www",
-  "server": {
-    "url": "http://192.168.11.1:9500"
-  }
+  "webDir": "www"
 }

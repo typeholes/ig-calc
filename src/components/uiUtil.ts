@@ -199,75 +199,7 @@ export function refreshTex(expr?: ValidExpr | undefined) {
   void nextTick(typeset);
 }
 
-export function addToEnv(s: string, showExpr = true) {
-  const name = state.parseResult ? getNodeName(state.parseResult.node) : '';
-  const oldExpr = state.env.get(name);
-  const result = parseExpr(state.env, s, name);
-  const oldDatum = graph.options.data[name];
-  return on(result, {
-    Left: (err) => {
-      state.error = err.toString();
-      state.parseResult = undefined;
-      return undefined;
-    },
-    Right: ([newExpr, ]) => {
-      newColor();
-      graph.options.data[name] = {
-        ...graph.options.data['__tmp'],
-        show:
-          graph.options.data['__tmp'].show &&
-          showExpr &&
-          isGraphable(state.env, newExpr),
-      };
-      state.error = undefined;
-      state.env.delete('__tmp');
-      state.parseResult = undefined;
 
-      if (defined(oldExpr)) {
-        state.newExpr = oldExpr.node.toString();
-        graph.options.data['__tmp'] = { ...oldDatum };
-      } else {
-        state.newExpr = '';
-      }
-      checkNewExpr();
-      state.modified = true;
-      newExpr.showExpr = showExpr;
-      return newExpr;
-    },
-  });
-}
-
-export function removeExpr(name: string) {
-  if (name === '__tmp') {
-    state.newExpr = '';
-    checkNewExpr();
-  } else {
-    state.env.delete(name);
-    state.modified = true;
-  }
-}
-
-export function addNewExpr(name: string, newExpr: string) {
-  const expr = newExpr;
-  if (!defined(expr) || expr.trim() === '') {
-    throw new Error('empty expression');
-  }
-  const result = parseExpr(state.env, expr, name);
-  on(result, {
-    Left: (err) => {
-      throw err;
-    },
-    Right: ([expr, ]) => {
-      const datum = graph.options.data[name];
-      graph.options.data[name] = ValidExpr.toDatum(
-        expr,
-        state.env,
-        datum?.show ?? false,
-        datum?.color ?? currentColor()
-      );
-    },
-  });
-}
 
 const importExpressions: Record<string, ValidExpr> = reactive({});
 export function addImportExpression(expr: ValidExpr) {
@@ -312,29 +244,6 @@ export function lookupExprComponent(name: 'text' | 'expr' | 'js') {
   return component.value;
 }
 
-const appGameTabs = {
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-  Editor: shallowRef(GameEditor),
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-  Game: shallowRef(GameDisplay),
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-  'Game Maker Tutorial': shallowRef(GameMakerTutorial),
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-  MetaData: shallowRef(GameMetaData),
-};
-
-export function enableGameTabs() {
-  for (const name in appGameTabs) {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    //TODO:    appTabs[name] = appGameTabs[name];
-  }
-}
-
-export function disableGameTabs() {
-  for (const name in appGameTabs) {
-    //TODO:    delete appTabs[name];
-  }
-}
 
 export const onTicks: Record<string, (delta: number) => void> = {};
 export let time = 0;

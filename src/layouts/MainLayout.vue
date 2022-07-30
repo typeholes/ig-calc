@@ -21,7 +21,7 @@
     </q-drawer>
 
     <q-drawer show-if-above v-model="rightDrawerOpen" side="right" elevated overlay>
-      <!-- drawer content -->
+      <SaveWidget/>
     </q-drawer>
 
     <q-page-container>
@@ -57,6 +57,7 @@ import DisplayGraph from 'src/components/DisplayGraph.vue';
 import DisplayData from 'src/components/DisplayData.vue';
 import { initUI, loadPersistantOptions } from 'src/components/uiUtil';
 import ExpressionPane from 'src/components/ExpressionPane.vue';
+import SaveWidget from 'src/components/SaveWidget.vue';
 
 const leftDrawerOpen = ref(false);
 const rightDrawerOpen = ref(false);
