@@ -70,11 +70,10 @@ export function EnvType<V>({
                typeTag: tag,
                ...props,
             });
-         } else {
+         }
             const item = items.get(key);
             assert.defined(item);
             envType.showGraph(key, item.showGraph);
-         }
          return value;
       },
       delete: (key) => {
@@ -92,9 +91,6 @@ export function EnvType<V>({
          const graph = getGraph();
          const value = data.get(key);
          assert.defined(value);
-         if (item.showGraph === showGraph) {
-            return;
-         }
          item.showGraph = showGraph;
          if (showGraph) {
             graph.options.data[key] = getDatum(value, item);
