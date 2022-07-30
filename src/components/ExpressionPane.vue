@@ -9,6 +9,8 @@ import { state } from './uiUtil';
 function getTypeTag(name: string) {
   return state.env.items.get(name)?.typeTag ?? 'constant';
 }
+
+
 </script>
 
 <template>
@@ -31,9 +33,11 @@ function getTypeTag(name: string) {
           <a-toggle v-model="state.runTimer" label="Run Timer" />
         </div>
       </div>
+      <q-scroll-area style="height:80vh" visible>
       <div class="expressions" :key="name" v-for="name in state.env.names">
         <display-wrapper :name="name" :type="getTypeTag(name)" />
       </div>
+      </q-scroll-area>
       <div
         class="expressions"
         v-if="state.saveEditable && state.exprBarExpanded"

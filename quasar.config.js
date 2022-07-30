@@ -99,8 +99,9 @@ module.exports = configure(function (/* ctx */) {
       },
 
       // iconSet: 'material-icons', // Quasar icon set
+      // iconSet: 'svg-ionicons-v6',
+      // iconSet: 'svg-bootstrap-icons',
       // lang: 'en-US', // Quasar language pack
-
       // For special cases outside of where the auto-import strategy can have an impact
       // (like functional components as one of the examples),
       // you can manually specify Quasar components/directives to be available everywhere:

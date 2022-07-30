@@ -71,14 +71,14 @@ onMounted(() => {
 
     const newSaveId = SaveId('shared', saveObj.name);
     writeSave(state.saveMetaData, newSaveId, saveObj.description, saveObj.save);
-    load(newSaveId );
+    load(newSaveId);
     selectSave(newSaveId);
     appState.saveEditable = true;
     const keyParam = storageKey === '' ? '' : `&StorageKey=${storageKey}`;
     window.location.href =
       baseUrl() + `?saveType=shared&saveName=${saveObj.name}${keyParam}`;
   } else {
-    load(DefaultSaveId );
+    load(DefaultSaveId);
     appState.saveEditable = true;
   }
 });
@@ -123,7 +123,6 @@ function leftIcon(id: SaveId) {
   <!-- o-collapse component trigger slot causes too many type erors-->
   <div class="outer">
     <div class="saveWidget">
-    {{ appState.env.dirty }}
       <q-list
         separator
         padding

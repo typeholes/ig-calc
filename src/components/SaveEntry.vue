@@ -6,11 +6,19 @@ import AExpansion from 'src/components/qDefaulted/AExpansion.vue';
 import ABtn from './qDefaulted/ABtn.vue';
 
 import {
-  matShare,
-  matContentCopy,
-  matSave,
-  matPreview,
+  matShare as iShare,
+  matContentCopy as iCopy,
+  matSave as iSave,
+  matFolderOpen as iOpen,
 } from '@quasar/extras/material-icons';
+
+// import {
+//   ionFolderOpen as iOpen,
+//   ionSave as iSave,
+//   ionShare as iShare,
+//   ionCopy as iCopy,
+// } from '@quasar/extras/ionicons-v6'
+
 import {
   state,
   selectSave,
@@ -40,19 +48,20 @@ const deleted = computed(() =>
 // });
 
 const props = defineProps<Props>();
+
+function only(action: () => void) {
+  return (e: Event) => {
+    e.stopPropagation;
+    action();
+  };
+}
 </script>
 
 <template>
   <q-item :active="isCurrent" active-class="bg-primary text-white">
     <q-item-section side>
       <a-btn
-        :icon="matPreview"
-        color="primary"
-        v-if="!isCurrent"
-        @click="selectSave(id)"
-      />
-      <a-btn
-        :icon="matSave"
+        :icon="iSave"
         color="warning"
         v-if="id.type !== 'library' && environments.get(props.id)?.dirty"
         @click="save(id, state.saveMetaData[id.type][id.name])"
@@ -60,31 +69,59 @@ const props = defineProps<Props>();
     </q-item-section>
 
     <q-item-section>
-      <a-expansion :label="id.name">
+      <a-expansion header-style="width:100%" :content-inset-level="0">
+        <template #header>
+          <q-item-section>{{ id.name }} </q-item-section>
+          <q-item-section side>
+            <div class="cols">
+              <a-btn
+                :icon="iOpen"
+                color="primary"
+                v-if="!isCurrent"
+                @click="(e: Event) => {
+  e.stopPropagation(); selectSave(id)
+}"
+              />
+              <template v-if="deleted">
+                <a-btn
+                  color="primary"
+                  @click="(e: Event) => {
+  e.stopPropagation(); restoreDeletedSave(id)
+}"
+                  label="Restore"
+                />
+                <a-btn
+                  color="primary"
+                  @click="(e: Event) => {
+  e.stopPropagation(); purgeDeletedSave(id); unselectSave();
+}"
+                  label="Purge"
+                />
+              </template>
+              <template v-else>
+                <a-btn
+                  color="primary"
+                  :icon="iCopy"
+                  @click="(e: Event) => {
+  e.stopPropagation(); copy(id)
+}"
+                />
+                <a-btn
+                  color="primary"
+                  @click="(e: Event) => {
+  e.stopPropagation(); share(id)
+}"
+                  :icon="iShare"
+                />
+              </template>
+            </div>
+          </q-item-section>
+        </template>
         {{ description }}
       </a-expansion>
     </q-item-section>
 
     <q-item-section side class="cols inline" v-if="id.type !== 'library'">
-      <template v-if="deleted">
-        <a-btn
-          color="primary"
-          @click="restoreDeletedSave(id)"
-          label="Restore"
-        />
-        <a-btn
-          color="primary"
-          @click="
-            purgeDeletedSave(id);
-            unselectSave();
-          "
-          label="Purge"
-        />
-      </template>
-      <template v-else>
-        <a-btn color="primary" @click="copy(id)" :icon="matContentCopy" />
-        <a-btn color="primary" @click="share(id)" :icon="matShare" />
-      </template>
     </q-item-section>
   </q-item>
 </template>
