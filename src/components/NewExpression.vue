@@ -42,6 +42,11 @@ function addExpr(type: EnvTypeTag) {
   }
 }
 
+function focusExpr() {
+  const el = document.getElementById('newExprInput');
+  el?.focus();
+}
+
 const buttonTypeText: Record<EnvTypeTag, (s: string) => string> = {
   constant: (name: string) => `${name} = 0`,
   animated: (name: string) => `${name}(time)`,
@@ -57,8 +62,17 @@ function buttonText(name: string, type: EnvTypeTag) {
 
 <template>
   <div class="rows NewExpr">
-    <div label-class="textCentered" label="New expression name">
-      <a-input v-model="state.name" outlined :rules="[validateName]" />
+    <div
+      label-class="textCentered"
+      label="New expression name"
+      @click="(e: Event) => { e.stopPropagation(); focusExpr(); }"
+    >
+      <a-input
+        id="newExprInput"
+        v-model="state.name"
+        outlined
+        :rules="[validateName]"
+      />
     </div>
     <div class="cols">
       <template :key="type" v-for="(_, type) in buttonTypeText">

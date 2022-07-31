@@ -16,26 +16,41 @@
       </q-toolbar>
     </q-header>
 
-    <q-drawer show-if-above v-model="leftDrawerOpen" side="left" elevated overlay>
+    <q-drawer
+      show-if-above
+      v-model="leftDrawerOpen"
+      side="left"
+      elevated
+      overlay
+    >
       <ExpressionPane />
     </q-drawer>
 
-    <q-drawer show-if-above v-model="rightDrawerOpen" side="right" elevated overlay>
-      <SaveWidget/>
+    <q-drawer
+      show-if-above
+      v-model="rightDrawerOpen"
+      side="right"
+      elevated
+      overlay
+    >
+      <SaveWidget />
     </q-drawer>
 
     <q-page-container>
-      <q-tab-panels keep-alive v-model="panel">
-        <q-tab-panel name="graph">
-          <DisplayGraph />
-        </q-tab-panel>
-        <q-tab-panel name="grid">
-          <DisplayData />
-        </q-tab-panel>
-        <q-tab-panel name="help">
-          <div>help here</div>
-        </q-tab-panel>
-      </q-tab-panels>
+      <q-page>
+        <!-- <new-expr-btn /> -->
+        <q-tab-panels keep-alive v-model="panel">
+          <q-tab-panel name="graph">
+            <DisplayGraph />
+          </q-tab-panel>
+          <q-tab-panel name="grid">
+            <DisplayData />
+          </q-tab-panel>
+          <q-tab-panel name="help">
+            <div>help here</div>
+          </q-tab-panel>
+        </q-tab-panels>
+      </q-page>
     </q-page-container>
 
     <q-footer elevated class="bg-grey-8 text-white">
@@ -58,6 +73,7 @@ import DisplayData from 'src/components/DisplayData.vue';
 import { initUI, loadPersistantOptions } from 'src/components/uiUtil';
 import ExpressionPane from 'src/components/ExpressionPane.vue';
 import SaveWidget from 'src/components/SaveWidget.vue';
+import NewExprBtn from 'src/components/NewExprBtn.vue';
 
 const leftDrawerOpen = ref(false);
 const rightDrawerOpen = ref(false);

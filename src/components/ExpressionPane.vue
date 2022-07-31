@@ -3,6 +3,7 @@ import NewExpression from './NewExpression.vue';
 import ASelect from './qDefaulted/ASelect.vue';
 import AToggle from './qDefaulted/AToggle.vue';
 import DisplayWrapper from './expression/gui/DisplayWrapper.vue';
+import NewExprBtn from './NewExprBtn.vue';
 
 import { state } from './uiUtil';
 
@@ -42,7 +43,7 @@ function getTypeTag(name: string) {
         class="expressions"
         v-if="state.saveEditable && state.exprBarExpanded"
       >
-        <NewExpression></NewExpression>
+        <new-expr-btn/>
       </div>
     </div>
   </div>
