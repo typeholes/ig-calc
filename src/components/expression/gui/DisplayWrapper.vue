@@ -25,8 +25,6 @@ import {
 import { saveList, load, currentEnv } from 'src/components/SaveWidget';
 import { SaveId, saveTypes as allSaveTypes } from 'src/js/SaveManager';
 import { computed } from 'vue';
-import { E } from 'app/dist/spa/assets/index.31cf09eb';
-import { INSPECT_MAX_BYTES } from 'buffer';
 
 interface Props {
   name: string;
@@ -128,9 +126,6 @@ onUpdated(refreshTex);
             <display-animation :name="props.name" :update="update" />
           </q-tab-panel>
         </q-tab-panels>
-        <div class="cols">
-          <span class="tex" :id="'tex_' + props.name"> </span>
-        </div>
         <div class="cols" v-if="graphState.description">
           <span class="fullRow">{{ graphState.description }}</span>
         </div>

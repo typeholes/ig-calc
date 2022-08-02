@@ -62,17 +62,8 @@ EnvExpr.toEvalFn = (name: string, expr: EnvExpr, exprEnv: ExprEnv): EvalFn => {
 }
 
 {
-   const formatError = (expr: EnvExpr): string =>
-      '\\displaylines{' +
-      expr.expr.replaceAll(' ', '\\ ') +
-      '\\\\' +
-      //   expr.error?.replaceAll(' ', '\\ ') +
-      '\\mathrm{' +
-      expr.error?.replaceAll(' ', '\\ ') +
-      '}' +
-      '}';
    EnvExpr.toTex = (expr: EnvExpr): string =>
-      defined(expr.error) ? formatError(expr) : expr.node?.toTex() ?? expr.expr;
+          expr.node?.toTex() ?? expr.expr
 }
 
 EnvExpr.getDependencies = (expr: EnvExpr): ISet<string> => {
