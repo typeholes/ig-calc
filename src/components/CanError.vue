@@ -2,6 +2,7 @@
 import { Errorable, isRight } from "../js/Either";
 
 const props = defineProps<{ value: Errorable<unknown> }>();
+const x : string = 5;
 </script>
 
 <template>

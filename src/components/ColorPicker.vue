@@ -1,11 +1,15 @@
 <script setup lang="ts">
    import { reactive } from 'vue';
-   import { state as appState, onTicks } from './uiUtil';
+   import { onTicks } from './uiUtil';
    import * as Color from 'd3-color';
    import { defined } from '../js/util';
+   import { currentEnv } from './SaveWidget';
 
+   const models = {
+      rgb: ['red', 'green', 'blue'],
+   };
    const state = reactive({
-      model: 'rgb',
+      model: 'rgb' as keyof typeof models,
       parts: ['r', 'g', 'b'],
       color: '#000000',
       newColor: '#000000',
@@ -15,17 +19,17 @@
    function updateColor(seconds: number) {
       let rgb = Color.color(state.newColor)?.rgb() ?? Color.rgb(1, 1, 1);
 
-      const getR = appState.env.getDatum(state.parts[0]);
+      const getR = currentEnv.value.getDatum(state.parts[0]);
       if (defined(getR)) {
          rgb.r = getR.evalFn(state.time);
       }
 
-      const getG = appState.env.getDatum(state.parts[1]);
+      const getG = currentEnv.value.getDatum(state.parts[1]);
       if (defined(getG)) {
          rgb.g = getG.evalFn(state.time);
       }
 
-      const getB = appState.env.getDatum(state.parts[2]);
+      const getB = currentEnv.value.getDatum(state.parts[2]);
       if (defined(getB)) {
          rgb.b = getB.evalFn(state.time);
       }
@@ -38,9 +42,6 @@
 
    onTicks.updateColor = updateColor;
 
-   const models = {
-      rgb: ['red', 'green', 'blue'],
-   };
 </script>
 
 <template>
@@ -54,7 +55,7 @@
          <template :key="part" v-for="(part, idx) in models[state.model]">
             <label :for="`color-${part}`">{{ idx }}) {{ part }}</label>
             <select :id="`color-${part}`" :value="state.parts[idx]">
-               <option :key="name" v-for="name in appState.env.names">
+               <option :key="name" v-for="name in currentEnv.names">
                   {{ name }}
                </option>
             </select>
