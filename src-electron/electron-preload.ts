@@ -15,3 +15,4 @@
  *     doAThing: () => {}
  *   })
  */
+export {};

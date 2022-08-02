@@ -36,7 +36,7 @@ function checkAsymptote(
          const deltaY = y - oldY;
          const newSign = Math.sign(deltaY);
          if (newSign === sign) {
-            return checkAsymptote([oldX, oldY], [x, y], getY, sign, level - 1);
+            return checkAsymptote([oldX??0, oldY], [x, y], getY, sign, level - 1);
          }
       }
       oldY = y;
