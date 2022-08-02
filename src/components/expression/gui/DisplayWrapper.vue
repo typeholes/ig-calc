@@ -101,8 +101,11 @@ onUpdated(refreshTex);
 <template>
   <div class="cols GraphExpr lastSmall" v-if="show">
     <div class="rows">
+        <span class="q-mini-drawer-only" v-if="!props.name.startsWith('anon:') && props.name !== '__tmp'">
+          {{ props.name }}
+        </span>
       <div class="cols wrap">
-        <span v-if="!props.name.startsWith('anon:') && props.name !== '__tmp'">
+        <span class="q-mini-drawer-hide" v-if="!props.name.startsWith('anon:') && props.name !== '__tmp'">
           {{ props.name }}
         </span>
         <a-toggle v-model="graphState.showGraph" :id="`show:${name}`" />
@@ -115,7 +118,7 @@ onUpdated(refreshTex);
         </a-btn-dropdown>
       </div>
       <template v-if="appState.exprBarExpanded">
-        <q-tab-panels :model-value="props.type">
+        <q-tab-panels :model-value="props.type" class="q-mini-drawer-hide">
           <q-tab-panel name="constant">
             <display-constant :name="props.name" :update="update" />
           </q-tab-panel>
@@ -126,12 +129,12 @@ onUpdated(refreshTex);
             <display-animation :name="props.name" :update="update" />
           </q-tab-panel>
         </q-tab-panels>
-        <div class="cols" v-if="graphState.description">
+        <div class="cols q-mini-drawer-hide" v-if="graphState.description">
           <span class="fullRow">{{ graphState.description }}</span>
         </div>
       </template>
     </div>
-    <div class="rows" v-if="appState.exprBarExpanded">
+    <div class="rows q-mini-drawer-hide" v-if="appState.exprBarExpanded">
       <a-btn
         :icon="matMenu"
         text-color="primary"

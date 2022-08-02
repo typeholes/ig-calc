@@ -19,9 +19,12 @@
     <q-drawer
       show-if-above
       v-model="leftDrawerOpen"
+      :mini="leftDrawerMini"
       side="left"
       elevated
       overlay
+      :width="width"
+      :mini-width="120"
     >
       <ExpressionPane />
     </q-drawer>
@@ -76,11 +79,15 @@ import SaveWidget from 'src/components/SaveWidget.vue';
 import NewExprBtn from 'src/components/NewExprBtn.vue';
 
 const leftDrawerOpen = ref(false);
+const leftDrawerMini = ref(false);
 const rightDrawerOpen = ref(false);
 const panel = ref('graph');
 
+const width = Math.max(window.innerWidth * .25, 300);
+
 function toggleLeftDrawer() {
-  leftDrawerOpen.value = !leftDrawerOpen.value;
+  // leftDrawerOpen.value = !leftDrawerOpen.value;
+  leftDrawerMini.value = !leftDrawerMini.value;
 }
 
 function toggleRightDrawer() {

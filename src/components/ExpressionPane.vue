@@ -19,7 +19,7 @@ function getTypeTag(name: string) {
 <template>
   <div v-if="defined(currentEnv)">
     <div class="transparent">
-      <div class="cols lastSmall">
+      <div class="cols lastSmall q-mini-drawer-hide">
         <div>
           <a-select
             id="exprComponent"
