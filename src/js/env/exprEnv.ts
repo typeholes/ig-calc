@@ -3,7 +3,7 @@ import { defaultCall, getAssignmentBody, ValidExpr } from '../expressions';
 import { Set as ISet, Map as IMap } from 'immutable';
 import { builtinConstants } from '../math/symbols';
 import { reactive } from 'vue';
-import { Graph } from '../function-plot/d3util';
+import { Graph, mkGraph } from '../function-plot/d3util';
 import {
   Datum,
   DatumOptions,
@@ -15,9 +15,10 @@ import { EnvType, EnvTypeTag } from './EnvType';
 import { Animation } from './Animation';
 import { EnvExpr } from './EnvExpr';
 import { inline } from '../math/mathUtil';
-import { state as appState } from '../../components/uiUtil';
 import { assert, defined } from '../util';
 import { libraries } from '../libraryValues';
+import { defaultFunctionPlotOptionsAxis, FunctionPlotOptions } from '../function-plot/FunctionPlotOptions';
+import { Interval } from '../function-plot/types';
 
 export type MathEnv = Record<string, MathNode | number>;
 
@@ -66,6 +67,8 @@ export interface ExprEnv extends ExprEnvIndexable {
   items: Map<string, EnvItem>;
   getDatum: (key: string) => Datum | undefined;
   dirty: boolean;
+  graph: Graph;
+  graphId: string;
 }
 
 const datumGetter = (
@@ -74,8 +77,13 @@ const datumGetter = (
   options: Partial<DatumOptions> = {}
 ) => Datum(evalFn, { show: item.showGraph, color: item.color, ...options });
 
-export function mkExprEnv(graph: () => Graph): ExprEnv {
+// eslint-disable-next-line no-var
+let graphCnt = 0;
+export const mkExprEnv = (): ExprEnv => {
+  graphCnt++;
+  const graphId = 'graph-' + graphCnt.toString();
   const items = reactive(new Map<string, EnvItem>());
+  const graph = initGraph(graphId);
   const data: Record<string, ValidExpr> = reactive({});
   const mathEnv: MathEnv = reactive({});
   const names: Set<string> = reactive(new Set());
@@ -83,16 +91,17 @@ export function mkExprEnv(graph: () => Graph): ExprEnv {
   const animations = new Map<string, Animation>();
   const expressions = new Map<string, EnvExpr>();
   const exprEnv: ExprEnv = reactive({
+    graph,
+    graphId,
     dirty: false,
     constant: EnvType({
       onChange: () => {
         exprEnv.dirty = true;
-        console.log(appState.env === exprEnv);
       },
       names,
       tag: 'constant',
       data: constants,
-      getGraph: graph,
+      getGraph: () => graph,
       mathEnv,
       getMathValue: (x) => x,
       items,
@@ -107,7 +116,7 @@ export function mkExprEnv(graph: () => Graph): ExprEnv {
       names,
       tag: 'animated',
       data: animations,
-      getGraph: graph,
+      getGraph: () => graph,
       mathEnv,
       getMathValue: (x) => Animation.toMathNode(x),
       items,
@@ -132,7 +141,7 @@ export function mkExprEnv(graph: () => Graph): ExprEnv {
       names,
       tag: 'expression',
       data: expressions,
-      getGraph: graph,
+      getGraph: () => graph,
       mathEnv,
       getMathValue: (v) => v.node ?? 0, // TODO
       items,
@@ -165,7 +174,9 @@ export function mkExprEnv(graph: () => Graph): ExprEnv {
 }
 
 // utterly accursed unsafe type
-type U2I<U> = (U extends U ? (u: U) => 0 : never) extends (i: infer I) => 0
+export type U2I<U> = (U extends U ? (u: U) => 0 : never) extends (
+  i: infer I
+) => 0
   ? Extract<I, U>
   : never;
 
@@ -250,10 +261,29 @@ export const nodeToEvalFn = (
         return result;
       }
     } catch (e) {
-      appState.error = String(e);
+  //    appState.error = String(e);
       //  debugger;
       return 0;
     }
   };
   return ret;
 };
+
+function initGraph(elementId: string) {
+  const graph = mkGraph(graphOptions('#' + elementId));
+  return graph;
+}
+
+function graphOptions(target: string): FunctionPlotOptions {
+  return {
+    target,
+    data: {},
+    width: Math.max(window.innerWidth, 400),
+    height: Math.max(window.innerHeight * 0.9, 400),
+    xDomain: reactive(Interval(0, 1)),
+    xAxis: { ...defaultFunctionPlotOptionsAxis(), type: 'linear' },
+    yDomain: reactive(Interval(0, 1)),
+  };
+}
+
+

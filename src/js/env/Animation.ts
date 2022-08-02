@@ -1,5 +1,4 @@
 import { MathNode, parse as parseMathNode } from 'mathjs';
-import { defined } from '../util';
 
 export interface Animation {
    fnName: string;

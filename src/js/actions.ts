@@ -3,9 +3,6 @@ import {
    isNumber,
 } from 'mathjs';
 import { assert, defined, hasPropIs, isString } from './util';
-import {
-   state as appState,
-} from '../components/uiUtil';
 import { cursorState, goToElement } from '../components/FakeCursor';
 
 // eslint-disable-next-line vue/prefer-import-from-vue

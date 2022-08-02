@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import NewExpression from './NewExpression.vue';
 import ASelect from './qDefaulted/ASelect.vue';
 import AToggle from './qDefaulted/AToggle.vue';
 import DisplayWrapper from './expression/gui/DisplayWrapper.vue';
@@ -7,15 +6,18 @@ import NewExprBtn from './NewExprBtn.vue';
 
 import { state } from './uiUtil';
 
+import { defined } from 'src/js/util';
+import { currentEnv } from './SaveWidget';
+
 function getTypeTag(name: string) {
-  return state.env.items.get(name)?.typeTag ?? 'constant';
+  return currentEnv.value.items.get(name)?.typeTag ?? 'constant';
 }
 
 
 </script>
 
 <template>
-  <div class="ig-calc">
+  <div v-if="defined(currentEnv)">
     <div class="transparent">
       <div class="cols lastSmall">
         <div>
@@ -35,7 +37,7 @@ function getTypeTag(name: string) {
         </div>
       </div>
       <q-scroll-area style="height:80vh" visible>
-      <div class="expressions" :key="name" v-for="name in state.env.names">
+      <div class="expressions" :key="currentEnv.graphId + '-' + name" v-for="name in currentEnv.names">
         <display-wrapper :name="name" :type="getTypeTag(name)" />
       </div>
       </q-scroll-area>

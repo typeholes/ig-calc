@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { reactive, ref } from 'vue';
+import { reactive, } from 'vue';
 import ASlider from 'src/components/qDefaulted/ASlider.vue';
-import { state as appState } from '../../uiUtil';
+import { currentEnv } from 'src/components/SaveWidget.js';
 
 var x = 1;
 console.log(x);
@@ -13,12 +13,13 @@ interface Props {
 
 const props = defineProps<Props>();
 
+const env = currentEnv;
 const state = reactive({
-  value: appState.env.constant.get(props.name)  ?? 0
+  value: env.value.constant.get(props.name)  ?? 0
 });
 
 function updateValue(value: number) {
-  appState.env.constant.set(props.name, value);
+  env.value.constant.set(props.name, value);
   props.update();
 }
 </script>

@@ -177,3 +177,9 @@ export type Expand<T> = T extends
    | Date
    ? T
    : { [K in keyof T]: T[K] };
+
+export function* mapIter<T,U>(iterable: IterableIterator<T>, callback: (t: T) => U) {
+  for (const x of iterable) {
+    yield callback(x);
+  }
+}

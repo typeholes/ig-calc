@@ -1,7 +1,6 @@
 import { EnvItem, ExprEnv, mkExprEnv } from './exprEnv';
 import { Animation } from './Animation';
 import { EnvExpr } from './EnvExpr';
-import { graph } from '../../components/uiUtil';
 import { Map as IMap } from 'immutable';
 import {
    defined,
@@ -44,7 +43,7 @@ export function toSaveRep(env: ExprEnv): SaveRep {
 }
 
 export function fromSaveRep(saveRep: SaveRep): ExprEnv {
-   const env = mkExprEnv(() => graph);
+   const env = mkExprEnv();
    saveRep.forEach((item, name) => {
       if (defined(item.constant)) {
          env.constant.set(name, item.constant);

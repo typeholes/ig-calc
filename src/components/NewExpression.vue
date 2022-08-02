@@ -6,20 +6,20 @@ import { EnvExpr } from '../js/env/EnvExpr';
 import { Animation } from '../js/env/Animation';
 import AInput from './qDefaulted/AInput.vue';
 import ABtn from './qDefaulted/ABtn.vue';
-
+import { currentEnv } from './SaveWidget';
 const state = reactive({
   name: '',
 });
 
 function validateName(name: string) {
-  return appState.env.items.has(name) ? 'Name already exists' : true;
+  return currentEnv.value.items.has(name) ? 'Name already exists' : true;
 }
 
 const disableAdd = computed(
   () =>
     state.name === '' ||
     state.name === 'time' ||
-    appState.env.items.has(state.name)
+    currentEnv.value.items.has(state.name)
 );
 
 function addExpr(type: EnvTypeTag) {
@@ -29,15 +29,15 @@ function addExpr(type: EnvTypeTag) {
   const newName = state.name;
   state.name = '';
   if (type === 'constant') {
-    appState.env.constant.set(newName, 0);
+    currentEnv.value.constant.set(newName, 0);
     return;
   }
   if (type === 'expression') {
-    appState.env.expression.set(newName, EnvExpr(`${newName} = sin(x)`));
+    currentEnv.value.expression.set(newName, EnvExpr(`${newName} = sin(x)`));
     return;
   }
   if (type === 'animated') {
-    appState.env.animated.set(newName, Animation('zigZag', 0, 5, 3));
+    currentEnv.value.animated.set(newName, Animation('zigZag', 0, 5, 3));
     return;
   }
 }

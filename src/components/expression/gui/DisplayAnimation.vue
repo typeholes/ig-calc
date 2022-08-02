@@ -1,12 +1,9 @@
 <script setup lang="ts">
 import { reactive } from 'vue';
-import { state as appState } from 'components/uiUtil';
-import { defined, assert } from '../../../js/util';
-import { libraries } from '../../../js/libraryValues';
 import { isValidNumber } from 'src/js/function-plot/utils';
 import AInput from 'src/components/qDefaulted/AInput.vue';
 import ASelect from 'src/components/qDefaulted/ASelect.vue';
-import { Animation } from 'src/js/env/Animation';
+import { currentEnv } from 'src/components/SaveWidget';
 
 interface Props {
   name: string;
@@ -15,7 +12,8 @@ interface Props {
 
 const props = defineProps<Props>();
 
-const graphState = appState.env.animated.getState(props.name);
+const env = currentEnv;
+const graphState = env.value.animated.getState(props.name);
 
 
 const state = reactive({
@@ -30,7 +28,6 @@ function validateNumber(s: string) {
 }
 
 function updateAnimation() {
-  const fnName = state.fnName;
   const from = parseFloat(state.from);
   const to = parseFloat(state.to);
   const period = parseFloat(state.period);
@@ -39,13 +36,14 @@ function updateAnimation() {
   graphState.value.period = isValidNumber(period) ? period : 1;
   graphState.value.fnName = state.fnName;
 
-  appState.env.animated.set(props.name, graphState.value );
+  env.value.animated.set(props.name, graphState.value );
   props.update()
 }
 </script>
 
 <template>
-  <div class="cols lastSmall" v-if="appState.saveEditable">
+  <div class="cols lastSmall">
+    <!-- v-if="appState.saveEditable"> -->
     <a-input
       label="From"
       type="number"

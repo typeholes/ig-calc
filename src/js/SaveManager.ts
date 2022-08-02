@@ -39,7 +39,9 @@ export const SaveId = (type: SaveType, name: SaveName): SaveId => ({
 SaveId.eq = (a: SaveId, b: SaveId): boolean =>
   a.name === b.name && a.type === b.type;
 
-SaveId.toKey = (a: SaveId): string => a.type + '\{01}' + a.name;
+SaveId.toKey = (a: SaveId): string => a.type + '\u{01}' + a.name;
+SaveId.toString = (a: SaveId): string => a.type + '.' + a.name;
+SaveId.fromKey = (key: string): SaveId => SaveId(...(key.split('\u{01}') as [SaveType,string]));
 
 export type SaveMetaData = Record<SaveType, Record<SaveName, SaveDescription>>;
 
@@ -112,7 +114,7 @@ export function parseSaveMetaData(s: string): Errorable<SaveMetaData> {
       (x: unknown): x is Record<string, string> => typeof x === 'object'
     );
 
-    for (const type in obj) {
+    for (const type of saveTypes) {
       const t: unknown = obj[type];
       assert.is(t, isObject);
       for (const name in t) {

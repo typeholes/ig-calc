@@ -11,25 +11,42 @@ import {
   emptySaveMetaData,
   getSaveEntry,
   hasSaveEntry,
+  isSaveType,
   readSave,
   readSaveMetadata,
   removeSave,
   SaveDescription,
   SaveId,
+  SaveMetaData,
   SaveType,
   SerializedSave,
+  setStorageKey,
   writeSave,
   writeSaveMetadata,
 } from 'src/js/SaveManager';
-import { assert, defined } from 'src/js/util';
-import { reactive } from 'vue';
-
-import { graph, initUI, state as appState } from './uiUtil';
+import { assert, defined, notBlank } from 'src/js/util';
+import { computed, nextTick, reactive } from 'vue';
 
 import { Map as IMap } from 'immutable';
 import { MMap } from './MMap';
+import { Interval } from 'src/js/function-plot/types';
+import { getActions } from '../js/actions';
 
-export const state = reactive({
+interface State {
+  currentSave: SaveId,
+  copying: SaveId | undefined,
+  newName: string | undefined,
+  newDescr: string | undefined,
+  deletedSaves: SaveMetaData,
+  shareString: string,
+  showDescriptions: boolean,
+  showDeletedSaves: boolean,
+  hasDeletedSaves: boolean,
+  error: string,
+  saveMetaData: SaveMetaData,
+};
+
+export const state : State = reactive({
   currentSave: DefaultSaveId,
   copying: undefined as SaveId | undefined,
   newName: undefined as string | undefined,
@@ -39,14 +56,15 @@ export const state = reactive({
   showDescriptions: false,
   showDeletedSaves: false,
   hasDeletedSaves: false,
+  error: '',
   saveMetaData: Errorable.handle(
     readSaveMetadata(),
-    (error) => (appState.error = error.message),
+    (error) => (state.error = error.message),
     emptySaveMetaData()
   ),
 });
 
-export const environments = MMap(SaveId.toKey).of<ExprEnv>();
+export const environments = MMap(SaveId.toKey, SaveId.fromKey).of<ExprEnv>();
 
 export function purgeDeletedSave(id: SaveId): void {
   delete state.deletedSaves[id.type][id.name];
@@ -76,36 +94,39 @@ export function share(id: SaveId): string {
   return compressed;
 }
 
-export function getSerializedSave(): SerializedSave {
-  const saveRep = toSaveRep(appState.env);
+export function getSerializedSave(env: ExprEnv): SerializedSave {
+  const saveRep = toSaveRep(env);
   const serialized = SaveRep.savable.toSave(saveRep);
   const saveObj = { [SaveRep.savable.saveKey]: serialized };
   return JSON.stringify(saveObj);
 }
 
 export function save(id: SaveId, description: SaveDescription) {
-  writeSave(state.saveMetaData, id, description, getSerializedSave());
+  writeSave(state.saveMetaData, id, description, getSerializedSave(environments.get(id)!));
   environments.get(id)!.dirty = false;
 }
 
 export function load(id: SaveId) {
-  initUI();
-  if (defined(graph)) {
-    graph.options.data = {};
-  }
-
   if (!environments.has(id)) {
     const loaded = loadSave(id);
     assert.defined(loaded);
     environments.set(id, loaded);
-    loaded.dirty = false
+    loaded.dirty = false;
   }
-  const env = environments.get(id);
+  return environments.get(id)!;
+}
+export function open(id: SaveId) {
+  const env = load(id);
+  env.constant.set('time',0);
   assert.defined(env);
 
   state.currentSave = id;
-  appState.env = env;
-  initUI();
+  if (defined(env.graph)) {
+    nextTick( () => {
+    env.graph.injectIntoTarget();
+    env.graph.resetZoom(Interval(-10,10),0);
+    });
+  }
 }
 
 export function loadSave(id: SaveId): ExprEnv | undefined {
@@ -118,7 +139,7 @@ export function loadSave(id: SaveId): ExprEnv | undefined {
   } else {
     return Either.on(readSave(id), {
       Left: (x) => {
-        appState.error = x.message;
+        state.error = x.message;
         return undefined;
       },
       Right: (x) => {
@@ -158,7 +179,7 @@ export function saveList(type: SaveType): IMap<SaveId, SaveListItem> {
     ]);
   }
   const saveMap = IMap(state.saveMetaData[type]).map(
-    (v, id) => [v, false] as const
+    (v) => [v, false] as const
   );
   const map = state.showDeletedSaves
     ? IMap(state.deletedSaves[type])
@@ -259,9 +280,63 @@ export function restoreDeletedSave(id: SaveId) {
 }
 
 export function selectSave(id: SaveId) {
-  load(id);
+  open(id);
 }
 
 export function unselectSave() {
   // TODO:
 }
+
+export function initSaveWidget() {
+  const search = window.location.search.slice(1);
+  const params = new URLSearchParams(search);
+
+  const storageKey = params.get('StorageKey') ?? '';
+  if (params.has('actions')) {
+    const actionsKey = params.get('actions');
+    const actionCount = params.has('actionCnt')
+      ? parseInt(params.get('actionCnt')!)
+      : undefined;
+    if (defined(actionsKey)) {
+      getActions(actionsKey, actionCount);
+    }
+  }
+  if (params.has('StorageKey')) {
+    state.saveMetaData = setStorageKey(storageKey);
+  }
+  if (params.has('saveType') && params.has('saveName')) {
+    const saveType = params.get('saveType');
+    const saveName = params.get('saveName');
+    if (isSaveType(saveType) && notBlank(saveName)) {
+      const saveId = SaveId(saveType, saveName);
+      open(saveId);
+      return;
+    }
+  }
+  if (params.has('shared')) {
+    const shareStr = params.get('shared') ?? '';
+    if (shareStr === '') {
+      open(DefaultSaveId);
+      return;
+    }
+    const uncompressed = decompressFromEncodedURIComponent(shareStr) ?? '';
+    const saveObj = JSON.parse(uncompressed) as {
+      name: string;
+      description: string;
+      save: string;
+    };
+
+    const newSaveId = SaveId('shared', saveObj.name);
+    writeSave(state.saveMetaData, newSaveId, saveObj.description, saveObj.save);
+    open(newSaveId);
+    selectSave(newSaveId);
+    const keyParam = storageKey === '' ? '' : `&StorageKey=${storageKey}`;
+    window.location.href =
+      baseUrl() + `?saveType=shared&saveName=${saveObj.name}${keyParam}`;
+  } else {
+    open(DefaultSaveId);
+  }
+}
+
+export const currentEnv = computed(() => environments.get(state.currentSave)!);
+

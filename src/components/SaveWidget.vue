@@ -1,88 +1,26 @@
 <script setup lang="ts">
 import { onMounted } from 'vue';
 import {
-  writeSave,
   saveTypes,
   SaveId,
-  DefaultSaveId,
-  isSaveType,
-  setStorageKey,
 } from '../js/SaveManager';
 import { defined } from '../js/util';
-import { state as appState } from './uiUtil';
 import SaveEntry from './SaveEntry.vue';
 
-import { decompressFromEncodedURIComponent } from 'lz-string';
 
-import { notBlank } from '../js/function-plot/utils';
-import { getActions } from '../js/actions';
 
 import AExpansion from './qDefaulted/AExpansion.vue';
 import {
   saveList,
-  baseUrl,
-  load,
-  selectSave,
   state,
   restoreAllDeletedSaves,
   purgeAllDeletedSaves,
   create,
   cancel,
+initSaveWidget,
 } from './SaveWidget';
 
-onMounted(() => {
-  const search = window.location.search.slice(1);
-  const params = new URLSearchParams(search);
-
-  let storageKey = params.get('StorageKey') ?? '';
-  if (params.has('actions')) {
-    const actionsKey = params.get('actions');
-    const actionCount = params.has('actionCnt')
-      ? parseInt(params.get('actionCnt')!)
-      : undefined;
-    if (defined(actionsKey)) {
-      getActions(actionsKey, actionCount);
-    }
-  }
-  if (params.has('StorageKey')) {
-    state.saveMetaData = setStorageKey(storageKey);
-  }
-  if (params.has('saveType') && params.has('saveName')) {
-    const saveType = params.get('saveType');
-    const saveName = params.get('saveName');
-    if (isSaveType(saveType) && notBlank(saveName)) {
-      const saveId = SaveId(saveType, saveName);
-      load(saveId);
-      return;
-    }
-  }
-  if (params.has('shared')) {
-    const shareStr = params.get('shared') ?? '';
-    if (shareStr === '') {
-      load(DefaultSaveId);
-      return;
-    }
-    const uncompressed = decompressFromEncodedURIComponent(shareStr) ?? '';
-    const saveObj = JSON.parse(uncompressed) as {
-      name: string;
-      description: string;
-      save: string;
-    };
-
-    const newSaveId = SaveId('shared', saveObj.name);
-    writeSave(state.saveMetaData, newSaveId, saveObj.description, saveObj.save);
-    load(newSaveId);
-    selectSave(newSaveId);
-    appState.saveEditable = true;
-    const keyParam = storageKey === '' ? '' : `&StorageKey=${storageKey}`;
-    window.location.href =
-      baseUrl() + `?saveType=shared&saveName=${saveObj.name}${keyParam}`;
-  } else {
-    load(DefaultSaveId);
-    appState.saveEditable = true;
-  }
-});
-
+onMounted( () => initSaveWidget() )
 /*
 function leftIcon(id: SaveId) {
   if (appState.modified) {

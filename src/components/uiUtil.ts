@@ -1,29 +1,11 @@
-import GraphExpr from './expression/gui/DisplayExpresssion.vue';
 import { defined, isBoolean, isNumber } from '../js/util';
 import { Map as IMap } from 'immutable';
-import { Graph, mkGraph } from '../js/function-plot/d3util';
-import { reactive, shallowReactive, shallowRef, nextTick, watch } from 'vue';
-import {
-  defaultFunctionPlotOptionsAxis,
-  FunctionPlotOptions,
-} from '../js/function-plot/FunctionPlotOptions';
-import { Interval } from '../js/function-plot/types';
-import { addTexElement, typeset } from '../js/typeset';
-import {
-  ValidExpr,
-  parseExpr,
-} from '../js/expressions';
-import { on } from '../js/Either';
+import { reactive, watch } from 'vue';
 
-import IgCalc from './IgCalc.vue';
-import HelpScreen from './HelpScreen.vue';
 import { getStorageKey } from '../js/SaveManager';
-import TextExpr from './TextExpr.vue';
-import TextJsExpr from './TextJsExpr.vue';
-import { mkExprEnv } from '../js/env/exprEnv';
 import { tick as actionsTick } from '../js/actions';
 import { isString } from 'mathjs';
-export let graph: Graph;
+import { currentEnv } from './SaveWidget';
 
 const colors = IMap(
   'ff0000 00ff00 0000ff ffff00 ff00ff 00ffff ffffff'
@@ -48,16 +30,6 @@ export function newColor(): string {
   return unused;
 }
 
-export const graphOptions: FunctionPlotOptions = {
-  target: '#graph',
-  //  title: "Default",
-  data: {}, //  reactive({}),  can't make this reactive without recursive vue updates
-  width: Math.max(window.innerWidth , 400),
-  height: Math.max(window.innerHeight,  400),
-  xDomain: reactive(Interval(0, 1)),
-  xAxis: { ...defaultFunctionPlotOptionsAxis(), type: 'linear' },
-  yDomain: reactive(Interval(0, 1)),
-};
 
 export function loadPersistantOptions() {
   persistantStateKeys.forEach(loadStateProp);
@@ -72,33 +44,18 @@ export function loadPersistantOptions() {
 
 let gameLoopRunning = false;
 export function initUI() {
-  if (!defined(graph)) {
-    initGraph();
-  }
-  state.env.constant.set('time', 0);
   if (!gameLoopRunning) {
     gameLoopRunning = true;
     window.requestAnimationFrame(gameLoop);
   }
-
-  graph.resetZoom(Interval(-10, 10), 0);
-  graph.drawLines();
 }
 
-export function initGraph() {
-  graph = mkGraph({ ...graphOptions });
-  graph.resetZoom(Interval(-10, 10), 0);
-  return graph;
-}
 
 export const state = reactive({
   runTimer: true,
   hideBottom: false,
   hideLeft: false,
   hideLibrary: true,
-  env: mkExprEnv(() => graph),
-  newExpr: '',
-  parseResult: undefined as undefined | ValidExpr,
   src: 'x',
   error: undefined as undefined | string,
   info: '',
@@ -163,81 +120,12 @@ function loadStateProp(key: keyof typeof state) {
   }
 }
 
-export function checkNewExpr() {
-  const expr = state.newExpr.trim();
-  if (!defined(expr) || expr.trim() === '') {
-    state.error = undefined;
-    state.parseResult = undefined;
-    return;
-  }
-  const result = parseExpr(state.env, expr, '__tmp');
-  on(result, {
-    Left: (err) => {
-      state.error = err.message;
-    },
-    Right: ([expr, ]) => {
-      state.error = undefined;
-      state.parseResult = expr;
-      const datum = graph.options.data['__tmp'];
-      datum.show = true;
-      datum.color = currentColor();
-      refreshTex(expr);
-    },
-  });
-}
-
-export function refreshTex(expr?: ValidExpr | undefined) {
-  if (defined(expr)) {
-    addTexElement('tex_' + expr.name, expr.node.toTex());
-  }
-  void nextTick(typeset);
-}
-
-
-
-const importExpressions: Record<string, ValidExpr> = reactive({});
-export function addImportExpression(expr: ValidExpr) {
-  importExpressions[expr.name] = expr;
-}
-export function hasImportExpression(expr: ValidExpr): boolean {
-  return defined(importExpressions[expr.name]);
-}
-
-export function refreshDatumEnvironments() {
-  state.env.forEach((expr) => {
-    const currentDatum = graph.options.data[expr.name];
-    graph.options.data[expr.name] = ValidExpr.toDatum(
-      expr,
-      state.env,
-      currentDatum?.show ?? false,
-      currentDatum?.color ?? currentColor()
-    );
-  });
-}
-
-export const appTabs = shallowReactive({
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-  Calc: shallowRef(IgCalc),
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-  Help: shallowRef(HelpScreen),
-});
-
-export const exprComponents = shallowReactive({
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-  text: shallowRef(TextExpr),
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-  expr: shallowRef(GraphExpr),
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-  js: shallowRef(TextJsExpr),
-} as const);
-
-export function lookupExprComponent(name: 'text' | 'expr' | 'js') {
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-  const component = exprComponents[name];
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-return
-  return component.value;
-}
-
+// export function refreshTex(expr?: ValidExpr | undefined) {
+//   if (defined(expr)) {
+//     addTexElement('tex_' + expr.name, expr.node.toTex());
+//   }
+//   void nextTick(typeset);
+// }
 
 export const onTicks: Record<string, (delta: number) => void> = {};
 export let time = 0;
@@ -247,12 +135,13 @@ export function gameLoop(elapsedTime: number) {
   const delta = t - time;
   if (delta >= state.tickTime) {
     time = t;
+    const env = currentEnv;
     if (state.runTimer) {
-      state.env.constant.set('time', time, { hidden: true });
-      if (defined(graph)) {
-        graph.drawLines();
-      }
+      env.value.constant.set('time', time, { hidden: true });
       Object.values(onTicks).forEach((x) => x(delta));
+    }
+    if (defined(env.value.graph)) {
+      env.value.graph.drawLines();
     }
   }
   window.requestAnimationFrame(gameLoop);

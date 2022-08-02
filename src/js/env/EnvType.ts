@@ -4,7 +4,6 @@ import { EnvItem, MathEnv } from './exprEnv';
 import { Graph } from '../function-plot/d3util';
 import { assert } from '../util';
 import { reactive, watch } from 'vue';
-import { state as appState } from 'components/uiUtil';
 
 export type EnvTypeTag = 'constant' | 'animated' | 'expression';
 
@@ -28,6 +27,7 @@ export function EnvType<V>({
    names,
    tag,
    data,
+
    getGraph,
    mathEnv,
    getMathValue,
@@ -97,7 +97,6 @@ export function EnvType<V>({
          } else {
             delete graph.options.data[key];
          }
-         if (!appState.runTimer) { graph.drawLines()}
       },
       colorGraph: (key: string, color: `#${string}`) => {
          if (key != 'time') { onChange() }
@@ -111,7 +110,6 @@ export function EnvType<V>({
          if (key in graph.options.data) {
             graph.options.data[key].color = color;
          }
-         if (!appState.runTimer) { graph.drawLines()}
       },
       getState: (key: string) => {
          const item = items.get(key);
