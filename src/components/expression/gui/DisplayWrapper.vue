@@ -101,11 +101,18 @@ onUpdated(refreshTex);
 <template>
   <div class="cols GraphExpr lastSmall" v-if="show">
     <div class="rows">
-        <span class="q-mini-drawer-only" v-if="!props.name.startsWith('anon:') && props.name !== '__tmp'">
+    <div class="q-mini-drawer-only">
+        <a-toggle class="graphColored" v-model="graphState.showGraph" :id="`show:${name}`" >
+        <q-menu context-menu>
+          <a-color no-header v-model="graphState.color" :id="`color:${name}`" />
+        </q-menu>
+        </a-toggle>
+        <span v-if="!props.name.startsWith('anon:') && props.name !== '__tmp'">
           {{ props.name }}
         </span>
-      <div class="cols wrap">
-        <span class="q-mini-drawer-hide" v-if="!props.name.startsWith('anon:') && props.name !== '__tmp'">
+    </div>
+      <div class="cols wrap q-mini-drawer-hide">
+        <span v-if="!props.name.startsWith('anon:') && props.name !== '__tmp'">
           {{ props.name }}
         </span>
         <a-toggle v-model="graphState.showGraph" :id="`show:${name}`" />
@@ -194,5 +201,13 @@ onUpdated(refreshTex);
 .color .q-icon {
   background-color: black !important;
   border-radius: 100px;
+}
+
+.graphColored .q-toggle__thumb {
+  color: v-bind('graphState.color');
+}
+
+.graphColored .q-toggle__track {
+  color: v-bind('graphState.color + "CC"');
 }
 </style>
