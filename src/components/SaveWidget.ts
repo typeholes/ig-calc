@@ -33,20 +33,20 @@ import { Interval } from 'src/js/function-plot/types';
 import { getActions } from '../js/actions';
 
 interface State {
-  currentSave: SaveId,
-  copying: SaveId | undefined,
-  newName: string | undefined,
-  newDescr: string | undefined,
-  deletedSaves: SaveMetaData,
-  shareString: string,
-  showDescriptions: boolean,
-  showDeletedSaves: boolean,
-  hasDeletedSaves: boolean,
-  error: string,
-  saveMetaData: SaveMetaData,
-};
+  currentSave: SaveId;
+  copying: SaveId | undefined;
+  newName: string | undefined;
+  newDescr: string | undefined;
+  deletedSaves: SaveMetaData;
+  shareString: string;
+  showDescriptions: boolean;
+  showDeletedSaves: boolean;
+  hasDeletedSaves: boolean;
+  error: string;
+  saveMetaData: SaveMetaData;
+}
 
-export const state : State = reactive({
+export const state: State = reactive({
   currentSave: DefaultSaveId,
   copying: undefined as SaveId | undefined,
   newName: undefined as string | undefined,
@@ -63,6 +63,8 @@ export const state : State = reactive({
     emptySaveMetaData()
   ),
 });
+
+export const rickRoll = reactive({ show: false, word: '' });
 
 export const environments = MMap(SaveId.toKey, SaveId.fromKey).of<ExprEnv>();
 
@@ -102,7 +104,12 @@ export function getSerializedSave(env: ExprEnv): SerializedSave {
 }
 
 export function save(id: SaveId, description: SaveDescription) {
-  writeSave(state.saveMetaData, id, description, getSerializedSave(environments.get(id)!));
+  writeSave(
+    state.saveMetaData,
+    id,
+    description,
+    getSerializedSave(environments.get(id)!)
+  );
   environments.get(id)!.dirty = false;
 }
 
@@ -117,14 +124,14 @@ export function load(id: SaveId) {
 }
 export function open(id: SaveId) {
   const env = load(id);
-  env.constant.set('time',0);
+  env.constant.set('time', 0);
   assert.defined(env);
 
   state.currentSave = id;
   if (defined(env.graph)) {
-    nextTick( () => {
-    env.graph.injectIntoTarget();
-    env.graph.resetZoom(Interval(-10,10),0);
+    nextTick(() => {
+      env.graph.injectIntoTarget();
+      env.graph.resetZoom(Interval(-10, 10), 0);
     });
   }
 }
@@ -339,4 +346,3 @@ export function initSaveWidget() {
 }
 
 export const currentEnv = computed(() => environments.get(state.currentSave)!);
-

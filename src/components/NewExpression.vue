@@ -6,12 +6,36 @@ import { EnvExpr } from '../js/env/EnvExpr';
 import { Animation } from '../js/env/Animation';
 import AInput from './qDefaulted/AInput.vue';
 import ABtn from './qDefaulted/ABtn.vue';
-import { currentEnv } from './SaveWidget';
+import { currentEnv, rickRoll } from './SaveWidget';
 const state = reactive({
   name: '',
+  skipValidation: false
 });
 
 function validateName(name: string) {
+  if (state.skipValidation) {
+    state.skipValidation = false;
+    return true;
+  }
+  if (name === 'melk') {
+    rickRoll.word = 'start';
+  }
+  if (rickRoll.word !== '') {
+    rickRoll.word = {
+      start: 'Never',
+      Never: 'gonna',
+      gonna: 'let',
+      let: 'you',
+      you: 'go',
+    }[rickRoll.word]??'go';
+    state.name = rickRoll.word;
+    if (!rickRoll.show && rickRoll.word === 'go') {
+      rickRoll.show = true;
+    }
+    state.skipValidation = true;
+    return true;
+  }
+
   return currentEnv.value.items.has(name) ? 'Name already exists' : true;
 }
 
