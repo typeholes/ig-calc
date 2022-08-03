@@ -9,7 +9,7 @@ import ABtn from './qDefaulted/ABtn.vue';
 import { currentEnv, rickRoll } from './SaveWidget';
 const state = reactive({
   name: '',
-  skipValidation: false
+  skipValidation: false,
 });
 
 function validateName(name: string) {
@@ -17,17 +17,18 @@ function validateName(name: string) {
     state.skipValidation = false;
     return true;
   }
-  if (name === 'melk') {
+  if (name === 'RickRoll') {
     rickRoll.word = 'start';
   }
   if (rickRoll.word !== '') {
-    rickRoll.word = {
-      start: 'Never',
-      Never: 'gonna',
-      gonna: 'let',
-      let: 'you',
-      you: 'go',
-    }[rickRoll.word]??'go';
+    rickRoll.word =
+      {
+        start: 'Never',
+        Never: 'gonna',
+        gonna: 'let',
+        let: 'you',
+        you: 'go',
+      }[rickRoll.word] ?? 'go';
     state.name = rickRoll.word;
     if (!rickRoll.show && rickRoll.word === 'go') {
       rickRoll.show = true;
