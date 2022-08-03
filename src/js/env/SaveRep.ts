@@ -30,6 +30,7 @@ export type SaveRepValue = EnvItem & {
    constant: undefined | number;
    animated: undefined | Animation;
    expression: undefined | string;
+   order: undefined | number;
 };
 
 export function toSaveRep(env: ExprEnv): SaveRep {
@@ -38,6 +39,7 @@ export function toSaveRep(env: ExprEnv): SaveRep {
       constant: env.constant.get(name),
       animated: env.animated.get(name),
       expression: env.expression.get(name)?.expr,
+      order: env.order.get(name)??0,
    }));
    return saveRep;
 }
@@ -61,6 +63,9 @@ export function fromSaveRep(saveRep: SaveRep): ExprEnv {
          env.expression.colorGraph(name, item.color);
          env.expression.showGraph(name, item.showGraph);
       }
+
+      const order = defined(item.order) && isNumber(item.order) ? item.order : 0;
+      env.order.set(name, order);
    });
 
    return env;
@@ -74,6 +79,7 @@ function parse(s: string): SaveRep {
       assert.propMayBe(value, 'constant', isNumber);
       assert.propMayBe(value, 'animated', isAnimation);
       assert.propMayBe(value, 'expression', isString);
+      assert.propMayBe(value, 'order', isNumber);
        assert.is(value, isEnvItem);
 
       return value;
