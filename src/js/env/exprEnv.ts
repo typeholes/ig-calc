@@ -1,4 +1,4 @@
-import { isFunctionAssignmentNode, isNumber, MathNode } from 'mathjs';
+import { isFunctionAssignmentNode, isNumber, map, MathNode } from 'mathjs';
 import { defaultCall, getAssignmentBody, ValidExpr } from '../expressions';
 import { Set as ISet, Map as IMap } from 'immutable';
 import { builtinConstants } from '../math/symbols';
@@ -19,6 +19,7 @@ import { assert, defined } from '../util';
 import { libraries } from '../libraryValues';
 import { defaultFunctionPlotOptionsAxis, FunctionPlotOptions } from '../function-plot/FunctionPlotOptions';
 import { Interval } from '../function-plot/types';
+import { _ } from 'app/dist/spa/assets/index.c7682b72';
 
 export type MathEnv = Record<string, MathNode | number>;
 
@@ -69,6 +70,7 @@ export interface ExprEnv extends ExprEnvIndexable {
   dirty: boolean;
   graph: Graph;
   graphId: string;
+  order: Map<string, number>;
 }
 
 const datumGetter = (
@@ -87,17 +89,24 @@ export const mkExprEnv = (): ExprEnv => {
   const data: Record<string, ValidExpr> = reactive({});
   const mathEnv: MathEnv = reactive({});
   const names: Set<string> = reactive(new Set());
-  const constants = new Map<string, number>();
-  const animations = new Map<string, Animation>();
-  const expressions = new Map<string, EnvExpr>();
+  const constants = new Map<string, number>;
+  const animations = new Map<string, Animation>;
+  const expressions = new Map<string, EnvExpr>;
+  let itemCnt = 0;
+  const order = new Map<string, number>;
+  function onChange(name: string) {
+        exprEnv.dirty = true;
+        if (!order.has(name)) {
+          itemCnt++;
+          order.set(name, itemCnt);
+        }
+  }
   const exprEnv: ExprEnv = reactive({
     graph,
     graphId,
     dirty: false,
     constant: EnvType({
-      onChange: () => {
-        exprEnv.dirty = true;
-      },
+      onChange,
       names,
       tag: 'constant',
       data: constants,
@@ -110,9 +119,7 @@ export const mkExprEnv = (): ExprEnv => {
       toTex: (v) => v.toString(),
     }),
     animated: EnvType({
-      onChange: () => {
-        exprEnv.dirty = true;
-      },
+      onChange,
       names,
       tag: 'animated',
       data: animations,
@@ -135,9 +142,7 @@ export const mkExprEnv = (): ExprEnv => {
       toTex: Animation.toTex,
     }),
     expression: EnvType({
-      onChange: () => {
-        exprEnv.dirty = true;
-      },
+      onChange,
       names,
       tag: 'expression',
       data: expressions,
@@ -169,6 +174,7 @@ export const mkExprEnv = (): ExprEnv => {
     names: names,
     getDependencies: (key: string) => getDependencies(key, exprEnv, items),
     getDatum: (key: string) => getDatum(key, exprEnv, items),
+    order,
   } as const);
   return exprEnv;
 }

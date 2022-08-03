@@ -36,7 +36,7 @@ export function EnvType<V>({
    getDependencies,
    toTex,
 }: {
-  onChange: ()=>void;
+  onChange: (name: string)=>void;
    names: Set<string>;
    tag: EnvTypeTag;
    data: Map<string, V>;
@@ -55,7 +55,7 @@ export function EnvType<V>({
       has: (key) => data.has(key),
       get: (key) => data.get(key),
       set: (key, value, props = {}) => {
-         if (key != 'time') { onChange() }
+         if (key != 'time') { onChange(key) }
          names.add(key);
          data.set(key, value);
          mathEnv[key] = getMathValue(value);
@@ -77,7 +77,7 @@ export function EnvType<V>({
          return value;
       },
       delete: (key) => {
-         if (key != 'time') { onChange() }
+         if (key != 'time') { onChange(key) }
          data.delete(key);
          delete mathEnv[key];
          names.delete(key);
@@ -85,7 +85,7 @@ export function EnvType<V>({
       },
       toRecord: () => Object.fromEntries(data.entries()),
       showGraph: (key: string, showGraph: boolean) => {
-         if (key != 'time') { onChange() }
+         if (key != 'time') { onChange(key) }
          const item = items.get(key);
          assert.defined(item);
          const graph = getGraph();
@@ -99,7 +99,7 @@ export function EnvType<V>({
          }
       },
       colorGraph: (key: string, color: `#${string}`) => {
-         if (key != 'time') { onChange() }
+         if (key != 'time') { onChange(key) }
          const item = items.get(key);
          assert.defined(item);
          const graph = getGraph();

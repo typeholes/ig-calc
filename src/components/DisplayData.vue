@@ -12,7 +12,7 @@ function getNames() {
   return names;
 }
 
-const names = computed(() => getNames().filter((item) => item.showGraph));
+const names = computed(() => getNames().filter((item) => item.showGraph).sortBy( (item) => currentEnv.value.order.get(item.name)));
 
 function formatNumber(n: number | string | undefined /*row: number*/) {
   if (isString(n)) {

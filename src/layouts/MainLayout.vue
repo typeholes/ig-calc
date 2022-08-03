@@ -87,6 +87,7 @@ const width = Math.max(window.innerWidth * .25, 300);
 
 function toggleLeftDrawer() {
   // leftDrawerOpen.value = !leftDrawerOpen.value;
+  leftDrawerOpen.value = true;
   leftDrawerMini.value = !leftDrawerMini.value;
 }
 

@@ -4,6 +4,8 @@ import AToggle from './qDefaulted/AToggle.vue';
 import DisplayWrapper from './expression/gui/DisplayWrapper.vue';
 import NewExprBtn from './NewExprBtn.vue';
 
+import { Set as ISet } from 'immutable';
+
 import { state } from './uiUtil';
 
 import { defined } from 'src/js/util';
@@ -12,6 +14,8 @@ import { currentEnv } from './SaveWidget';
 function getTypeTag(name: string) {
   return currentEnv.value.items.get(name)?.typeTag ?? 'constant';
 }
+
+
 
 
 </script>
@@ -37,7 +41,7 @@ function getTypeTag(name: string) {
         </div>
       </div>
       <q-scroll-area style="height:80vh" visible>
-      <div class="expressions" :key="currentEnv.graphId + '-' + name" v-for="name in currentEnv.names">
+      <div class="expressions" :key="currentEnv.graphId + '-' + name" v-for="name in ISet(currentEnv.names).sortBy( (name) => currentEnv.order.get(name))">
         <display-wrapper :name="name" :type="getTypeTag(name)" />
       </div>
       </q-scroll-area>
