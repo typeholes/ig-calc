@@ -13,6 +13,7 @@ import ABtnDropdown from 'src/components/qDefaulted/ABtnDropdown.vue';
 import ABtn from 'src/components/qDefaulted/ABtn.vue';
 import { Animation } from 'src/js/env/Animation';
 import { EnvExpr } from 'src/js/env/EnvExpr';
+import { colors as qcolor } from 'quasar';
 
 import {
   matColorLens,
@@ -92,6 +93,15 @@ function copyToSave(id: SaveId) {
     tgtState.showGraph = graphState.showGraph;
     tgtState.showValue = graphState.showValue;
   }
+}
+
+function borderColor(color: string) {
+  const lumens = qcolor.luminosity(color);
+  if (lumens > .05) { return 'transparent' };
+
+  const { h, v } = qcolor.rgbToHsv(qcolor.textToRgb(color));
+  return qcolor.rgbToHex(qcolor.hsvToRgb({ h, s: 100, v: 100 }));
+
 }
 
 onMounted(refreshTex);
@@ -205,9 +215,14 @@ onUpdated(refreshTex);
 
 .graphColored .q-toggle__thumb {
   color: v-bind('graphState.color');
+  /* border: 1px solid v-bind('borderColor(graphState.color)'); */
+  border-radius: 100%;
+  box-shadow: 1px 1px 1px 1px v-bind('borderColor(graphState.color)')
 }
 
 .graphColored .q-toggle__track {
   color: v-bind('graphState.color + "CC"');
+  /* border: 1px solid v-bind('borderColor(graphState.color)'); */
+  box-shadow: 1px 1px 1px 1px v-bind('borderColor(graphState.color)')
 }
 </style>
