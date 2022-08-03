@@ -97,7 +97,7 @@ function copyToSave(id: SaveId) {
 
 function borderColor(color: string) {
   const lumens = qcolor.luminosity(color);
-  if (lumens > .05) { return 'transparent' };
+  if (lumens > .05) { return qcolor.lighten(color, -50) }
 
   const { h, v } = qcolor.rgbToHsv(qcolor.textToRgb(color));
   return qcolor.rgbToHex(qcolor.hsvToRgb({ h, s: 100, v: 100 }));
@@ -224,5 +224,14 @@ onUpdated(refreshTex);
   color: v-bind('graphState.color + "CC"');
   /* border: 1px solid v-bind('borderColor(graphState.color)'); */
   box-shadow: 1px 1px 1px 1px v-bind('borderColor(graphState.color)')
+}
+
+.q-toggle__thumb {
+  border-radius: 100%;
+  box-shadow: 1px 1px 1px 1px teal;
+}
+
+.q-toggle__track {
+  box-shadow: 1px 1px 1px 1px teal;
 }
 </style>
