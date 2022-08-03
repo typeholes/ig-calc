@@ -32,7 +32,7 @@
 
 .q-drawer__content {
   background-color: transparent;
-  overflow: visible
+  overflow: visible;
 }
 
 aside.q-drawer {
@@ -47,4 +47,32 @@ aside.q-drawer {
 
 .CtxtMenu_MenuFrame {
   z-index: 99999 !important;
+}
+
+.data-table {
+  /* height or max-height is important */
+  .q-table__bottom {
+    bottom: 0;
+    position: sticky
+  }
+
+  .q-table__top,
+  .q-table__bottom,
+  thead tr:first-child th {
+    /* bg color is important for th; just specify one */
+    background-color: black
+  }
+  thead tr th {
+    position: sticky;
+    z-index: 1;
+  }
+  thead tr:first-child th {
+    top: 0;
+  }
+
+  /* this is when the loading indicator appears */
+  &.q-table--loading thead tr:last-child th {
+    /* height of all previous header rows */
+    top: 48px;
+  }
 }

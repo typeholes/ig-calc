@@ -86,16 +86,17 @@ const freeValues = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 987654321.0123456789].concat(
 </script>
 
 <template>
-  <div class="fixed-center q-pa-md">
-    <!-- <q-scroll-area id="data-grid-scroll-area"> -->
+  <div class="fixed-center">
+     <q-scroll-area id="data-grid-scroll-area" style="width: 75vw; height: 80vh">
     <q-table
       :rows="rows(freeValues)"
       :columns="columns"
       row-key="free"
       virtual-scroll
+      virtual-scroll-target="#data-grid-scroll-area > .scroll"
       dense
-      style="height: 80vh"
+      class="data-table"
     />
-    <!-- </q-scroll-area> -->
+    </q-scroll-area>
   </div>
 </template>
