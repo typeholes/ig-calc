@@ -3,7 +3,7 @@ import { reactive } from 'vue';
 import { isValidNumber } from 'src/js/function-plot/utils';
 import AInput from 'src/components/qDefaulted/AInput.vue';
 import ASelect from 'src/components/qDefaulted/ASelect.vue';
-import { currentEnv } from 'src/components/SaveWidget';
+import { state as saveState } from 'src/components/SaveWidget';
 
 interface Props {
   name: string;
@@ -12,8 +12,7 @@ interface Props {
 
 const props = defineProps<Props>();
 
-const env = currentEnv;
-const graphState = env.value.animated.getState(props.name);
+const graphState = saveState.currentEnv.animated.getState(props.name);
 
 
 const state = reactive({
@@ -36,7 +35,7 @@ function updateAnimation() {
   graphState.value.period = isValidNumber(period) ? period : 1;
   graphState.value.fnName = state.fnName;
 
-  env.value.animated.set(props.name, graphState.value );
+  saveState.currentEnv.animated.set(props.name, graphState.value );
   props.update()
 }
 </script>

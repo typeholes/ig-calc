@@ -6,7 +6,7 @@ import { EnvExpr } from '../js/env/EnvExpr';
 import { Animation } from '../js/env/Animation';
 import AInput from './qDefaulted/AInput.vue';
 import ABtn from './qDefaulted/ABtn.vue';
-import { currentEnv, rickRoll } from './SaveWidget';
+import { state as saveState, rickRoll } from './SaveWidget';
 const state = reactive({
   name: '',
   skipValidation: false,
@@ -37,14 +37,14 @@ function validateName(name: string) {
     return true;
   }
 
-  return currentEnv.value.items.has(name) ? 'Name already exists' : true;
+  return saveState.currentEnv.items.has(name) ? 'Name already exists' : true;
 }
 
 const disableAdd = computed(
   () =>
     state.name === '' ||
     state.name === 'time' ||
-    currentEnv.value.items.has(state.name)
+    saveState.currentEnv.items.has(state.name)
 );
 
 function addExpr(type: EnvTypeTag) {
@@ -54,15 +54,19 @@ function addExpr(type: EnvTypeTag) {
   const newName = state.name;
   state.name = '';
   if (type === 'constant') {
-    currentEnv.value.constant.set(newName, 0);
+    saveState.currentEnv.constant.set(newName, 0);
+    console.log(newName, saveState.currentEnv.order);
     return;
   }
   if (type === 'expression') {
-    currentEnv.value.expression.set(newName, EnvExpr(`${newName} = sin(x)`));
+    saveState.currentEnv.expression.set(
+      newName,
+      EnvExpr(`${newName} = sin(x)`)
+    );
     return;
   }
   if (type === 'animated') {
-    currentEnv.value.animated.set(newName, Animation('zigZag', 0, 5, 3));
+    saveState.currentEnv.animated.set(newName, Animation('zigZag', 0, 5, 3));
     return;
   }
 }

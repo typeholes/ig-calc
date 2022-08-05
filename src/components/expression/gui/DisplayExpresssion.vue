@@ -3,7 +3,7 @@ import { reactive } from 'vue';
 import { defined } from '../../../js/util';
 import { EnvExpr } from '../../../js/env/EnvExpr';
 import AInput from 'src/components/qDefaulted/AInput.vue';
-import { currentEnv } from 'src/components/SaveWidget';
+import { state as saveState } from 'src/components/SaveWidget';
 
 interface Props {
   name: string;
@@ -11,8 +11,7 @@ interface Props {
 }
 
 const props = defineProps<Props>();
-const env = currentEnv;
-let graphState = env.value.expression.getState(props.name);
+let graphState = saveState.currentEnv.expression.getState(props.name);
 
 const state = reactive({
   expr: graphState.value.expr,
@@ -22,13 +21,13 @@ const state = reactive({
 function updateExpr(event: Event) {
   if (event.target instanceof HTMLInputElement) {
     const expr = EnvExpr(event.target.value);
-    env.value.expression.set(props.name, expr);
+    saveState.currentEnv.expression.set(props.name, expr);
     props.update();
   }
 }
 
 function syncGraphState() {
-  graphState = env.value.expression.getState(props.name);
+  graphState = saveState.currentEnv.expression.getState(props.name);
   state.errorMsg = graphState.value.error;
   state.expr = graphState.value.expr;
 }

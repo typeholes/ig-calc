@@ -1,5 +1,5 @@
-import { isFunctionAssignmentNode, isNumber, map, MathNode } from 'mathjs';
-import { defaultCall, getAssignmentBody, ValidExpr } from '../expressions';
+import { isFunctionAssignmentNode, isNumber, MathNode } from 'mathjs';
+import { defaultCall, getAssignmentBody, } from '../expressions';
 import { Set as ISet, Map as IMap } from 'immutable';
 import { builtinConstants } from '../math/symbols';
 import { reactive } from 'vue';
@@ -17,9 +17,11 @@ import { EnvExpr } from './EnvExpr';
 import { inline } from '../math/mathUtil';
 import { assert, defined } from '../util';
 import { libraries } from '../libraryValues';
-import { defaultFunctionPlotOptionsAxis, FunctionPlotOptions } from '../function-plot/FunctionPlotOptions';
+import {
+  defaultFunctionPlotOptionsAxis,
+  FunctionPlotOptions,
+} from '../function-plot/FunctionPlotOptions';
 import { Interval } from '../function-plot/types';
-import { _ } from 'app/dist/spa/assets/index.c7682b72';
 
 export type MathEnv = Record<string, MathNode | number>;
 
@@ -57,20 +59,14 @@ export interface ExprEnv extends ExprEnvIndexable {
   constant: EnvType<number>;
   animated: EnvType<Animation>;
   expression: EnvType<EnvExpr>;
-  map: <T>(fn: (value: ValidExpr, key: string) => T) => Record<string, T>;
-  forEach: (fn: (expr: ValidExpr) => void) => void;
-  toRecord: () => Record<string, ValidExpr>;
-  toMap: () => IMap<string, ValidExpr>;
   getMathEnv: (includeConstants?: boolean) => MathEnv;
-  updateMathEnv: (key: string) => void;
-  names: Set<string>;
   getDependencies: (key: string) => DependencyTree;
   items: Map<string, EnvItem>;
   getDatum: (key: string) => Datum | undefined;
   dirty: boolean;
   graph: Graph;
-  graphId: string;
-  order: Map<string, number>;
+  order: string[];
+  getType: (key: string) => EnvTypeTag;
 }
 
 const datumGetter = (
@@ -80,34 +76,36 @@ const datumGetter = (
 ) => Datum(evalFn, { show: item.showGraph, color: item.color, ...options });
 
 // eslint-disable-next-line no-var
-let graphCnt = 0;
 export const mkExprEnv = (): ExprEnv => {
-  graphCnt++;
-  const graphId = 'graph-' + graphCnt.toString();
   const items = reactive(new Map<string, EnvItem>());
-  const graph = initGraph(graphId);
-  const data: Record<string, ValidExpr> = reactive({});
+  const graph = initGraph();
   const mathEnv: MathEnv = reactive({});
-  const names: Set<string> = reactive(new Set());
-  const constants = new Map<string, number>;
-  const animations = new Map<string, Animation>;
-  const expressions = new Map<string, EnvExpr>;
-  let itemCnt = 0;
-  const order = new Map<string, number>;
-  function onChange(name: string) {
-        exprEnv.dirty = true;
-        if (!order.has(name)) {
-          itemCnt++;
-          order.set(name, itemCnt);
-        }
+  const constants = new Map<string, number>();
+  const animations = new Map<string, Animation>();
+  const expressions = new Map<string, EnvExpr>();
+  const order: string[] = reactive([]);
+  function onChange(
+    name: string,
+    changeType: 'insert' | 'update' | 'delete' = 'update'
+  ) {
+    exprEnv.dirty = true;
+    if (changeType === 'delete') {
+      const idx = order.indexOf(name);
+      if (idx >= 0) {
+        order.splice(idx, 1);
+      }
+    } else {
+      if (!order.includes(name)) {
+        order.push(name);
+      }
+      graph.drawLines();
+    }
   }
-  const exprEnv: ExprEnv = reactive({
+  const exprEnv: ExprEnv = ({
     graph,
-    graphId,
     dirty: false,
     constant: EnvType({
       onChange,
-      names,
       tag: 'constant',
       data: constants,
       getGraph: () => graph,
@@ -120,7 +118,6 @@ export const mkExprEnv = (): ExprEnv => {
     }),
     animated: EnvType({
       onChange,
-      names,
       tag: 'animated',
       data: animations,
       getGraph: () => graph,
@@ -143,7 +140,6 @@ export const mkExprEnv = (): ExprEnv => {
     }),
     expression: EnvType({
       onChange,
-      names,
       tag: 'expression',
       data: expressions,
       getGraph: () => graph,
@@ -156,28 +152,17 @@ export const mkExprEnv = (): ExprEnv => {
       toTex: EnvExpr.toTex,
     }),
     items,
-    map: <T>(fn: (value: ValidExpr, key: string) => T) => {
-      const mapped = Object.entries(data).map(
-        ([k, v]) => [k, fn(v, k)] as const
-      );
-      return Object.fromEntries(mapped);
-    },
-    forEach: (fn: (expr: ValidExpr) => void) => Object.values(data).forEach(fn),
-    toRecord: () => ({ ...data }),
-    toMap: () => IMap(data),
     getMathEnv: (includeConstants = false) =>
       includeConstants
         ? { ...mathEnv, ...builtinConstants.toObject() }
         : mathEnv,
-    updateMathEnv: (key: string) =>
-      (mathEnv[key] = getAssignmentBody(data[key].node)),
-    names: names,
     getDependencies: (key: string) => getDependencies(key, exprEnv, items),
     getDatum: (key: string) => getDatum(key, exprEnv, items),
     order,
+    getType: (key: string) => items.get(key)?.typeTag ?? 'constant'
   } as const);
   return exprEnv;
-}
+};
 
 // utterly accursed unsafe type
 export type U2I<U> = (U extends U ? (u: U) => 0 : never) extends (
@@ -249,7 +234,7 @@ export const nodeToEvalFn = (
   freeVar = '__unused'
 ): EvalFn => {
   const body = isFunctionAssignmentNode(node)
-    ? defaultCall(node, env.names)
+    ? defaultCall(node, new Set(env.order))
     : getAssignmentBody(node);
   const mathEnv = { ...env.getMathEnv() };
   delete mathEnv['time'];
@@ -267,7 +252,7 @@ export const nodeToEvalFn = (
         return result;
       }
     } catch (e) {
-  //    appState.error = String(e);
+      //    appState.error = String(e);
       //  debugger;
       return 0;
     }
@@ -275,8 +260,8 @@ export const nodeToEvalFn = (
   return ret;
 };
 
-function initGraph(elementId: string) {
-  const graph = mkGraph(graphOptions('#' + elementId));
+function initGraph() {
+  const graph = mkGraph(graphOptions('#graph')); // + elementId));
   return graph;
 }
 
@@ -285,11 +270,9 @@ function graphOptions(target: string): FunctionPlotOptions {
     target,
     data: {},
     width: Math.max(window.innerWidth, 400),
-    height: Math.max(window.innerHeight , 400),
+    height: Math.max(window.innerHeight, 400),
     xDomain: reactive(Interval(0, 1)),
     xAxis: { ...defaultFunctionPlotOptionsAxis(), type: 'linear' },
     yDomain: reactive(Interval(0, 1)),
   };
 }
-
-

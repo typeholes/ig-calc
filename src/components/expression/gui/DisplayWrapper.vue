@@ -1,6 +1,7 @@
 <script setup lang="ts">
+import { computed } from 'vue';
 import { addTexElement, typeset } from '../../../js/typeset';
-import { reactive, onMounted, onUpdated, TriggerOpTypes } from 'vue';
+import { reactive, onMounted, onUpdated, } from 'vue';
 import { state as appState } from 'components/uiUtil';
 import { defined } from '../../../js/util';
 import AToggle from 'src/components/qDefaulted/AToggle.vue';
@@ -23,26 +24,21 @@ import {
   matShare,
 } from '@quasar/extras/material-icons';
 
-import { saveList, load, currentEnv } from 'src/components/SaveWidget';
+import { saveList, load, state as saveState } from 'src/components/SaveWidget';
 import { SaveId, saveTypes as allSaveTypes } from 'src/js/SaveManager';
-import { computed } from 'vue';
 
 interface Props {
   name: string;
-  type: EnvTypeTag;
 }
 
 const props = defineProps<Props>();
+const type = saveState.currentEnv.getType(props.name);
 
 const saveTypes = allSaveTypes.filter((x) => x !== 'library');
 
-const env = currentEnv;
-const envItem = env.value[props.type];
-const graphState = envItem.getState(props.name);
-
 const show = computed(
   () =>
-    appState.showHiddenExpressions || !env.value.items.get(props.name)?.hidden
+    appState.showHiddenExpressions || !saveState.currentEnv.items.get(props.name)?.hidden
 );
 
 const state = reactive({
@@ -50,14 +46,14 @@ const state = reactive({
 });
 
 function remove() {
-  envItem.delete(props.name);
+  saveState.currentEnv[type].delete(props.name);
 }
 
 function getTex() {
-  const value = envItem.get(props.name);
+  const value = saveState.currentEnv[type].get(props.name);
   return defined(value)
     ? // @ts-expect-error U2I
-      envItem.toTex(props.name, value)
+      saveState.currentEnv[type].toTex(props.name, value)
     : `${props.name} not found`;
 }
 
@@ -71,27 +67,27 @@ function update() {
 }
 function copyToSave(id: SaveId) {
   const tgt = load(id);
-  if (props.type === 'constant') {
-    const value: number = env.value.constant.get(props.name)!;
+  if (type === 'constant') {
+    const value: number = saveState.currentEnv.constant.get(props.name)!;
     tgt.constant.set(props.name, value);
-  } else if (props.type === 'animated') {
-    const value: Animation = env.value.animated.get(props.name)!;
+  } else if (type === 'animated') {
+    const value: Animation = saveState.currentEnv.animated.get(props.name)!;
     tgt.animated.set(
       props.name,
       Animation(value.fnName, value.from, value.to, value.period)
     );
-  } else if (props.type === 'expression') {
-    const value: EnvExpr = env.value.expression.get(props.name)!;
+  } else if (type === 'expression') {
+    const value: EnvExpr = saveState.currentEnv.expression.get(props.name)!;
     tgt.expression.set(props.name, EnvExpr(value.expr));
   }
 
-  const tgtState = tgt[props.type].getState(props.name);
+  const tgtState = tgt[type].getState(props.name);
   if (defined(tgtState)) {
-    tgtState.color = graphState.color;
-    tgtState.description = graphState.description;
-    tgtState.hidden = graphState.hidden;
-    tgtState.showGraph = graphState.showGraph;
-    tgtState.showValue = graphState.showValue;
+    tgtState.color = saveState.currentEnv[type].getState(props.name).color;
+    tgtState.description = saveState.currentEnv[type].getState(props.name).description;
+    tgtState.hidden = saveState.currentEnv[type].getState(props.name).hidden;
+    tgtState.showGraph = saveState.currentEnv[type].getState(props.name).showGraph;
+    tgtState.showValue = saveState.currentEnv[type].getState(props.name).showValue;
   }
 }
 
@@ -112,9 +108,9 @@ onUpdated(refreshTex);
   <div class="cols GraphExpr lastSmall" v-if="show">
     <div class="rows">
     <div class="q-mini-drawer-only">
-        <a-toggle class="graphColored" v-model="graphState.showGraph" :id="`show:${name}`" >
+        <a-toggle class="graphColored" v-model="saveState.currentEnv[type].getState(props.name).showGraph" :id="`show:${name}`" >
         <q-menu context-menu>
-          <a-color no-header v-model="graphState.color" :id="`color:${name}`" />
+          <a-color no-header v-model="saveState.currentEnv[type].getState(props.name).color" :id="`color:${name}`" />
         </q-menu>
         </a-toggle>
         <span v-if="!props.name.startsWith('anon:') && props.name !== '__tmp'">
@@ -125,17 +121,17 @@ onUpdated(refreshTex);
         <span v-if="!props.name.startsWith('anon:') && props.name !== '__tmp'">
           {{ props.name }}
         </span>
-        <a-toggle v-model="graphState.showGraph" :id="`show:${name}`" />
+        <a-toggle v-model="saveState.currentEnv[type].getState(props.name).showGraph" :id="`show:${name}`" />
         <a-btn-dropdown
           :dropdown-icon="matColorLens"
           label="&nbsp'&nbsp;&nbsp;"
           class="color"
         >
-          <a-color no-header v-model="graphState.color" :id="`color:${name}`" />
+          <a-color no-header v-model="saveState.currentEnv[type].getState(props.name).color" :id="`color:${name}`" />
         </a-btn-dropdown>
       </div>
       <template v-if="appState.exprBarExpanded">
-        <q-tab-panels :model-value="props.type" class="q-mini-drawer-hide">
+        <q-tab-panels :model-value="type" class="q-mini-drawer-hide">
           <q-tab-panel name="constant">
             <display-constant :name="props.name" :update="update" />
           </q-tab-panel>
@@ -146,8 +142,8 @@ onUpdated(refreshTex);
             <display-animation :name="props.name" :update="update" />
           </q-tab-panel>
         </q-tab-panels>
-        <div class="cols q-mini-drawer-hide" v-if="graphState.description">
-          <span class="fullRow">{{ graphState.description }}</span>
+        <div class="cols q-mini-drawer-hide" v-if="saveState.currentEnv[type].getState(props.name).description">
+          <span class="fullRow">{{ saveState.currentEnv[type].getState(props.name).description }}</span>
         </div>
       </template>
     </div>
@@ -206,7 +202,7 @@ onUpdated(refreshTex);
 
 <style>
 .color {
-  background-color: v-bind('graphState.color + "88"');
+  background-color: v-bind('saveState.currentEnv[type].getState(props.name).color + "88"');
 }
 .color .q-icon {
   background-color: black !important;
@@ -214,16 +210,16 @@ onUpdated(refreshTex);
 }
 
 .graphColored .q-toggle__thumb {
-  color: v-bind('graphState.color');
-  /* border: 1px solid v-bind('borderColor(graphState.color)'); */
+  color: v-bind('saveState.currentEnv[type].getState(props.name).color');
+  /* border: 1px solid v-bind('borderColor(saveState.currentEnv[type].getState(props.name).color)'); */
   border-radius: 100%;
-  box-shadow: 1px 1px 1px 1px v-bind('borderColor(graphState.color)')
+  box-shadow: 1px 1px 1px 1px v-bind('borderColor(saveState.currentEnv[type].getState(props.name).color)')
 }
 
 .graphColored .q-toggle__track {
-  color: v-bind('graphState.color + "CC"');
-  /* border: 1px solid v-bind('borderColor(graphState.color)'); */
-  box-shadow: 1px 1px 1px 1px v-bind('borderColor(graphState.color)')
+  color: v-bind('saveState.currentEnv[type].getState(props.name).color + "CC"');
+  /* border: 1px solid v-bind('borderColor(saveState.currentEnv[type].getState(props.name).color)'); */
+  box-shadow: 1px 1px 1px 1px v-bind('borderColor(saveState.currentEnv[type].getState(props.name).color)')
 }
 
 .q-toggle__thumb {

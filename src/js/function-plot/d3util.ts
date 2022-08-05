@@ -13,7 +13,7 @@ import {
   FunctionPlotOptions,
 } from './FunctionPlotOptions';
 import { Rect } from '../Rect';
-import { isValidPoint } from './utils';
+import { defined, isValidPoint } from './utils';
 import { Expand } from '../util';
 
 const margins = { left: 10, right: 20, top: 0, bottom: 10 };
@@ -115,12 +115,14 @@ export function mkGraph(options: FunctionPlotOptions) {
       .attr('fill', '#777');
   }
 
-  let injected = false;
-  function injectIntoTarget() {
-    if (injected) {
-      return;
+  function injectIntoTarget(): boolean {
+    const tgtElement = select(options.target).node();
+    if (!defined(tgtElement)) {
+      return false;
     }
-    injected = true;
+    if (tgtElement instanceof Element) {
+      tgtElement.innerHTML = '';
+    }
     root()
       .enter()
       .append('svg')
@@ -193,6 +195,8 @@ export function mkGraph(options: FunctionPlotOptions) {
     // });
 
     buildClip();
+
+    return true;
   }
 
   function visibleData(data?: FunctionPlotData): FunctionPlotDatum[] {

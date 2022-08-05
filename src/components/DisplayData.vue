@@ -3,16 +3,18 @@ import { Errorable, errorable } from '../js/Either';
 import { EnvItem } from '../js/env/exprEnv';
 import { defined, isString } from '../js/util';
 import { Map as IMap } from 'immutable';
-import { computed, reactive } from 'vue';
-import { currentEnv } from 'src/components/SaveWidget';
+import { computed, } from 'vue';
+import { state as saveState } from 'src/components/SaveWidget';
 import { arrayRange } from 'src/js/function-plot/utils';
 
+const currentEnv = saveState.currentEnv;
+
 function getNames() {
-  const names = IMap(currentEnv.value.items).filter((item) => item.showGraph);
+  const names = IMap(currentEnv.items).filter((item) => item.showGraph);
   return names;
 }
 
-const names = computed(() => getNames().filter((item) => item.showGraph).sortBy( (item) => currentEnv.value.order.get(item.name)));
+const names = computed(() => getNames().filter((item) => item.showGraph).sortBy( (item) => currentEnv.order.indexOf(item.name)));
 
 function formatNumber(n: number | string | undefined /*row: number*/) {
   if (isString(n)) {
@@ -24,7 +26,7 @@ function formatNumber(n: number | string | undefined /*row: number*/) {
 
 function runFn(name: string, item: EnvItem, n: number) {
   return errorable(() => {
-    const datum = currentEnv.value.getDatum(name);
+    const datum = currentEnv.getDatum(name);
     if (defined(datum) && datum.evalFn instanceof Function) {
       return datum.evalFn(n);
     }

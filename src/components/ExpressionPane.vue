@@ -3,20 +3,24 @@ import ASelect from './qDefaulted/ASelect.vue';
 import AToggle from './qDefaulted/AToggle.vue';
 import DisplayWrapper from './expression/gui/DisplayWrapper.vue';
 import NewExprBtn from './NewExprBtn.vue';
+import draggable from 'vuedraggable';
 
-import { Set as ISet } from 'immutable';
-
-import { state } from './uiUtil';
+import { state as appState } from './uiUtil';
 
 import { defined } from 'src/js/util';
-import { currentEnv } from './SaveWidget';
+import { computed, onUpdated } from 'vue';
+import { state as saveState } from 'src/components/SaveWidget'
 
-function getTypeTag(name: string) {
-  return currentEnv.value.items.get(name)?.typeTag ?? 'constant';
+interface Props {
+  order: string[];
 }
 
+onUpdated(() => console.log(props.order));
 
+const order = computed( ()=> saveState.currentEnv.order)
 
+const props = defineProps<Props>();
+const currentEnv = saveState.currentEnv;
 
 </script>
 
@@ -28,7 +32,7 @@ function getTypeTag(name: string) {
           <a-select
             id="exprComponent"
             label="Display expressions as"
-            v-model="state.exprComponent"
+            v-model="appState.exprComponent"
             :options="[
               { value: 'expr', label: 'Expression' },
               { value: 'text', label: 'Plain Text' },
@@ -37,19 +41,29 @@ function getTypeTag(name: string) {
           />
         </div>
         <div>
-          <a-toggle v-model="state.runTimer" label="Run Timer" />
+          <a-toggle v-model="saveState.runTimer" label="Run Timer" />
         </div>
       </div>
-      <q-scroll-area style="height:80vh" visible>
-      <div class="expressions" :key="currentEnv.graphId + '-' + name" v-for="name in ISet(currentEnv.names).sortBy( (name) => currentEnv.order.get(name))">
+      <q-scroll-area style="height: 80vh" visible>
+        <draggable
+          :list="order"
+          item-key="id"
+          @change="saveState.currentEnv.dirty = true"
+        >
+          <template #item="{ element }">
+            <display-wrapper :name="element"/>
+          </template>
+        </draggable>
+
+        <!-- <div class="expressions" :key="currentEnv.graphId + '-' + name" v-for="name in ISet(currentEnv.names).sortBy( (name) => currentEnv.order.get(name))">
         <display-wrapper :name="name" :type="getTypeTag(name)" />
-      </div>
+      </div> -->
       </q-scroll-area>
       <div
         class="expressions"
-        v-if="state.saveEditable && state.exprBarExpanded"
+        v-if="appState.saveEditable && appState.exprBarExpanded"
       >
-        <new-expr-btn/>
+        <new-expr-btn />
       </div>
     </div>
   </div>

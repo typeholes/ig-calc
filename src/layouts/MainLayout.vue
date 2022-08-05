@@ -26,7 +26,7 @@
       :width="width"
       :mini-width="120"
     >
-      <ExpressionPane />
+      <ExpressionPane :order="saveState.currentEnv.order" />
     </q-drawer>
 
     <q-drawer
@@ -44,7 +44,7 @@
         <!-- <new-expr-btn /> -->
         <q-tab-panels keep-alive v-model="panel">
           <q-tab-panel name="graph">
-            <DisplayGraph />
+            <DisplayGraph :saveId="saveState.currentSave" />
           </q-tab-panel>
           <q-tab-panel name="grid">
             <DisplayData />
@@ -70,20 +70,19 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue';
+import { ref } from 'vue';
 import DisplayGraph from 'src/components/DisplayGraph.vue';
 import DisplayData from 'src/components/DisplayData.vue';
-import { initUI, loadPersistantOptions } from 'src/components/uiUtil';
 import ExpressionPane from 'src/components/ExpressionPane.vue';
 import SaveWidget from 'src/components/SaveWidget.vue';
-import NewExprBtn from 'src/components/NewExprBtn.vue';
+import { state as saveState } from 'src/components/SaveWidget';
 
 const leftDrawerOpen = ref(false);
 const leftDrawerMini = ref(false);
 const rightDrawerOpen = ref(false);
 const panel = ref('graph');
 
-const width = Math.max(window.innerWidth * .25, 300);
+const width = Math.max(window.innerWidth * 0.25, 300);
 
 function toggleLeftDrawer() {
   // leftDrawerOpen.value = !leftDrawerOpen.value;
@@ -94,8 +93,4 @@ function toggleLeftDrawer() {
 function toggleRightDrawer() {
   rightDrawerOpen.value = !rightDrawerOpen.value;
 }
-onMounted(() => {
-  initUI();
-  loadPersistantOptions();
-});
 </script>

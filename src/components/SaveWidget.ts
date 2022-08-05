@@ -3,7 +3,7 @@ import {
   decompressFromEncodedURIComponent,
 } from 'lz-string';
 import { Either, Errorable, isLeft } from 'src/js/Either';
-import { ExprEnv } from 'src/js/env/exprEnv';
+import { ExprEnv, mkExprEnv } from 'src/js/env/exprEnv';
 import { fromSaveRep, SaveRep, toSaveRep } from 'src/js/env/SaveRep';
 import { libraryDescriptions, librarySaveReps } from 'src/js/libraryValues';
 import {
@@ -25,15 +25,16 @@ import {
   writeSaveMetadata,
 } from 'src/js/SaveManager';
 import { assert, defined, notBlank } from 'src/js/util';
-import { computed, nextTick, reactive } from 'vue';
+import { nextTick, reactive } from 'vue';
 
 import { Map as IMap } from 'immutable';
 import { MMap } from './MMap';
 import { Interval } from 'src/js/function-plot/types';
-import { getActions } from '../js/actions';
+import { tick as actionsTick, getActions } from '../js/actions';
 
 interface State {
   currentSave: SaveId;
+  currentEnv: ExprEnv;
   copying: SaveId | undefined;
   newName: string | undefined;
   newDescr: string | undefined;
@@ -44,10 +45,13 @@ interface State {
   hasDeletedSaves: boolean;
   error: string;
   saveMetaData: SaveMetaData;
+  tickTime: number;
+  runTimer: boolean;
 }
 
 export const state: State = reactive({
   currentSave: DefaultSaveId,
+  currentEnv: mkExprEnv(),
   copying: undefined as SaveId | undefined,
   newName: undefined as string | undefined,
   newDescr: undefined as string | undefined,
@@ -62,6 +66,8 @@ export const state: State = reactive({
     (error) => (state.error = error.message),
     emptySaveMetaData()
   ),
+  tickTime: 0.1,
+  runTimer: true,
 });
 
 export const rickRoll = reactive({ show: false, word: '' });
@@ -127,13 +133,8 @@ export function open(id: SaveId) {
   env.constant.set('time', 0);
   assert.defined(env);
 
+  state.currentEnv = env;
   state.currentSave = id;
-  if (defined(env.graph)) {
-    nextTick(() => {
-      env.graph.injectIntoTarget();
-      env.graph.resetZoom(Interval(-10, 10), 0);
-    });
-  }
 }
 
 export function loadSave(id: SaveId): ExprEnv | undefined {
@@ -345,4 +346,29 @@ export function initSaveWidget() {
   }
 }
 
-export const currentEnv = computed(() => environments.get(state.currentSave)!);
+export const onTicks: Record<string, (delta: number) => void> = {};
+export let time = 0;
+export function gameLoop(elapsedTime: number) {
+  actionsTick(elapsedTime);
+  const t = elapsedTime / 1000;
+  const delta = t - time;
+  if (delta >= state.tickTime) {
+    time = t;
+    if (state.runTimer) {
+      state.currentEnv.constant.set('time', time, { hidden: true });
+      Object.values(onTicks).forEach((x) => x(delta));
+    }
+    if (defined(state.currentEnv.graph)) {
+      state.currentEnv.graph.drawLines();
+    }
+  }
+  window.requestAnimationFrame(gameLoop);
+}
+
+let gameLoopRunning = false;
+export function initUI() {
+  if (!gameLoopRunning) {
+    gameLoopRunning = true;
+    window.requestAnimationFrame(gameLoop);
+  }
+}

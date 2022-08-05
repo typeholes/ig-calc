@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { onMounted } from 'vue';
 import {
   saveTypes,
   SaveId,
@@ -17,10 +16,9 @@ import {
   purgeAllDeletedSaves,
   create,
   cancel,
-initSaveWidget,
 } from './SaveWidget';
 
-onMounted( () => initSaveWidget() )
+// onMounted( () => initSaveWidget() )
 /*
 function leftIcon(id: SaveId) {
   if (appState.modified) {
@@ -53,7 +51,7 @@ function leftIcon(id: SaveId) {
     };
 }
 */
-</script>
+ </script>
 
 <template>
   <!-- eslint-disable vue/no-unused-vars -->
