@@ -61,7 +61,7 @@ module.exports = configure(function (/* ctx */) {
 
       // rebuildCache: true, // rebuilds Vite/linter/etc cache on startup
 
-      // publicPath: '/ig-calc-testing/',
+       publicPath: '/ig-calc-testing/',
       // analyze: true,
       // env: {},
       // rawDefine: {}

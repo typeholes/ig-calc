@@ -36,7 +36,15 @@
       elevated
       overlay
     >
+    <div class="column">
       <SaveWidget />
+            <q-btn
+              @click="toggleOptions();"
+              class="q-ml-auto"
+              :icon="matSettings"
+            />
+        <general-options />
+        </div>
     </q-drawer>
 
     <q-page-container>
@@ -76,6 +84,10 @@ import DisplayData from 'src/components/DisplayData.vue';
 import ExpressionPane from 'src/components/ExpressionPane.vue';
 import SaveWidget from 'src/components/SaveWidget.vue';
 import { state as saveState } from 'src/components/SaveWidget';
+import ABtn from 'src/components/qDefaulted/ABtn.vue';
+import { state as appState } from 'src/components/uiUtil';
+import GeneralOptions from 'src/components/GeneralOptions.vue';
+import { matSettings } from '@quasar/extras/material-icons';
 
 const leftDrawerOpen = ref(false);
 const leftDrawerMini = ref(false);
@@ -88,6 +100,11 @@ function toggleLeftDrawer() {
   // leftDrawerOpen.value = !leftDrawerOpen.value;
   leftDrawerOpen.value = true;
   leftDrawerMini.value = !leftDrawerMini.value;
+}
+
+function toggleOptions() {
+  appState.showGeneralOptions = !appState.showGeneralOptions;
+  console.log(appState.showGeneralOptions);
 }
 
 function toggleRightDrawer() {

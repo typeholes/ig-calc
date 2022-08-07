@@ -68,6 +68,7 @@ export function EnvType<V>({
       }
       const item = items.get(key);
       assert.defined(item);
+      items.set(key, {...item, ...props});
       envType.showGraph(key, item.showGraph);
       if (key != 'time') {
         onChange(key, 'update');
