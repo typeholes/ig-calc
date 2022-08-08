@@ -79,7 +79,7 @@ const datumGetter = (
 export const mkExprEnv = (): ExprEnv => {
   const items = reactive(new Map<string, EnvItem>());
   const graph = initGraph();
-  const mathEnv: MathEnv = reactive({});
+  const mathEnv: MathEnv = ({});
   const constants = new Map<string, number>();
   const animations = new Map<string, Animation>();
   const expressions = new Map<string, EnvExpr>();
