@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { nextTick, ref } from 'vue';
 import NewExpression from './NewExpression.vue';
+import { currentSaveIsLibrary } from './SaveWidget';
 
 const fabPos = ref([300, 5]);
 const draggingFab = ref(false);
-const open = ref(false);
 
 function focusExpr() {
   nextTick(() => {
@@ -21,7 +21,7 @@ function moveFab(ev) {
 </script>
 
 <template>
-  <q-page-sticky position="bottom-left" :offset="fabPos">
+  <q-page-sticky position="bottom-left" :offset="fabPos" v-if="!currentSaveIsLibrary">
     <q-fab
       icon="add"
       color="accent"

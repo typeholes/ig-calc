@@ -1,9 +1,8 @@
 <script setup lang="ts">
 import { reactive } from 'vue';
-import { defined } from '../../../js/util';
 import { EnvExpr } from '../../../js/env/EnvExpr';
 import AInput from 'src/components/qDefaulted/AInput.vue';
-import { state as saveState } from 'src/components/SaveWidget';
+import { state as saveState, currentSaveIsLibrary } from 'src/components/SaveWidget';
 
 interface Props {
   name: string;
@@ -45,6 +44,7 @@ function syncGraphState() {
         anchor="top right"
         touch-position
         @hide="syncGraphState"
+        v-if="!currentSaveIsLibrary"
       >
         <a-input
           style="margin-left: 7px"

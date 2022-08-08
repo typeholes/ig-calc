@@ -25,7 +25,7 @@ import {
   writeSaveMetadata,
 } from 'src/js/SaveManager';
 import { assert, defined, notBlank } from 'src/js/util';
-import { nextTick, reactive } from 'vue';
+import { computed, nextTick, reactive } from 'vue';
 
 import { Map as IMap } from 'immutable';
 import { MMap } from './MMap';
@@ -374,3 +374,5 @@ export function initUI() {
     window.requestAnimationFrame(gameLoop);
   }
 }
+
+export const currentSaveIsLibrary = computed( () => state.currentSave.type === 'library')

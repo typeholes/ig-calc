@@ -3,7 +3,10 @@ import { reactive } from 'vue';
 import { isValidNumber } from 'src/js/function-plot/utils';
 import AInput from 'src/components/qDefaulted/AInput.vue';
 import ASelect from 'src/components/qDefaulted/ASelect.vue';
-import { state as saveState } from 'src/components/SaveWidget';
+import {
+  state as saveState,
+  currentSaveIsLibrary,
+} from 'src/components/SaveWidget';
 
 interface Props {
   name: string;
@@ -13,7 +16,6 @@ interface Props {
 const props = defineProps<Props>();
 
 const graphState = saveState.currentEnv.animated.getState(props.name);
-
 
 const state = reactive({
   from: graphState.value.from.toString(),
@@ -35,8 +37,8 @@ function updateAnimation() {
   graphState.value.period = isValidNumber(period) ? period : 1;
   graphState.value.fnName = state.fnName;
 
-  saveState.currentEnv.animated.set(props.name, graphState.value );
-  props.update()
+  saveState.currentEnv.animated.set(props.name, graphState.value);
+  props.update();
 }
 </script>
 
@@ -49,6 +51,7 @@ function updateAnimation() {
       v-model="state.from"
       @change="updateAnimation"
       :rules="[validateNumber]"
+      :disabled="currentSaveIsLibrary"
       dense
     />
     <a-input
@@ -57,6 +60,7 @@ function updateAnimation() {
       v-model="state.to"
       @change="updateAnimation"
       :rules="[validateNumber]"
+      :disabled="currentSaveIsLibrary"
     />
     <a-input
       label="Period"
@@ -64,12 +68,14 @@ function updateAnimation() {
       v-model="state.period"
       @change="updateAnimation"
       :rules="[validateNumber]"
+      :disabled="currentSaveIsLibrary"
     />
     <!-- TODO drive this from the periodic library -->
     <a-select
       v-model="state.fnName"
       @update:model-value="updateAnimation"
       :options="['sinal', 'zigZag']"
+      :disabled="currentSaveIsLibrary"
     />
   </div>
 </template>
