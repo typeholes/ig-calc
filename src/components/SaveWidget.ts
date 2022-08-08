@@ -113,7 +113,7 @@ export function save(id: SaveId, description: SaveDescription) {
   writeSave(
     state.saveMetaData,
     id,
-    description,
+    description ?? '',
     getSerializedSave(environments.get(id)!)
   );
   environments.get(id)!.dirty = false;
@@ -216,7 +216,7 @@ export function copy(id: SaveId) {
     state.newDescr = '';
   } else {
     state.newName = 'Copy of ' + id.name;
-    state.newDescr = state.saveMetaData[id.type][id.name];
+    state.newDescr = state.saveMetaData[id.type][id.name] ?? '';
   }
 }
 
@@ -235,6 +235,7 @@ export function create() {
   if (defined(state.copying)) {
     const fromSave = Errorable.raise(readSave(state.copying)).value;
     writeSave(state.saveMetaData, id, descr, fromSave);
+    state.saveMetaData['local'][state.newName] = descr;
     selectSave(id);
   } else {
     save(id, descr);
@@ -256,7 +257,8 @@ export function cancel() {
 }
 
 export function deleteSave(id: SaveId) {
-  state.deletedSaves[id.type][id.name] = state.saveMetaData[id.type][id.name];
+  state.deletedSaves[id.type][id.name] =
+    state.saveMetaData[id.type][id.name] ?? '';
   delete state.saveMetaData[id.type][id.name];
   writeSaveMetadata(state.saveMetaData);
   state.hasDeletedSaves = true;

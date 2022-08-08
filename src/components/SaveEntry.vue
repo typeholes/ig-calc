@@ -10,6 +10,7 @@ import {
   matContentCopy as iCopy,
   matSave as iSave,
   matFolderOpen as iOpen,
+  matDelete as iDelete,
 } from '@quasar/extras/material-icons';
 
 // import {
@@ -29,6 +30,7 @@ import {
   unselectSave,
   copy,
   share,
+  deleteSave,
 } from './SaveWidget';
 import { defined } from 'src/js/util';
 
@@ -38,9 +40,7 @@ interface Props {
   description: string;
 }
 
-const deleted = computed(() =>
-  defined(state.deletedSaves[props.id.type][props.id.name])
-);
+const deleted = () => defined(state.deletedSaves[props.id.type][props.id.name]);
 
 // const dirty = computed(() => {
 //   const dirty = environments.get(props.id)?.dirty;
@@ -69,11 +69,13 @@ function only(action: () => void) {
     </q-item-section>
 
     <q-item-section>
-      <a-expansion header-style="width:100%" :content-inset-level="0">
+      <a-expansion :header-style="{width:'100%', backgroundColor: deleted() ? '#C1001588' : 'transparent' }" :content-inset-level="0" >
         <template #header>
-          <q-item-section>{{ id.name }} </q-item-section>
+          <q-item-section>{{ id.name }} </q-item-section >
           <q-item-section side>
-            <div class="cols">
+            <div class="cols lastSmall">
+
+              <div style="width100%">.</div>
               <a-btn
                 :icon="iOpen"
                 color="primary"
@@ -82,19 +84,20 @@ function only(action: () => void) {
   e.stopPropagation(); selectSave(id)
 }"
               />
-              <template v-if="deleted">
+            </div>
+          </q-item-section>
+        </template>
+        <div class="rows">
+          <div class="cols" :class="{ lastSmall: !deleted() }">
+              <template v-if="deleted()">
                 <a-btn
                   color="primary"
-                  @click="(e: Event) => {
-  e.stopPropagation(); restoreDeletedSave(id)
-}"
+                  @click="restoreDeletedSave(id)"
                   label="Restore"
                 />
                 <a-btn
-                  color="primary"
-                  @click="(e: Event) => {
-  e.stopPropagation(); purgeDeletedSave(id); unselectSave();
-}"
+                  color="negative"
+                  @click="{ purgeDeletedSave(id); unselectSave(); }"
                   label="Purge"
                 />
               </template>
@@ -102,22 +105,24 @@ function only(action: () => void) {
                 <a-btn
                   color="primary"
                   :icon="iCopy"
-                  @click="(e: Event) => {
-  e.stopPropagation(); copy(id)
-}"
+                  @click="copy(id)"
                 />
                 <a-btn
                   color="primary"
-                  @click="(e: Event) => {
-  e.stopPropagation(); share(id)
-}"
+                  @click="share(id)"
                   :icon="iShare"
                 />
+                <a-btn
+                  color="negative"
+                  @click="deleteSave(id)"
+                  :icon="iDelete"
+                />
               </template>
-            </div>
-          </q-item-section>
-        </template>
-        {{ description }}
+              </div>
+          <div class="fullRow">
+            {{ description }}
+          </div>
+        </div>
       </a-expansion>
     </q-item-section>
 
