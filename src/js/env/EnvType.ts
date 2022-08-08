@@ -4,6 +4,7 @@ import { EnvItem, MathEnv } from './exprEnv';
 import { Graph } from '../function-plot/d3util';
 import { assert } from '../util';
 import { reactive, watch } from 'vue';
+import { frameDebounce } from 'quasar';
 
 export type EnvTypeTag = 'constant' | 'animated' | 'expression';
 
@@ -142,7 +143,6 @@ export function EnvType<V>({
     toTex: (key, v) => {
       const tex = toTex(v);
       const fullTex = tex.includes('=') ? tex : '\\mathrm{' + key + '}:=' + tex;
-      console.log({ toTex: key, fullTex });
       return fullTex;
     },
   };

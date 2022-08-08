@@ -24,7 +24,7 @@ export const builtinFunctions = IMap([
   [
     "other",
     splitToSet(`
-abs ceil fix floor gcd hypot invmod lcm log mod round sign 
+abs ceil fix floor gcd hypot invmod lcm log mod round sign
 bitAnd bitNot bitOr bitXor leftShift rightArithShift rightLogShift
 bellNumbers catalan composition stirlingS2
 combinations combinationsWithRep factorial gamma kldivergence
@@ -33,7 +33,7 @@ lgamma multinomial permutations erf
   ],
   [
     "trig",
-    splitToSet(` 
+    splitToSet(`
 sin asin sinh asinh
 cos acos cosh acosh
 cot acot coth acoth
@@ -45,7 +45,6 @@ tan atan atan2 tanh atanh
 ]);
 
 function parseToEntry(s: string): [string, M.FunctionAssignmentNode] {
-  console.log(s);
   const node = mathParse(s);
   if (!isFunctionAssignmentNode(node)) {
     throw new Error("invalid function for shadowed builtin:" + s);
@@ -87,7 +86,7 @@ arg conj im re
 `);
 
 export const bannedBuiltins = splitToSet(`
-dotDived dotMultiply dotPow norm nthRoots xgcd 
+dotDived dotMultiply dotPow norm nthRoots xgcd
 and not or xor apply column concat count cross
 ctranspose det diag diff dot eitgs expm filter
 flatten forEach getMatrixDataType identity inv

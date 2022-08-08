@@ -55,7 +55,6 @@ function addExpr(type: EnvTypeTag) {
   state.name = '';
   if (type === 'constant') {
     saveState.currentEnv.constant.set(newName, 0);
-    console.log(newName, saveState.currentEnv.order);
     return;
   }
   if (type === 'expression') {

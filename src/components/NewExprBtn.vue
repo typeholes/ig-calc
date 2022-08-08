@@ -13,6 +13,7 @@ function focusExpr() {
   });
 }
 
+//@ts-expect-error unknown type for quasar drag event
 function moveFab(ev) {
   draggingFab.value = ev.isFirst !== true && ev.isFinal !== true;
 

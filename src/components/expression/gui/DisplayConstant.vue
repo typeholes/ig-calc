@@ -3,9 +3,6 @@ import { reactive, } from 'vue';
 import ASlider from 'src/components/qDefaulted/ASlider.vue';
 import { state as saveState, currentSaveIsLibrary } from 'src/components/SaveWidget.js';
 
-var x = 1;
-console.log(x);
-
 interface Props {
   name: string;
   update: () => void;
@@ -32,7 +29,7 @@ function updateValue(value: number) {
       :min="-10"
       :max="10"
       label-always
-      :disabled="currentSaveIsLibrary"
+      :disable="currentSaveIsLibrary"
     />
   </div>
 </template>

@@ -51,7 +51,7 @@ function updateAnimation() {
       v-model="state.from"
       @change="updateAnimation"
       :rules="[validateNumber]"
-      :disabled="currentSaveIsLibrary"
+      :disable="currentSaveIsLibrary"
       dense
     />
     <a-input
@@ -60,7 +60,7 @@ function updateAnimation() {
       v-model="state.to"
       @change="updateAnimation"
       :rules="[validateNumber]"
-      :disabled="currentSaveIsLibrary"
+      :disable="currentSaveIsLibrary"
     />
     <a-input
       label="Period"
@@ -68,14 +68,14 @@ function updateAnimation() {
       v-model="state.period"
       @change="updateAnimation"
       :rules="[validateNumber]"
-      :disabled="currentSaveIsLibrary"
+      :disable="currentSaveIsLibrary"
     />
     <!-- TODO drive this from the periodic library -->
     <a-select
       v-model="state.fnName"
       @update:model-value="updateAnimation"
       :options="['sinal', 'zigZag']"
-      :disabled="currentSaveIsLibrary"
+      :disable="currentSaveIsLibrary"
     />
   </div>
 </template>

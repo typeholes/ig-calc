@@ -8,14 +8,13 @@ import draggable from 'vuedraggable';
 import { state as appState } from './uiUtil';
 
 import { defined } from 'src/js/util';
-import { computed, onUpdated } from 'vue';
+import { computed, } from 'vue';
 import { state as saveState } from 'src/components/SaveWidget'
 
 interface Props {
   order: string[];
 }
 
-onUpdated(() => console.log(props.order));
 
 const order = computed( ()=> saveState.currentEnv.order)
 

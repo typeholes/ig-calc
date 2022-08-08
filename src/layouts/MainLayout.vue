@@ -104,7 +104,6 @@ function toggleLeftDrawer() {
 
 function toggleOptions() {
   appState.showGeneralOptions = !appState.showGeneralOptions;
-  console.log(appState.showGeneralOptions);
 }
 
 function toggleRightDrawer() {

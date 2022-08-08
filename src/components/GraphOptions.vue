@@ -2,33 +2,32 @@
    import { reactive } from 'vue';
    import { Interval } from '../js/function-plot/types';
    import { defined, isValidNumber } from '../js/function-plot/utils';
-   import { graphOptions, graph, initGraph } from './uiUtil';
 
-   const firstDatum = Object.entries(graphOptions.data)[0];
+  //  const firstDatum = Object.entries(graphOptions.data)[0];
 
    const state = reactive({
-      xDomain: { ...graphOptions.xDomain },
-      y: Interval.midpoint(graphOptions.yDomain),
-      numSamples: defined(firstDatum) ? firstDatum[1].nSamples : 1000,
+      // xDomain: { ...graphOptions.xDomain },
+      // y: Interval.midpoint(graphOptions.yDomain),
+      // numSamples: defined(firstDatum) ? firstDatum[1].nSamples : 1000,
    });
 
    const sampleRange = Interval(5, 10000);
 
-   function updateGraph() {
-      console.log({ state });
+  //  function updateGraph() {
 
-      state.numSamples = Interval.clampNumber(sampleRange, state.numSamples);
+  //     state.numSamples = Interval.clampNumber(sampleRange, state.numSamples);
 
-      for (const name in graphOptions.data) {
-         graphOptions.data[name].nSamples = state.numSamples;
-      }
-      //     initGraph(); // TODO: causes graph axis to change badly
-      graph.resetZoom(state.xDomain, state.y);
-   }
+  //     for (const name in graphOptions.data) {
+  //        graphOptions.data[name].nSamples = state.numSamples;
+  //     }
+  //     //     initGraph(); // TODO: causes graph axis to change badly
+  //     graph.resetZoom(state.xDomain, state.y);
+  //  }
 </script>
 
 <template>
-   <div class="gridOptions">
+<div></div>
+   <!-- <div class="gridOptions">
       <button class="updateGraph" @click="updateGraph">Update Graph</button>
       <span class="row2 col3"> xMin </span>
       <input class="row2 col4" type="number" v-model="state.xDomain.lo" />
@@ -51,6 +50,7 @@
          v-model="state.numSamples"
       />
    </div>
+   -->
 </template>
 
 <style scoped>

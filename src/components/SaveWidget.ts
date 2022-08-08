@@ -95,7 +95,6 @@ export function share(id: SaveId): string {
 
   const compressed = compressToEncodedURIComponent(shareStr);
   const uncompressed = decompressFromEncodedURIComponent(compressed);
-  console.log({ uncompressed });
   state.shareString = baseUrl() + '?shared=' + compressed;
   void navigator.clipboard.writeText(state.shareString);
 
