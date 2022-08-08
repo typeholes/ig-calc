@@ -62,11 +62,11 @@ function leftIcon(id: SaveId) {
       <q-list
         separator
         padding
-        class="bg-secondary"
+        class="bg-secondary "
         :key="saveType"
         v-for="saveType in saveTypes"
       >
-        <a-expansion :label="saveType">
+        <a-expansion header-class="col" :label="saveType" >
           <template
             :key="id.name + '/' + id.name"
             v-for="[id, { description, deleted }] of saveList(saveType)"
