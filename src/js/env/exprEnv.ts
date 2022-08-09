@@ -173,6 +173,7 @@ export const mkExprEnv = (): ExprEnv => {
         graph.injectIntoTarget();
         graph.resetZoom(Interval(-10, 10), 0);
         graph.drawLines();
+        graph.drawLines();
       });
     },
     drawLines: () => {
@@ -258,9 +259,11 @@ export const nodeToEvalFn = (
     : getAssignmentBody(node);
   const mathEnv = { ...env.getMathEnv() };
   delete mathEnv['time'];
-  const inlined = inline(body, mathEnv);
+  // can't inline unless we call this again when dependencies change
+  // const inlined = inline(body, mathEnv);
+  // const fn = inlined.compile().evaluate;
   // eslint-disable-next-line @typescript-eslint/unbound-method
-  const fn = inlined.compile().evaluate;
+  const fn = body.compile().evaluate;
   const ret = (x: number) => {
     try {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
