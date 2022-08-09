@@ -52,7 +52,7 @@
         <!-- <new-expr-btn /> -->
         <q-tab-panels keep-alive v-model="panel">
           <q-tab-panel name="graph">
-            <DisplayGraph :saveId="saveState.currentSave" />
+            <DisplayGraph />
           </q-tab-panel>
           <q-tab-panel name="grid">
             <DisplayData />

@@ -8,6 +8,7 @@ import { fromSaveRep, SaveRep, toSaveRep } from 'src/js/env/SaveRep';
 import { libraryDescriptions, librarySaveReps } from 'src/js/libraryValues';
 import {
   DefaultSaveId,
+  EmptySaveId,
   emptySaveMetaData,
   getSaveEntry,
   hasSaveEntry,
@@ -72,7 +73,10 @@ export const state: State = reactive({
 
 export const rickRoll = reactive({ show: false, word: '' });
 
-export const environments = MMap(SaveId.toKey, SaveId.fromKey).of<ExprEnv>();
+export const environments = MMap(SaveId.toKey, SaveId.fromKey).of<ExprEnv>([
+  EmptySaveId,
+  mkExprEnv(),
+]);
 
 export function purgeDeletedSave(id: SaveId): void {
   delete state.deletedSaves[id.type][id.name];
@@ -128,12 +132,17 @@ export function load(id: SaveId) {
   return environments.get(id)!;
 }
 export function open(id: SaveId) {
-  const env = load(id);
-  env.constant.set('time', 0);
-  assert.defined(env);
+  state.currentSave = EmptySaveId;
+  state.currentEnv = environments.get(EmptySaveId)!;
 
-  state.currentEnv = env;
-  state.currentSave = id;
+  nextTick(() => {
+    const env = load(id);
+    env.constant.set('time', 0);
+    assert.defined(env);
+
+    state.currentEnv = env;
+    state.currentSave = id;
+  });
 }
 
 export function loadSave(id: SaveId): ExprEnv | undefined {
@@ -359,9 +368,7 @@ export function gameLoop(elapsedTime: number) {
       state.currentEnv.constant.set('time', time, { hidden: true });
       Object.values(onTicks).forEach((x) => x(delta));
     }
-    if (defined(state.currentEnv.graph)) {
-      state.currentEnv.graph.drawLines();
-    }
+    state.currentEnv.drawLines();
   }
   window.requestAnimationFrame(gameLoop);
 }
@@ -374,4 +381,6 @@ export function initUI() {
   }
 }
 
-export const currentSaveIsLibrary = computed( () => state.currentSave.type === 'library')
+export const currentSaveIsLibrary = computed(
+  () => state.currentSave.type === 'library'
+);

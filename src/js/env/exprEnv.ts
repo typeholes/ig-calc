@@ -1,8 +1,8 @@
 import { isFunctionAssignmentNode, isNumber, MathNode } from 'mathjs';
-import { defaultCall, getAssignmentBody, } from '../expressions';
+import { defaultCall, getAssignmentBody } from '../expressions';
 import { Set as ISet, Map as IMap } from 'immutable';
 import { builtinConstants } from '../math/symbols';
-import { reactive } from 'vue';
+import { nextTick, reactive } from 'vue';
 import { Graph, mkGraph } from '../function-plot/d3util';
 import {
   Datum,
@@ -64,9 +64,11 @@ export interface ExprEnv extends ExprEnvIndexable {
   items: Map<string, EnvItem>;
   getDatum: (key: string) => Datum | undefined;
   dirty: boolean;
-  graph: Graph;
+  //  graph: Graph;
   order: string[];
   getType: (key: string) => EnvTypeTag;
+  activate: () => void;
+  drawLines: () => void;
 }
 
 const datumGetter = (
@@ -79,15 +81,20 @@ const datumGetter = (
 export const mkExprEnv = (): ExprEnv => {
   const items = reactive(new Map<string, EnvItem>());
   const graph = initGraph();
-  const mathEnv: MathEnv = ({});
+  const mathEnv: MathEnv = {};
   const constants = new Map<string, number>();
   const animations = new Map<string, Animation>();
   const expressions = new Map<string, EnvExpr>();
   const order: string[] = reactive([]);
+  let active = false;
   function onChange(
     name: string,
     changeType: 'insert' | 'update' | 'delete' = 'update'
   ) {
+    if (!active) {
+      return;
+    }
+
     exprEnv.dirty = true;
     if (changeType === 'delete') {
       const idx = order.indexOf(name);
@@ -101,8 +108,8 @@ export const mkExprEnv = (): ExprEnv => {
       graph.drawLines();
     }
   }
-  const exprEnv: ExprEnv = ({
-    graph,
+  const exprEnv: ExprEnv = {
+    //    graph,
     dirty: false,
     constant: EnvType({
       onChange,
@@ -159,8 +166,21 @@ export const mkExprEnv = (): ExprEnv => {
     getDependencies: (key: string) => getDependencies(key, exprEnv, items),
     getDatum: (key: string) => getDatum(key, exprEnv, items),
     order,
-    getType: (key: string) => items.get(key)?.typeTag ?? 'constant'
-  } as const);
+    getType: (key: string) => items.get(key)?.typeTag ?? 'constant',
+    activate: () => {
+      active = true;
+      nextTick(() => {
+        graph.injectIntoTarget();
+        graph.resetZoom(Interval(-10, 10), 0);
+        graph.drawLines();
+      });
+    },
+    drawLines: () => {
+      if (active) {
+        graph.drawLines();
+      }
+    },
+  } as const;
   return exprEnv;
 };
 

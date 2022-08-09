@@ -74,6 +74,7 @@ export function fromSaveRep(saveRep: SaveRep): ExprEnv {
     .sort()
     .forEach((_, name) => env.order.push(name));
 
+  env.activate();
   return env;
 }
 

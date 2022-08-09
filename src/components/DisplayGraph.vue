@@ -1,27 +1,11 @@
 <script setup lang="ts">
-import { state as saveState, rickRoll } from './SaveWidget';
-import { SaveId } from 'src/js/SaveManager.js';
-import { onMounted, onBeforeUpdate } from 'vue';
-import { Interval } from 'src/js/function-plot/types';
+import { rickRoll, state as saveState } from './SaveWidget';
+import { onMounted } from 'vue';
 
 const width = window.innerWidth;
 const height = window.innerHeight;
 
-interface Props {
-  saveId: SaveId;
-}
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const props = defineProps<Props>();
-
-function drawGraph() {
-  const graph = saveState.currentEnv.graph;
-  graph.injectIntoTarget();
-  graph.resetZoom(Interval(-10, 10), 0);
-}
-
-onMounted(drawGraph);
-onBeforeUpdate(drawGraph);
+onMounted(saveState.currentEnv.activate);
 </script>
 
 <template>
