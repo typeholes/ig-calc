@@ -259,11 +259,13 @@ export const nodeToEvalFn = (
     : getAssignmentBody(node);
   const mathEnv = { ...env.getMathEnv() };
   delete mathEnv['time'];
+  // not inlining causes big performance issues
+  // and functions to not evaluate
   // can't inline unless we call this again when dependencies change
-  // const inlined = inline(body, mathEnv);
-  // const fn = inlined.compile().evaluate;
+  const inlined = inline(body, mathEnv);
+  const fn = inlined.compile().evaluate;
   // eslint-disable-next-line @typescript-eslint/unbound-method
-  const fn = body.compile().evaluate;
+  // const fn = body.compile().evaluate;
   const ret = (x: number) => {
     try {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
