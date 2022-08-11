@@ -6,6 +6,8 @@ import {
   state as saveState,
   currentSaveIsLibrary,
 } from 'src/components/SaveWidget.js';
+import { isValidNumber } from 'src/js/function-plot/utils';
+import { defined, isNumber } from 'src/js/util';
 
 interface Props {
   name: string;
@@ -18,7 +20,27 @@ const state = reactive({
   value: saveState.currentEnv.constant.get(props.name) ?? 0,
 });
 
+function updateValueString(value: string | number | null) {
+  if (!defined(value)) {
+    return;
+  }
+
+  if (isNumber(value)) {
+    updateValue(value);
+    return;
+  }
+
+  const num = parseFloat(value);
+  if (isValidNumber(num)) {
+    updateValue(num);
+  }
+}
+
 function updateValue(value: number) {
+  if (state.value !== value) {
+    state.value = value;
+  }
+
   saveState.currentEnv.constant.set(props.name, value);
   props.update();
 }
@@ -51,7 +73,12 @@ const active = ref('a');
         />
       </template>
       <template #b>
-        <q-input type="number" v-model="state.value" />
+        <q-input
+          type="number"
+          :model-value="state.value"
+          :disable="currentSaveIsLibrary"
+          @update:model-value="updateValueString"
+        />
       </template>
       <template #c>
         <q-btn
@@ -61,6 +88,7 @@ const active = ref('a');
           round
           class="q-mr-sm"
           icon="remove"
+          :disable="currentSaveIsLibrary"
         />
 
         <q-btn
@@ -69,6 +97,7 @@ const active = ref('a');
           push
           round
           icon="remove"
+          :disable="currentSaveIsLibrary"
         />
 
         <span class="q-mx-md">
@@ -82,6 +111,7 @@ const active = ref('a');
           round
           class="q-mr-sm"
           icon="add"
+          :disable="currentSaveIsLibrary"
         />
 
         <q-btn
@@ -90,6 +120,7 @@ const active = ref('a');
           push
           round
           icon="add"
+          :disable="currentSaveIsLibrary"
         />
       </template>
     </slot-picker>
