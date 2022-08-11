@@ -55,12 +55,14 @@ const periodic: Library = {
 };
 
 function libraryToSaveRep(library: Library) {
+  let idx =0;
    const constant: IMap<string, SaveRepValue> = IMap(library.constant).map(
       ([value, description], name) => ({
          animated: undefined,
          expression: undefined,
          constant: value,
          ...defaultEnvItem('constant', name, description),
+         order: idx++,
       })
    );
 
@@ -70,6 +72,7 @@ function libraryToSaveRep(library: Library) {
          expression: undefined,
          animated: value,
          ...defaultEnvItem('animated', name, description),
+         order: idx++,
       })
    );
 
@@ -79,6 +82,7 @@ function libraryToSaveRep(library: Library) {
          animated: undefined,
          expression: value.expr,
          ...defaultEnvItem('expression', name, description),
+         order: idx++,
       })
    );
 

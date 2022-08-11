@@ -25,6 +25,7 @@
       overlay
       :width="width"
       :mini-width="120"
+      behavior="desktop"
     >
       <ExpressionPane :order="saveState.currentEnv.order" />
     </q-drawer>
