@@ -3,12 +3,14 @@ import ASelect from './qDefaulted/ASelect.vue';
 import AToggle from './qDefaulted/AToggle.vue';
 import DisplayWrapper from './expression/gui/DisplayWrapper.vue';
 import NewExprBtn from './NewExprBtn.vue';
+import SlotPicker from 'src/components/SlotPicker.vue';
+
 import draggable from 'vuedraggable';
 
 import { state as appState } from './uiUtil';
 
 import { defined } from 'src/js/util';
-import { computed, } from 'vue';
+import { computed, ref, } from 'vue';
 import { state as saveState } from 'src/components/SaveWidget'
 
 interface Props {
@@ -18,7 +20,6 @@ interface Props {
 
 const order = computed( ()=> saveState.currentEnv.order)
 
-const props = defineProps<Props>();
 const currentEnv = saveState.currentEnv;
 
 </script>
