@@ -45,14 +45,23 @@ function updateValue(value: number) {
   props.update();
 }
 
-function increment() {
-  state.value++;
-  updateValue(state.value);
+function increment(amt: number) {
+  return () => {
+    state.value += amt;
+    updateValue(state.value);
+  }
 }
 
-function decrement() {
-  state.value--;
-  updateValue(state.value);
+function decrement(amt: number) {
+  return () => {
+    state.value -= amt;
+    updateValue(state.value);
+  }
+}
+
+function formatShort(n: number) {
+  const str = n.toExponential(3);
+  return str.padStart(8, ' ');
 }
 
 const active = ref('a');
@@ -82,7 +91,7 @@ const active = ref('a');
       </template>
       <template #c>
         <q-btn
-          v-touch-repeat:0:100.mouse.enter.space="decrement"
+          v-touch-repeat:0:500.mouse.enter.space="decrement(1)"
           color="primary"
           push
           round
@@ -92,7 +101,7 @@ const active = ref('a');
         />
 
         <q-btn
-          v-touch-repeat:0:1000.mouse.enter.space="decrement"
+          v-touch-repeat:0:500.mouse.enter.space="decrement(.1)"
           color="secondary"
           push
           round
@@ -101,11 +110,11 @@ const active = ref('a');
         />
 
         <span class="q-mx-md">
-          {{ state.value }}
+          {{ formatShort(state.value) }}
         </span>
 
         <q-btn
-          v-touch-repeat:0:1000.mouse.enter.space="increment"
+          v-touch-repeat:0:500.mouse.enter.space="increment(.1)"
           color="secondary"
           push
           round
@@ -115,7 +124,7 @@ const active = ref('a');
         />
 
         <q-btn
-          v-touch-repeat:0:100.mouse.enter.space="increment"
+          v-touch-repeat:0:500.mouse.enter.space="increment(1)"
           color="primary"
           push
           round
