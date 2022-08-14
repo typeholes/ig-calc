@@ -108,7 +108,7 @@ export const mkExprEnv = (): ExprEnv => {
       graph.drawLines();
     }
   }
-  const exprEnv: ExprEnv = {
+  const exprEnv: ExprEnv = reactive({
     //    graph,
     dirty: false,
     constant: EnvType({
@@ -181,7 +181,7 @@ export const mkExprEnv = (): ExprEnv => {
         graph.drawLines();
       }
     },
-  } as const;
+  } as const);
   return exprEnv;
 };
 
