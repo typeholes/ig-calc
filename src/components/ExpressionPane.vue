@@ -27,8 +27,7 @@ const currentEnv = saveState.currentEnv;
 <template>
   <div v-if="defined(currentEnv)">
     <div class="transparent">
-      <div class="cols lastSmall q-mini-drawer-hide">
-        <div>
+      <div class="row q-mini-drawer-hide">
           <a-select
             id="exprComponent"
             label="Display expressions as"
@@ -39,19 +38,23 @@ const currentEnv = saveState.currentEnv;
               { value: 'js', label: 'JavaScript (experimental)' },
             ]"
           />
-        </div>
+        <q-space/>
         <div>
           <a-toggle v-model="saveState.runTimer" label="Run Timer" />
         </div>
       </div>
+
+      <div class="column">
+
       <q-scroll-area style="height: 80vh" visible>
         <draggable
           :list="order"
           item-key="id"
           @change="saveState.currentEnv.dirty = true"
+          class="col"
         >
           <template #item="{ element }">
-            <display-wrapper :name="element"/>
+            <display-wrapper  :name="element"/>
           </template>
         </draggable>
 
@@ -59,6 +62,7 @@ const currentEnv = saveState.currentEnv;
         <display-wrapper :name="name" :type="getTypeTag(name)" />
       </div> -->
       </q-scroll-area>
+      </div>
       <div
         class="expressions"
         v-if="appState.saveEditable && appState.exprBarExpanded"

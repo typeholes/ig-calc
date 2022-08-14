@@ -64,7 +64,6 @@ function refreshTex() {
   typeset();
 }
 
-
 function update() {
   refreshTex();
 }
@@ -115,8 +114,8 @@ onUpdated(refreshTex);
 </script>
 
 <template>
-  <div class="cols GraphExpr lastSmall" v-if="show">
-    <div class="rows">
+  <div class="col" v-if="show">
+    <div class="">
       <div class="q-mini-drawer-only">
         <a-toggle
           class="graphColored"
@@ -135,97 +134,115 @@ onUpdated(refreshTex);
           {{ props.name }}
         </span>
       </div>
-      <div class="cols wrap q-mini-drawer-hide">
-        <span v-if="!props.name.startsWith('anon:') && props.name !== '__tmp'">
-          {{ props.name }}
-        </span>
-        <a-toggle
-          v-model="saveState.currentEnv[type].getState(props.name).showGraph"
-          :id="`show:${name}`"
-        />
-        <a-btn-dropdown
-          :dropdown-icon="matColorLens"
-          label="&nbsp'&nbsp;&nbsp;"
-          class="color"
-        >
-          <a-color
-            no-header
-            v-model="saveState.currentEnv[type].getState(props.name).color"
-            :id="`color:${name}`"
-          />
-        </a-btn-dropdown>
+      <div class="column q-mini-drawer-hide">
+        <div class="row col">
+          <div class="q-mr-sm">
+            <a-toggle
+              v-model="
+                saveState.currentEnv[type].getState(props.name).showGraph
+              "
+              :id="`show:${name}`"
+            />
+          </div>
+          <div>
+            <a-btn-dropdown
+              :dropdown-icon="matColorLens"
+              label="&nbsp'&nbsp;&nbsp;"
+              class="color"
+            >
+              <a-color
+                no-header
+                v-model="saveState.currentEnv[type].getState(props.name).color"
+                :id="`color:${name}`"
+              />
+            </a-btn-dropdown>
+          </div>
+          <span
+            class="col text-center"
+            v-if="!props.name.startsWith('anon:') && props.name !== '__tmp'"
+          >
+            {{ props.name }}
+          </span>
+          <q-space />
+          <a-btn
+            :icon="matMenu"
+            text-color="primary"
+            @click="state.showMenu = !state.showMenu"
+          >
+            <q-menu class="bg-transparent-dark"
+                    self="top start"
+                    anchor="top right"
+                    >
+              <q-list>
+                <q-item>
+                  <a-btn-dropdown
+                    :icon="matFileCopy"
+                    text-color="primary"
+                    menu-self="top start"
+                    menu-anchor="top right"
+                  >
+                    <q-list
+                      separator
+                      padding
+                      class="bg-transparent-dark"
+                      :key="saveType"
+                      v-for="saveType in saveTypes"
+                    >
+                      <template
+                        :key="id.name + '/' + id.name"
+                        v-for="[id] of saveList(saveType)"
+                      >
+                        <q-item
+                          ><a-btn
+                            @click="copyToSave(id)"
+                            :icon="saveType === 'shared' ? matShare : ''"
+                            :label="id.name"
+                            text-color="primary"
+                        /></q-item>
+                      </template>
+                    </q-list>
+                  </a-btn-dropdown>
+                </q-item>
+                <q-item>
+                  <a-btn
+                    :icon="matDelete"
+                    v-if="appState.saveEditable"
+                    @click="remove()"
+                    text-color="red-9"
+                  />
+                </q-item>
+                <!-- <button class="menuButton" @click="sonify()">Sonify</button> -->
+              </q-list>
+            </q-menu>
+          </a-btn>
+        </div>
       </div>
       <template v-if="appState.exprBarExpanded">
-        <q-tab-panels :model-value="type" class="q-mini-drawer-hide">
-          <q-tab-panel name="constant">
-            <display-constant :name="props.name" :update="update" />
-          </q-tab-panel>
-          <q-tab-panel name="expression">
-            <display-expression :name="props.name" :update="update" />
-          </q-tab-panel>
-          <q-tab-panel name="animated">
-            <display-animation :name="props.name" :update="update" />
-          </q-tab-panel>
-        </q-tab-panels>
+        <div>
+          <q-tab-panels
+            :model-value="type"
+            class="q-mini-drawer-hide col q-pa-xs"
+          >
+            <q-tab-panel name="constant" class="q-pa-none">
+              <display-constant :name="props.name" :update="update" />
+            </q-tab-panel>
+            <q-tab-panel name="expression" class="q-pa-none">
+              <display-expression :name="props.name" :update="update" />
+            </q-tab-panel>
+            <q-tab-panel name="animated" class="q-pt-none">
+              <display-animation :name="props.name" :update="update" />
+            </q-tab-panel>
+          </q-tab-panels>
+        </div>
         <div
           class="cols q-mini-drawer-hide"
           v-if="saveState.currentEnv[type].getState(props.name).description"
         >
-          <span class="fullRow">{{
+          <span>{{
             saveState.currentEnv[type].getState(props.name).description
           }}</span>
         </div>
       </template>
-    </div>
-    <div class="rows q-mini-drawer-hide" v-if="appState.exprBarExpanded">
-      <a-btn
-        :icon="matMenu"
-        text-color="primary"
-        @click="state.showMenu = !state.showMenu"
-      >
-        <q-menu>
-          <q-list>
-            <q-item>
-              <a-btn-dropdown
-                :icon="matFileCopy"
-                text-color="primary"
-                menu-self="top start"
-                menu-anchor="top right"
-              >
-                <q-list
-                  separator
-                  padding
-                  class="bg-secondary"
-                  :key="saveType"
-                  v-for="saveType in saveTypes"
-                >
-                  <template
-                    :key="id.name + '/' + id.name"
-                    v-for="[id] of saveList(saveType)"
-                  >
-                    <q-item
-                      ><a-btn
-                        @click="copyToSave(id)"
-                        :icon="saveType === 'shared' ? matShare : ''"
-                        :label="id.name"
-                        text-color="primary"
-                    /></q-item>
-                  </template>
-                </q-list>
-              </a-btn-dropdown>
-            </q-item>
-            <q-item>
-              <a-btn
-                :icon="matDelete"
-                v-if="appState.saveEditable"
-                @click="remove()"
-                text-color="primary"
-              />
-            </q-item>
-            <!-- <button class="menuButton" @click="sonify()">Sonify</button> -->
-          </q-list>
-        </q-menu>
-      </a-btn>
     </div>
   </div>
 </template>

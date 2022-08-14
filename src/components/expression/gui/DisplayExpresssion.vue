@@ -1,8 +1,10 @@
 <script setup lang="ts">
-import { reactive } from 'vue';
+import { reactive, ref } from 'vue';
 import { EnvExpr } from '../../../js/env/EnvExpr';
 import AInput from 'src/components/qDefaulted/AInput.vue';
+import SlotPicker from 'src/components/SlotPicker.vue';
 import { state as saveState, currentSaveIsLibrary } from 'src/components/SaveWidget';
+import { defined } from 'src/js/util';
 
 interface Props {
   name: string;
@@ -21,9 +23,11 @@ const state = reactive({
 function updateExpr(event: Event) {
   if (event.target instanceof HTMLInputElement) {
     const expr = EnvExpr(event.target.value);
-    state.vars = expr.vars;
-    saveState.currentEnv.expression.set(props.name, expr);
-    props.update();
+    if (defined(expr.node)) {
+      state.vars = expr.vars;
+      saveState.currentEnv.expression.set(props.name, expr);
+      props.update();
+    }
   }
 }
 
@@ -33,31 +37,34 @@ function syncGraphState() {
   state.expr = graphState.value.expr;
   state.vars = graphState.value.vars;
 }
+
+const active = ref('a');
 </script>
 
 <template>
-  <div class="rows">
+  <div class="col">
+
     <span class="text-red"> {{ state.errorMsg }} </span>
-    <div class="cursor-pointer">
-      <span class="tex" :id="'tex_' + props.name"> </span>
-      <q-popup-edit
-        v-model="state.expr"
-        v-slot="scope"
-        self="top start"
-        anchor="top right"
-        touch-position
-        @hide="syncGraphState"
-        v-if="!currentSaveIsLibrary"
-      >
-        <a-input
-          style="margin-left: 7px"
-          v-model="scope.value"
-          @input="updateExpr"
-        />
-      </q-popup-edit>
-    </div>
-    <div>
       {{ JSON.stringify(state.vars) }}
-    </div>
+    <slot-picker v-model="active" :names="['a','b']" static>
+    <template #a>
+      <q-scroll-area style="height: 8vh; width: 100%;" visible>
+      <span class="tex " :id="'tex_' + props.name"> </span>
+      </q-scroll-area>
+    </template>
+    <template #b>
+      <div style="width: 50vw">
+        <a-input
+          v-model="state.expr"
+          @input="updateExpr"
+          @change="syncGraphState"
+          class="bg-transparent-dark"
+          borderless
+          input-class="q-pl-sm"
+        v-if="!currentSaveIsLibrary"
+        />
+        </div>
+    </template>
+    </slot-picker>
   </div>
 </template>

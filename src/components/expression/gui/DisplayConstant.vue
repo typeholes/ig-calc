@@ -68,7 +68,7 @@ const active = ref('a');
 </script>
 
 <template>
-  <div class="fullRow" label="">
+  <div class="fullRow" :class="{ 'q-pt-md': active === 'a' }" label="">
     <slot-picker v-model="active" :names="['a', 'b', 'c']" include-active>
       <template #a>
         <a-slider
