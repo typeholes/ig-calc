@@ -51,7 +51,7 @@ module.exports = configure(function (/* ctx */) {
       target: {
         browser: ['es2019', 'edge88', 'firefox78', 'chrome87', 'safari13.1'],
         node: 'node16',
-        devTool: 'eval-source-map',
+        devTool: 'source-map',
       },
 
       // vueRouterMode: 'hash', // available values: 'hash', 'history'
@@ -61,7 +61,7 @@ module.exports = configure(function (/* ctx */) {
 
       // rebuildCache: true, // rebuilds Vite/linter/etc cache on startup
 
-       publicPath: '/ig-calc-testing/',
+      publicPath: '/ig-calc-testing/',
       // analyze: true,
       // env: {},
       // rawDefine: {}
