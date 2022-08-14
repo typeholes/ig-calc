@@ -4,7 +4,7 @@ import { parseNode, getNodeName } from '../expressions';
 import { EvalFn } from '../function-plot/FunctionPlotDatum';
 import { defined } from '../util';
 import { Set as ISet } from 'immutable';
-import { getDependencies as getNodeDependencies } from '../math/mathUtil';
+import { getDependencies, getDependencies as getNodeDependencies } from '../math/mathUtil';
 import { ExprEnv, nodeToEvalFn, flattenDependencyTree } from './exprEnv';
 
 export interface EnvExprVar {
@@ -13,7 +13,7 @@ export interface EnvExprVar {
 
 export interface EnvExpr {
    expr: string;
-   vars: Map<string, EnvExprVar>;
+   vars: string[];
    error: string | undefined;
    node: MathNode | undefined;
    name: string;
@@ -32,12 +32,11 @@ export function EnvExpr(expr: string): EnvExpr {
 
    if (defined(node)) {
       const name = getNodeName(node);
-      const vars = new Map(); //getDependencies(env, env.constant.toRecord(), { vars: ISet() }, 'all');
+      const vars = getDependencies(node);
       return { expr, error, node, vars, name };
    } else {
       const name = defined(node) ? getNodeName(node) : `ERROR: ${expr}`;
-      const vars = new Map();
-      return { expr, error, node, vars, name };
+      return { expr, error, node, vars: [], name };
    }
 }
 

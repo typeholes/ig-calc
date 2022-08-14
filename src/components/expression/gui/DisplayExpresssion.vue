@@ -15,11 +15,13 @@ let graphState = saveState.currentEnv.expression.getState(props.name);
 const state = reactive({
   expr: graphState.value.expr,
   errorMsg: graphState.value.error,
+  vars: graphState.value.vars,
 });
 
 function updateExpr(event: Event) {
   if (event.target instanceof HTMLInputElement) {
     const expr = EnvExpr(event.target.value);
+    state.vars = expr.vars;
     saveState.currentEnv.expression.set(props.name, expr);
     props.update();
   }
@@ -29,6 +31,7 @@ function syncGraphState() {
   graphState = saveState.currentEnv.expression.getState(props.name);
   state.errorMsg = graphState.value.error;
   state.expr = graphState.value.expr;
+  state.vars = graphState.value.vars;
 }
 </script>
 
@@ -52,6 +55,9 @@ function syncGraphState() {
           @input="updateExpr"
         />
       </q-popup-edit>
+    </div>
+    <div>
+      {{ JSON.stringify(state.vars) }}
     </div>
   </div>
 </template>

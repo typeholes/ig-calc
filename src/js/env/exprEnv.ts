@@ -96,6 +96,15 @@ export const mkExprEnv = (): ExprEnv => {
     }
 
     exprEnv.dirty = true;
+
+    exprEnv.order.forEach((valueName) => {
+      const type = exprEnv.getType(valueName);
+      const value = exprEnv[type].get(valueName);
+      if (defined(value)) {
+        exprEnv[type].onDependencyChange(value as U2I<typeof value>, name);
+      }
+    });
+
     if (changeType === 'delete') {
       const idx = order.indexOf(name);
       if (idx >= 0) {
@@ -122,6 +131,7 @@ export const mkExprEnv = (): ExprEnv => {
       getDatum: (v, item) => datumGetter(item, () => v, { nSamples: 2 }),
       getDependencies: () => ISet(),
       toTex: (v) => v.toString(),
+      onDependencyChange: () => {},
     }),
     animated: EnvType({
       onChange,
@@ -144,6 +154,7 @@ export const mkExprEnv = (): ExprEnv => {
       },
       getDependencies: () => ISet(['time']),
       toTex: Animation.toTex,
+      onDependencyChange: () => {},
     }),
     expression: EnvType({
       onChange,
@@ -157,6 +168,12 @@ export const mkExprEnv = (): ExprEnv => {
         datumGetter(item, EnvExpr.toEvalFn(item.name, v, exprEnv)),
       getDependencies: EnvExpr.getDependencies,
       toTex: EnvExpr.toTex,
+      onDependencyChange: (expr, name) => {
+        if (expr.vars.includes(name)) {
+          const showGraph = exprEnv.items.get(expr.name)?.showGraph ?? false;
+          exprEnv.expression.showGraph(expr.name, showGraph);
+        }
+      },
     }),
     items,
     getMathEnv: (includeConstants = false) =>

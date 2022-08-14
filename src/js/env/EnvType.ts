@@ -4,7 +4,6 @@ import { EnvItem, MathEnv } from './exprEnv';
 import { Graph } from '../function-plot/d3util';
 import { assert } from '../util';
 import { reactive, watch } from 'vue';
-import { frameDebounce } from 'quasar';
 
 export type EnvTypeTag = 'constant' | 'animated' | 'expression';
 
@@ -21,6 +20,7 @@ export interface EnvType<V> {
   getState: (key: string) => EnvItem & { value: V };
   getDependencies: (v: V) => ISet<string>;
   toTex: (key: string, v: V) => string;
+  onDependencyChange: (v: V, dependencyName: string) => void;
 }
 
 export function EnvType<V>({
@@ -34,6 +34,7 @@ export function EnvType<V>({
   getDatum,
   getDependencies,
   toTex,
+  onDependencyChange,
 }: {
   onChange: (name: string, changeType: 'update' | 'insert' | 'delete') => void;
   tag: EnvTypeTag;
@@ -45,9 +46,11 @@ export function EnvType<V>({
   getDatum: (v: V, item: EnvItem) => FunctionPlotDatum;
   getDependencies: (v: V) => ISet<string>;
   toTex: (v: V) => string;
+  onDependencyChange: (v: V, dependencyName: string) => void;
 }): EnvType<V> {
   const envType: EnvType<V> = {
     tag,
+    onDependencyChange,
     getDatum,
     getDependencies,
     has: (key) => data.has(key),
