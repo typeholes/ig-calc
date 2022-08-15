@@ -1,11 +1,9 @@
 <script setup lang="ts">
 import { computed } from 'vue';
-import { addTexElement, typeset } from '../../../js/typeset';
-import { reactive, onMounted, onUpdated } from 'vue';
+import { reactive } from 'vue';
 import { state as appState } from 'components/uiUtil';
 import { defined } from '../../../js/util';
 import AToggle from 'src/components/qDefaulted/AToggle.vue';
-import { EnvTypeTag } from 'src/js/env/EnvType';
 import DisplayAnimation from './DisplayAnimation.vue';
 import DisplayConstant from './DisplayConstant.vue';
 import DisplayExpression from './DisplayExpresssion.vue';
@@ -14,7 +12,7 @@ import ABtnDropdown from 'src/components/qDefaulted/ABtnDropdown.vue';
 import ABtn from 'src/components/qDefaulted/ABtn.vue';
 import { Animation } from 'src/js/env/Animation';
 import { EnvExpr } from 'src/js/env/EnvExpr';
-import { colors as qcolor, frameDebounce } from 'quasar';
+import { colors as qcolor } from 'quasar';
 
 import {
   matColorLens,
@@ -50,24 +48,6 @@ function remove() {
   saveState.currentEnv[type].delete(props.name);
 }
 
-function getTex() {
-  const value = saveState.currentEnv[type].get(props.name);
-  return defined(value)
-    ? // @ts-expect-error U2I
-      saveState.currentEnv[type].toTex(props.name, value)
-    : `${props.name} not found`;
-}
-
-function refreshTex() {
-  if (type !== 'expression') return;
-  const tex = getTex();
-  addTexElement('tex_' + props.name, tex, 'texDetail_' + props.name);
-  typeset();
-}
-
-function update() {
-  refreshTex();
-}
 function copyToSave(id: SaveId) {
   const tgt = load(id);
   if (type === 'constant') {
@@ -106,12 +86,10 @@ function borderColor(color: string) {
     return qcolor.lighten(color, -50);
   }
 
-  const { h, v } = qcolor.rgbToHsv(qcolor.textToRgb(color));
+  const { h, } = qcolor.rgbToHsv(qcolor.textToRgb(color));
   return qcolor.rgbToHex(qcolor.hsvToRgb({ h, s: 100, v: 100 }));
 }
 
-onMounted(refreshTex);
-onUpdated(refreshTex);
 </script>
 
 <template>
@@ -226,13 +204,13 @@ onUpdated(refreshTex);
             class="q-mini-drawer-hide col q-pa-xs"
           >
             <q-tab-panel name="constant" class="q-pa-none">
-              <display-constant :name="props.name" :update="update" />
+              <display-constant :name="props.name"  />
             </q-tab-panel>
             <q-tab-panel name="expression" class="q-pa-none">
-              <display-expression :name="props.name" :update="update" />
+              <display-expression :name="props.name"  />
             </q-tab-panel>
             <q-tab-panel name="animated" class="q-pt-none">
-              <display-animation :name="props.name" :update="update" />
+              <display-animation :name="props.name"  />
             </q-tab-panel>
           </q-tab-panels>
         </div>

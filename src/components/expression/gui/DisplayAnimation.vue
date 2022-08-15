@@ -10,7 +10,6 @@ import {
 
 interface Props {
   name: string;
-  update: () => void;
 }
 
 const props = defineProps<Props>();
@@ -38,7 +37,6 @@ function updateAnimation() {
   graphState.value.fnName = state.fnName;
 
   saveState.currentEnv.animated.set(props.name, graphState.value);
-  props.update();
 }
 </script>
 

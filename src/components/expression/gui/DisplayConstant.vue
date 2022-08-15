@@ -11,7 +11,6 @@ import { defined, isNumber } from 'src/js/util';
 
 interface Props {
   name: string;
-  update: () => void;
 }
 
 const props = defineProps<Props>();
@@ -42,7 +41,6 @@ function updateValue(value: number) {
   }
 
   saveState.currentEnv.constant.set(props.name, value);
-  props.update();
 }
 
 function increment(amt: number) {

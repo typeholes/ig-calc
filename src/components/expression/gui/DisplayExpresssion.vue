@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { nextTick, reactive, ref, watch } from 'vue';
+import { reactive, ref } from 'vue';
 import { EnvExpr } from '../../../js/env/EnvExpr';
 import AInput from 'src/components/qDefaulted/AInput.vue';
 import SlotPicker from 'src/components/SlotPicker.vue';
@@ -9,10 +9,10 @@ import {
 } from 'src/components/SaveWidget';
 import { defined } from 'src/js/util';
 import ExpressionDetail from './ExpressionDetail.vue';
+import TexSpan from 'src/components/TexSpan.vue';
 
 interface Props {
   name: string;
-  update: () => void;
 }
 
 const props = defineProps<Props>();
@@ -31,7 +31,6 @@ function updateExpr(event: Event) {
     if (defined(expr.node)) {
       state.vars = expr.vars;
       saveState.currentEnv.expression.set(props.name, expr);
-      props.update();
     }
   }
 }
@@ -49,16 +48,12 @@ function showDetail() {
   state.showDetail = !state.showDetail;
 }
 
-watch(
-  () => state.showDetail,
-  () => nextTick(props.update)
-);
 </script>
 
 <template>
   <div class="col">
     <q-dialog v-model="state.showDetail">
-      <expression-detail :name="props.name" :update="props.update" />
+      <expression-detail :name="props.name"  />
     </q-dialog>
 
     <span class="text-red"> {{ state.errorMsg }} </span>
@@ -66,12 +61,13 @@ watch(
       icon="info"
       dense
       style="position: absolute; top: -3px; z-index: 11111"
+      :class="{ 'text-green': state.showDetail}"
       @click="showDetail"
     />
     <slot-picker v-model="active" :names="['a', 'b']" static>
       <template #a>
-        <q-scroll-area style="height: 8vh; width: 100%" visible>
-          <span class="tex" :id="'tex_' + props.name"> </span>
+        <q-scroll-area style="height: 8vh; width: 100%" visible class="tex">
+          <tex-span class="tex" :id="'tex_' + props.name"> </tex-span>
         </q-scroll-area>
       </template>
       <template #b>

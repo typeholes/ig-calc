@@ -1,10 +1,9 @@
 <script setup lang="ts">
 import { state as saveState } from 'src/components/SaveWidget';
-import { typeset } from '../../../js/typeset';
+import TexSpan from 'src/components/TexSpan.vue';
 
 interface Props {
   name: string;
-  update: () => void;
 }
 
 const props = defineProps<Props>();
@@ -18,24 +17,18 @@ const dependencies = graphState.value.vars.map((dep) => {
 
   return [dep, 'free', 0];
 });
-
-function redoTypeset() {
-  console.log('typsetting');
-  typeset();
-}
 </script>
 
 <template>
-  <q-card style="width: 50vw">
-      ssss <span id="texDetail_s"> </span>
-  <q-btn label="typeset" @click="redoTypeset"/>
+  <q-card style="width: 50vw" class="bg-transparent-dark">
     <div class="tex q-py-md">
-      <span :id="'texDetail_' + props.name"> </span>
+      <tex-span :id="'tex_' + props.name" >
+      </tex-span>
     </div>
     <q-scroll-area style="height: 80vh" visible>
-      <div class="column" v-for="[dep, type, value] of dependencies" :key="dep">
-        <div class="row">
-          <span> {{ dep }} </span>
+      <div class="column" v-for="([dep, type, value]) of dependencies" :key="dep">
+        <div class="row flex-center shadow-1 " >
+          <span > {{ dep }} </span>
           <q-tab-panels
             :model-value="type"
             class="q-mini-drawer-hide col q-pa-xs"
@@ -46,7 +39,8 @@ function redoTypeset() {
             </q-tab-panel>
             <q-tab-panel name="expression" class="q-pa-none">
               <div class="tex q-py-md">
-                <span :id="'texDetail_' + dep"> </span>
+                <tex-span :id="'tex_' + dep">
+                </tex-span>
               </div>
             </q-tab-panel>
             <q-tab-panel name="animated" class="q-pt-none">

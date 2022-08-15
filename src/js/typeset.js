@@ -1,29 +1,28 @@
 /* eslint-disable */
-let partPromises = {};
+import { reactive } from 'vue';
 
-export function addTexElement(elementId, tex, id2  ) {
-  console.log({ elementId, id2, tex });
-  partPromises[elementId] =
-    //    MathJax.tex2svgPromise(tex, {  display: true, scale: 1, lineWidth:5 }).then(
-    MathJax.tex2chtmlPromise(tex, {
-      display: true,
-      scale: 1,
-      lineWidth: 5,
-    }).then((nodeHtml) => {
-      const el = document.getElementById(elementId);
-      if (el) {
-        el.innerHTML = "";
-        el.appendChild(nodeHtml);
-      }
-      const el2 = document.getElementById(id2);
-      if (el2) {
-        el2.innerHTML = "";
-        el2.appendChild(nodeHtml);
-      }
-    });
+let nodes = reactive({});
+
+export function getTex(id) {
+  const node = nodes[id];
+  return node ? node.outerHTML : `<span>${id} not found</span>`;
 }
 
-export function typeset() {
-  MathJax.typesetClear();
-  void Promise.all(Object.values(partPromises)).then(MathJax.typesetPromise()); //.then(createHovers);
+export function injectTex(elementId, tgt, skipTypeset) {
+  const el = document.getElementById(tgt ?? elementId);
+  if (el) {
+    el.innerHTML = '';
+    el.appendChild(nodes[elementId]);
+    if (!skipTypeset) {
+      MathJax.typeset();
+    }
+  }
+}
+
+export function addTexElement(elementId, tex) {
+  nodes[elementId] = MathJax.tex2svg(tex, {
+    display: true,
+    scale: 1,
+    lineWidth: 5,
+  });
 }
