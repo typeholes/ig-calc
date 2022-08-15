@@ -24,6 +24,7 @@ const state = reactive({
   vars: graphState.value.vars,
   showDetail: false,
   isSimplified: graphState.value.isSimplified,
+  node: graphState.value.node
 });
 
 function updateExpr(event: Event) {
@@ -42,6 +43,7 @@ function syncGraphState() {
   state.expr = graphState.value.expr;
   state.vars = graphState.value.vars;
   state.isSimplified = graphState.value.isSimplified;
+  state.node = graphState.value.node;
 }
 
 const active = ref('a');
@@ -69,7 +71,7 @@ function showDetail() {
     <slot-picker v-model="active" :names="['a', 'b']" static>
       <template #a>
         <q-scroll-area style="height: 8vh; width: 100%" visible class="tex">
-          <tex-span class="tex" :expr="graphState.value.node"> </tex-span>
+          <tex-span class="tex" :expr="state.node"> </tex-span>
         </q-scroll-area>
       </template>
       <template #b>
