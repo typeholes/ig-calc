@@ -7,6 +7,10 @@ import { nodeToObjectTree, opMap } from 'src/js/math/mathUtil';
 import * as M from 'mathjs';
 import { defined } from 'src/js/util';
 import { reactive } from 'vue';
+import AstSymbol from 'src/components/ast/AstSymbol.vue';
+import AstConstant from 'src/components/ast/AstConstant.vue';
+import AstCalledFunction from 'src/components/ast/AstCalledFunction.vue';
+import AstOperator from 'src/components/ast/AstOperator.vue';
 
 interface Props {
   name: string;
@@ -55,31 +59,14 @@ function makeSimple() {
   syncGraphState();
 }
 
-function changeOp(n: M.OperatorNode, newOp: string) {
+function updateExpr() {
   const node = state.node;
   if (!defined(node)) {
     return;
   }
-  if (newOp in opMap) {
-    const newFn = opMap[newOp as keyof typeof opMap];
-    if (!defined(newFn)) {
-      return;
-    }
-    // @ts-expect-error Don't care about the generics
-    n.op = newOp;
-    // @ts-expect-error Don't care about the generics
-    n.fn = newFn;
-  }
-
-  if (newOp === 'swap_horiz') {
-    n.args = [n.args[1], n.args[0]];
-  }
-
   saveState.currentEnv.expression.set(props.name, EnvExpr(node.toString()));
   syncGraphState();
 }
-
-const ops = [...Object.keys(opMap), 'swap_horiz'];
 </script>
 
 <template>
@@ -104,38 +91,28 @@ const ops = [...Object.keys(opMap), 'swap_horiz'];
           dense
         >
           <template v-slot:default-body="prop">
-            <div class="row" v-if="prop.node.type === 'OperatorNode'">
-              <div v-for="op in ops" :key="op">
-                <q-btn
-                  v-if="op in opMap"
-                  class="q-mx-sm"
-                  color="primary"
-                  :label="op"
-                  @click="changeOp(prop.node.mathNode, op)"
-                />
-                <q-btn
-                  v-else
-                  class="q-mx-sm"
-                  color="primary"
-                  :icon="op"
-                  @click="changeOp(prop.node.mathNode, op)"
-                />
-              </div>
-            </div>
-            <div
+            <ast-operator
+              v-if="prop.node.type === 'OperatorNode'"
+              :node="prop.node"
+              :expr-name="props.name"
+              :update-expr="updateExpr"
+              :sync-parent="syncGraphState"
+            />
+            <ast-called-function
               v-else-if="
                 prop.node.childIdx === 0 &&
                 prop.node.parent?.type === 'FunctionNode'
               "
-            >
-              replace function dropdown here
-            </div>
-            <div v-else-if="prop.node.type === 'ConstantNode'">
-              numeric input here
-            </div>
-            <div v-else-if="prop.node.type === 'SymbolNode'">
-               handle symbols here
-            </div>
+              :node="prop.node"
+            />
+            <ast-constant
+              v-else-if="prop.node.type === 'ConstantNode'"
+              :node="prop.node"
+            />
+            <ast-symbol
+              v-else-if="prop.node.type === 'SymbolNode'"
+              :node="prop.node"
+            />
             <div class="tex q-py-md" v-else>
               <tex-span :expr="prop.node.mathNode"> </tex-span>
             </div>
