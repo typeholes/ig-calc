@@ -323,6 +323,7 @@ const labelExtractors = [
   lx(M.isFunctionNode, () => 'function call'),
   lx(M.isOperatorNode, (n) => n.op),
   lx(M.isConstantNode, (n) => n.value),
+  lx(M.isParenthesisNode, () => 'parenthesis'),
 ];
 
 function nodeToLabel(n: MathNode): string {

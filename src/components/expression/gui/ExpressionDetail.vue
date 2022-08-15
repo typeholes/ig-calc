@@ -116,7 +116,7 @@ function updateExpr() {
               :root="state.node"
               :rootName="props.name"
             />
-            <div class="tex q-py-md" v-else>
+            <div class="tex q-py-md" v-else-if="prop.node.type!='ParenthesisNode'">
               <tex-span :expr="prop.node.mathNode"> </tex-span>
             </div>
           </template>
