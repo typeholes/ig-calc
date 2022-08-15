@@ -1,9 +1,13 @@
 <script setup lang="ts">
 import { state as saveState } from 'src/components/SaveWidget';
 import TexSpan from 'src/components/TexSpan.vue';
+import { EnvExpr } from 'src/js/env/EnvExpr';
+import { tex2html } from 'src/js/typeset';
+import ABtn from 'src/components/qDefaulted/ABtn.vue'
 
 interface Props {
   name: string;
+  syncExprPane: () => void;
 }
 
 const props = defineProps<Props>();
@@ -17,18 +21,27 @@ const dependencies = graphState.value.vars.map((dep) => {
 
   return [dep, 'free', 0];
 });
+
+function makeSimple() {
+  graphState.value.node = graphState.value.simpleNode;
+  graphState.value.isSimplified = true;
+  props.syncExprPane();
+}
 </script>
 
 <template>
   <q-card style="width: 50vw" class="bg-transparent-dark">
     <div class="tex q-py-md">
-      <tex-span :id="'tex_' + props.name" >
-      </tex-span>
+      <tex-span :expr="graphState.value.node"> </tex-span>
+    </div>
+    <div class="row" v-if="!graphState.value.isSimplified">
+      <a-btn label="Simplify" @click="makeSimple" color="primary" />
+      <span class="q-ml-sm" v-html="tex2html(graphState.value.simpleNode?.toTex())"></span>
     </div>
     <q-scroll-area style="height: 80vh" visible>
-      <div class="column" v-for="([dep, type, value]) of dependencies" :key="dep">
-        <div class="row flex-center shadow-1 " >
-          <span > {{ dep }} </span>
+      <div class="column" v-for="[dep, type, value] of dependencies" :key="dep">
+        <div class="row flex-center shadow-1">
+          <span> {{ dep }} </span>
           <q-tab-panels
             :model-value="type"
             class="q-mini-drawer-hide col q-pa-xs"
@@ -39,8 +52,7 @@ const dependencies = graphState.value.vars.map((dep) => {
             </q-tab-panel>
             <q-tab-panel name="expression" class="q-pa-none">
               <div class="tex q-py-md">
-                <tex-span :id="'tex_' + dep">
-                </tex-span>
+                <tex-span :expr="(value as EnvExpr).node"> </tex-span>  <!-- cast ok, as it handles the undefined result when value is not an EnvExpr -->
               </div>
             </q-tab-panel>
             <q-tab-panel name="animated" class="q-pt-none">

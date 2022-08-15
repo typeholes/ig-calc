@@ -10,6 +10,7 @@ import {
 } from '../math/mathUtil';
 import { ExprEnv, nodeToEvalFn, flattenDependencyTree } from './exprEnv';
 import { addTexElement } from '../typeset';
+import { simplify } from '../math/simplify';
 
 export interface EnvExprVar {
   name: string;
@@ -20,6 +21,8 @@ export interface EnvExpr {
   vars: string[];
   error: string | undefined;
   node: MathNode | undefined;
+  simpleNode: MathNode | undefined;
+  isSimplified: boolean;
   name: string;
 }
 
@@ -37,13 +40,15 @@ export function EnvExpr(expr: string): EnvExpr {
 
   if (defined(node)) {
     const name = getNodeName(node);
+    const simpleNode = simplify(node, true);
+    const isSimplified = node.toString() === simpleNode.toString();
     const vars = getDependencies(node);
       const tex = node.toTex();
     addTexElement('tex_' + name, tex);
-    return { expr, error, node, vars, name };
+    return { expr, error, node, vars, name, simpleNode, isSimplified };
   } else {
     const name = defined(node) ? getNodeName(node) : `ERROR: ${expr}`;
-    return { expr, error, node, vars: [], name };
+    return { expr, error, node, vars: [], name, simpleNode: undefined, isSimplified: true };
   }
 }
 

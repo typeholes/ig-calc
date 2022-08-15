@@ -19,10 +19,26 @@ export function injectTex(elementId, tgt, skipTypeset) {
   }
 }
 
-export function addTexElement(elementId, tex) {
-  nodes[elementId] = MathJax.tex2svg(tex, {
+export function node2html(node) {
+  return tex2html(node?.toTex());
+}
+
+
+export function tex2html(tex) {
+  if (`$tex` === '') {
+    return '';
+  }
+  return tex2svg(tex).outerHTML;
+}
+
+export function tex2svg(tex) {
+  return MathJax.tex2svg(tex, {
     display: true,
     scale: 1,
     lineWidth: 5,
   });
+}
+
+export function addTexElement(elementId, tex) {
+  nodes[elementId] = tex2svg(tex);
 }

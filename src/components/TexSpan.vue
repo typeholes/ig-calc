@@ -1,13 +1,14 @@
 <script setup lang="ts">
-import { getTex } from 'src/js/typeset';
+import { MathNode } from 'mathjs';
+import { node2html } from 'src/js/typeset';
 
 
-const props = defineProps<{ id: string }>();
+const props = defineProps<{ expr: MathNode | undefined }>();
 
 </script>
 
 
 <template>
-  <span v-html="getTex(props.id)"></span>
+  <span v-html="node2html(props.expr)"></span>
 </template>
 

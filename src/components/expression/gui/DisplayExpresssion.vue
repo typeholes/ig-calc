@@ -23,6 +23,7 @@ const state = reactive({
   errorMsg: graphState.value.error,
   vars: graphState.value.vars,
   showDetail: false,
+  isSimplified: graphState.value.isSimplified,
 });
 
 function updateExpr(event: Event) {
@@ -40,6 +41,7 @@ function syncGraphState() {
   state.errorMsg = graphState.value.error;
   state.expr = graphState.value.expr;
   state.vars = graphState.value.vars;
+  state.isSimplified = graphState.value.isSimplified;
 }
 
 const active = ref('a');
@@ -53,7 +55,7 @@ function showDetail() {
 <template>
   <div class="col">
     <q-dialog v-model="state.showDetail">
-      <expression-detail :name="props.name"  />
+      <expression-detail :name="props.name" :sync-expr-pane="syncGraphState" />
     </q-dialog>
 
     <span class="text-red"> {{ state.errorMsg }} </span>
@@ -61,13 +63,13 @@ function showDetail() {
       icon="info"
       dense
       style="position: absolute; top: -3px; z-index: 11111"
-      :class="{ 'text-green': state.showDetail}"
+      :class="{ 'text-positive': state.showDetail, 'text-warning': !state.isSimplified}"
       @click="showDetail"
     />
     <slot-picker v-model="active" :names="['a', 'b']" static>
       <template #a>
         <q-scroll-area style="height: 8vh; width: 100%" visible class="tex">
-          <tex-span class="tex" :id="'tex_' + props.name"> </tex-span>
+          <tex-span class="tex" :expr="graphState.value.node"> </tex-span>
         </q-scroll-area>
       </template>
       <template #b>
