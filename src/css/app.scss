@@ -50,6 +50,11 @@ aside.q-drawer {
   background-color: #00000000;
 }
 
+.tex {
+  backdrop-filter: brightness(45%) blur(2px);
+  background-color: #00000000;
+}
+
 .CtxtMenu_MenuFrame {
   z-index: 99999 !important;
 }

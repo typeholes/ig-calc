@@ -60,7 +60,8 @@ function getTex() {
 
 function refreshTex() {
   if (type !== 'expression') return;
-  addTexElement('tex_' + props.name, getTex());
+  const tex = getTex();
+  addTexElement('tex_' + props.name, tex, 'texDetail_' + props.name);
   typeset();
 }
 
@@ -169,10 +170,11 @@ onUpdated(refreshTex);
             text-color="primary"
             @click="state.showMenu = !state.showMenu"
           >
-            <q-menu class="bg-transparent-dark"
-                    self="top start"
-                    anchor="top right"
-                    >
+            <q-menu
+              class="bg-transparent-dark"
+              self="top start"
+              anchor="top right"
+            >
               <q-list>
                 <q-item>
                   <a-btn-dropdown
