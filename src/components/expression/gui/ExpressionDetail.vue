@@ -7,14 +7,15 @@ import { nodeToObjectTree, opMap } from 'src/js/math/mathUtil';
 import * as M from 'mathjs';
 import { defined } from 'src/js/util';
 import { reactive } from 'vue';
-import AstSymbol from 'src/components/ast/AstSymbol.vue';
 import AstConstant from 'src/components/ast/AstConstant.vue';
 import AstCalledFunction from 'src/components/ast/AstCalledFunction.vue';
 import AstOperator from 'src/components/ast/AstOperator.vue';
+import AstSymbol from 'src/components/ast/AstSymbol.vue';
 
 interface Props {
   name: string;
   syncExprPane: () => void;
+  readOnly?: boolean | undefined;
 }
 
 const props = defineProps<Props>();
@@ -112,6 +113,8 @@ function updateExpr() {
             <ast-symbol
               v-else-if="prop.node.type === 'SymbolNode'"
               :node="prop.node"
+              :root="state.node"
+              :rootName="props.name"
             />
             <div class="tex q-py-md" v-else>
               <tex-span :expr="prop.node.mathNode"> </tex-span>

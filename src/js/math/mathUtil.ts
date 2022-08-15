@@ -277,23 +277,47 @@ export function nodeToTree(n: MathNode): Tree<MathNode> {
   return Tree(n, getChildren);
 }
 
-export type MathNodeObject = { mathNode: MathNode, id: number, type: MathNode['type'], label: string, children?: MathNodeObject[], parent: MathNode | undefined, childIdx: number | undefined };
+export type MathNodeObject = {
+  mathNode: MathNode;
+  id: number;
+  type: MathNode['type'];
+  label: string;
+  children?: MathNodeObject[];
+  parent: MathNode | undefined;
+  childIdx: number | undefined;
+};
 
 let nodeObjectCnt = 0;
-export function nodeToObject(n: MathNode, childIdx: number | undefined, parent: MathNode | undefined): MathNodeObject {
-  return { mathNode: n, id: nodeObjectCnt++, type: n.type, label: nodeToLabel(n), parent, childIdx };
+export function nodeToObject(
+  n: MathNode,
+  childIdx: number | undefined,
+  parent: MathNode | undefined
+): MathNodeObject {
+  return {
+    mathNode: n,
+    id: nodeObjectCnt++,
+    type: n.type,
+    label: nodeToLabel(n),
+    parent,
+    childIdx,
+  };
 }
 
 export function nodeToObjectTree(n: MathNode): MathNodeObject {
-   nodeObjectCnt = 0;
+  nodeObjectCnt = 0;
   return Tree.toObject(nodeToTree(n), nodeToObject);
 }
 
-type LabelExtractor<T> = [ <T>(x: unknown) => x is T, (t: T) => string];
+type LabelExtractor<T> = [<T>(x: unknown) => x is T, (t: T) => string];
 // type LabelExtractors<U extends MathNode> = LabelExtractor<U>[];
-function lx<T>( is: (x: unknown) => x is T, to: (t: T) => string) : LabelExtractor<T> { return tuple(is,to) as LabelExtractor<T>; }
+function lx<T>(
+  is: (x: unknown) => x is T,
+  to: (t: T) => string
+): LabelExtractor<T> {
+  return tuple(is, to) as LabelExtractor<T>;
+}
 const labelExtractors = [
-  lx(M.isArrayNode, ()=>'array'),
+  lx(M.isArrayNode, () => 'array'),
   lx(M.isAssignmentNode, (n) => n.name),
   lx(M.isSymbolNode, (n) => n.name),
   lx(M.isFunctionNode, () => 'function call'),
@@ -301,11 +325,22 @@ const labelExtractors = [
   lx(M.isConstantNode, (n) => n.value),
 ];
 
-function nodeToLabel(n: MathNode) : string{
-  for ( const [is, to] of labelExtractors) {
-    if (is(n)) { return to(n as never) }
+function nodeToLabel(n: MathNode): string {
+  for (const [is, to] of labelExtractors) {
+    if (is(n)) {
+      return to(n as never);
+    }
   }
 
   return 'Unknown type: ' + n.type;
+}
 
+export function getBody(n: MathNode) {
+  if (M.isAssignmentNode(n)) {
+    return n.value;
+  }
+  if (M.isFunctionAssignmentNode(n)) {
+    return n.expr;
+  }
+  return n;
 }

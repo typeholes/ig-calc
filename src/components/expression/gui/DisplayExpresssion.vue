@@ -8,8 +8,8 @@ import {
   currentSaveIsLibrary,
 } from 'src/components/SaveWidget';
 import { defined } from 'src/js/util';
-import ExpressionDetail from './ExpressionDetail.vue';
 import TexSpan from 'src/components/TexSpan.vue';
+import ExpressionDetail from 'src/components/expression/gui/ExpressionDetail.vue'
 
 interface Props {
   name: string;
