@@ -26,7 +26,7 @@ const value = bound
 
 <template>
   <div class="col text-white">
-    <q-expansion-item v-if="bound" :label="symbol.name + ': bound'">
+    <q-expansion-item dense v-if="bound" :label="symbol.name + ': bound'">
       <q-tab-panels :model-value="type" class="col q-pa-xs">
         <q-tab-panel name="free" class="q-pa-none"> free </q-tab-panel>
         <q-tab-panel name="constant" class="q-pa-none">
@@ -41,7 +41,7 @@ const value = bound
         <q-tab-panel name="animated" class="q-pt-none"> Anim here </q-tab-panel>
       </q-tab-panels>
     </q-expansion-item>
-    <q-expansion-item v-else :label="symbol.name + ': free'">
+    <q-expansion-item dense v-else :label="symbol.name + ': free'">
         <span v-if="props.root"
           class="q-ml-sm"
           v-html="tex2html('\\frac{\\partial ' + props.rootName + '}{\\partial ' + symbol.name + '}' + derive(getBody(props.root), symbol.name).toTex())"

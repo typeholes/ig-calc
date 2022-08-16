@@ -9,5 +9,6 @@ const props = defineProps<Props>();
 </script>
 
 <template>
-  <div>{{ props.node.label }} : TODO constant ast interface</div>
+<!-- probably don't want to display anything for consants -->
+  <div hidden>{{ props.node.label }} : TODO constant ast interface</div>
 </template>

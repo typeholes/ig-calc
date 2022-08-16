@@ -12,7 +12,9 @@ interface Props {
 }
 
 const props = defineProps<Props>();
+
 const ops = [...Object.keys(opMap), 'swap_horiz'];
+
 function changeOp(n: M.OperatorNode, newOp: string) {
   const node = props.node.mathNode;
   if (!defined(node)) {
@@ -39,20 +41,23 @@ function changeOp(n: M.OperatorNode, newOp: string) {
 </script>
 
 <template>
-  <div class="row">
+  <div class="row q-pb-xs">:
     <div v-for="op in ops" :key="op">
       <q-btn
         v-if="op in opMap"
-        class="q-mx-sm"
+        class="q-mx-sm q-px-sm"
         color="primary"
         :label="op"
+        :disable="op === (props.node.mathNode as M.OperatorNode).op"
+        size="xs"
         @click="changeOp(props.node.mathNode as M.OperatorNode, op)"
       />
       <q-btn
         v-else
-        class="q-mx-sm"
+        class="q-mx-sm q-px-sm"
         color="primary"
         :icon="op"
+        size="xs"
         @click="changeOp(props.node.mathNode as M.OperatorNode, op)"
       />
     </div>

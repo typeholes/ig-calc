@@ -49,14 +49,6 @@ function syncGraphState() {
 
   props.syncExprPane();
 }
-const dependencies = graphState.value.vars.map((dep) => {
-  if (saveState.currentEnv.order.includes(dep)) {
-    const type = saveState.currentEnv.getType(dep);
-    return [dep, type, saveState.currentEnv[type].getState(dep).value] as const;
-  }
-
-  return [dep, 'free', 0];
-});
 
 function makeSimple() {
   if (!defined(state.simpleNode)) {
@@ -75,6 +67,8 @@ function updateExpr() {
     return;
   }
   saveState.currentEnv.expression.set(props.name, EnvExpr(node.toString()));
+  state.selected = 'none';
+  state.replaced = undefined
   syncGraphState();
 }
 
@@ -113,6 +107,10 @@ function acceptReplacement() {
   syncGraphState();
 }
 
+function includeTree(obj: MathNodeObject) {
+  return !(obj.childIdx === 0 && obj.parent?.type === 'FunctionNode')
+}
+
 function onSelect() {
   state.replaced = undefined;
 }
@@ -127,9 +125,6 @@ function onSelect() {
       icon="close"
       v-close-popup
     />
-    <!-- <div class="tex q-py-md">
-      <tex-span :expr="state.node"> </tex-span>
-    </div> -->
     <q-scroll-area style="height: 70vh; width=100%" visible>
       <div class="row" v-if="!state.isSimplified">
         <q-btn dense label="Simplify" @click="makeSimple" color="primary" />
@@ -151,6 +146,8 @@ function onSelect() {
           color="primary"
           dark
           ref="treeEl"
+          filter="any"
+          :filter-method="includeTree"
           @update:selected="onSelect"
         >
           <template v-slot:default-body="prop">
@@ -162,6 +159,7 @@ function onSelect() {
                 :update-expr="updateExpr"
                 :sync-parent="syncGraphState"
               />
+              <!-- this are currently filtered out -->
               <ast-called-function
                 v-else-if="
                   prop.node.childIdx === 0 &&
@@ -180,49 +178,45 @@ function onSelect() {
                 :rootName="props.name"
               />
               <div
-                class="tex q-py-md text-white"
+                class="tex q-py-xs text-white"
                 v-else-if="prop.node.type != 'ParenthesisNode'"
               >
                 <tex-span :expr="prop.node.mathNode"> </tex-span>
               </div>
             </div>
           </template>
-          <!-- <template v-slot:default-header="prop">
-   id: {{ prop.node.id }}
-</template > -->
+          <template v-slot:default-header="prop">
+            <template v-if="prop.node.type === 'OperatorNode'">
+              {{ prop.node.mathNode.args[0] }}
+              <div class="bg-warning q-px-xs">{{ prop.node.label }}</div>
+              {{ prop.node.mathNode.args[1] }}
+            </template>
+            <template v-else>
+              {{ prop.node.label }}
+            </template>
+          </template>
         </q-tree>
       </div>
-      <div class="column" v-for="[dep, type, value] of dependencies" :key="dep">
-        <div class="row flex-center shadow-1">
-          <span> {{ dep }} </span>
-          <q-tab-panels
-            :model-value="type"
-            class="q-mini-drawer-hide col q-pa-xs"
-          >
-            <q-tab-panel name="free" class="q-pa-none"> free </q-tab-panel>
-            <q-tab-panel name="constant" class="q-pa-none">
-              {{ value }}
-            </q-tab-panel>
-            <q-tab-panel name="expression" class="q-pa-none">
-              <div class="tex q-py-md">
-                <tex-span :expr="(value as EnvExpr).node"> </tex-span>
-                <!-- cast ok, as it handles the undefined result when value is not an EnvExpr -->
-              </div>
-            </q-tab-panel>
-            <q-tab-panel name="animated" class="q-pt-none">
-              Anim here
-            </q-tab-panel>
-          </q-tab-panels>
-        </div>
-      </div>
     </q-scroll-area>
-    <div class="bg-secondary q-pl-sm q-pt-sm inset-shadow shadow" style="height: 20vh">
-      {{ getSelectedObject()?.label }}<br />
+    <div
+      class="bg-secondary q-pl-sm q-pt-sm inset-shadow shadow"
+      style="height: 20vh"
+    >
+    <div>
+    {{ getSelectedObject()?.mathNode.toString() }}
+    </div>
       <q-btn label="replace with -27" @click="replaceSelected" />
       <div class="row" v-if="state.replaced">
-        <span class="q-ma-sm q-px-xs bg-transparent-dark tex " v-html="tex2html(state.replaced?.toTex())"></span>
+        <span
+          class="q-ma-sm q-px-xs bg-transparent-dark tex"
+          v-html="tex2html(state.replaced?.toTex())"
+        ></span>
       </div>
-      <q-btn label="Accept Replacement" @click="acceptReplacement" v-if="state.replaced" />
+      <q-btn
+        label="Accept Replacement"
+        @click="acceptReplacement"
+        v-if="state.replaced"
+      />
     </div>
   </q-card>
 </template>
