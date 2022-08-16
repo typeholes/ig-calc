@@ -1,10 +1,9 @@
 <script setup lang="ts">
-import { MathNodeObject, getBody } from 'src/js/math/mathUtil';
+import { MathNodeObject, getBody, getDerivative } from 'src/js/math/mathUtil';
 import { state as saveState } from 'src/components/SaveWidget';
 import { MathNode, SymbolNode } from 'mathjs';
 import TexSpan from 'src/components/TexSpan.vue';
 import { EnvExpr } from 'src/js/env/EnvExpr';
-import { derive } from 'src/js/math/derivatives'
 import { tex2html } from 'src/js/typeset';
 
 interface Props {
@@ -44,7 +43,7 @@ const value = bound
     <q-expansion-item dense v-else :label="symbol.name + ': free'">
         <span v-if="props.root"
           class="q-ml-sm"
-          v-html="tex2html('\\frac{\\partial ' + props.rootName + '}{\\partial ' + symbol.name + '}' + derive(getBody(props.root), symbol.name).toTex())"
+          v-html="tex2html('\\frac{\\partial ' + props.rootName + '}{\\partial ' + symbol.name + '}' + getDerivative(getBody(props.root), symbol.name, saveState.currentEnv.getMathEnv()).toTex())"
         ></span>
 
     </q-expansion-item>

@@ -39,7 +39,7 @@ export function parse(s: string): Either<Error, MathNode> {
 function getDerivative(
   node: M.MathNode,
   by: string,
-  args: Record<string, MathNode> = {}
+  args: Record<string, MathNode | number> = {}
 ): M.MathNode {
   const expanded: M.MathNode = inline(node, args);
   const derived = M.derivative(expanded, by);
@@ -56,6 +56,38 @@ export function freeVars(
   return free.map((x) => x.name);
 }
 
+export function fixFunctionCalls(
+  n: MathNode,
+  env: Record<string, MathNode | number>
+) : MathNode {
+  return n.transform((node) => {
+    if (isFunctionNode(node)) {
+      const name = node.fn.name;
+      if (node.args.length > 1) {
+        return node;
+      }
+      const to = env[name];
+      if (!defined(to) || isFunctionAssignmentNode(to)) {
+        return node;
+      }
+
+      return op('*', node.fn, node.args[0]);
+    }
+
+    if (isOperatorNode(node) && node.op === '*') {
+      const [left, right] = node.args;
+      if (isSymbolNode(left)) {
+        const to = env[left.name];
+        if (defined(to) && isFunctionAssignmentNode(to)) {
+          return new FunctionNode(to.name, [right]);
+        }
+      }
+    }
+
+    return node;
+  });
+}
+
 export function inline(
   node: MathNode,
   env: Record<string, MathNode | number>,
@@ -65,6 +97,10 @@ export function inline(
   //   console.log({ depth: depth, node: node.toString() })
   if (depth > maxDepth) {
     return node;
+  }
+
+  if (isAssignmentNode(node)) {
+    return node.value;
   }
 
   if (isFunctionNode(node)) {

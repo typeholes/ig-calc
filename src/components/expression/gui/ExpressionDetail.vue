@@ -5,18 +5,16 @@ import { EnvExpr } from 'src/js/env/EnvExpr';
 import { tex2html } from 'src/js/typeset';
 import {
   nodeToObjectTree,
-  getBody,
   MathNodeObject,
 } from 'src/js/math/mathUtil';
 import * as M from 'mathjs';
 import { defined } from 'src/js/util';
-import { defineSSRCustomElement, reactive, ref } from 'vue';
+import { reactive, ref } from 'vue';
 import AstConstant from 'src/components/ast/AstConstant.vue';
 import AstCalledFunction from 'src/components/ast/AstCalledFunction.vue';
 import AstOperator from 'src/components/ast/AstOperator.vue';
 import AstSymbol from 'src/components/ast/AstSymbol.vue';
 import { QTree } from 'quasar';
-import { resolvePackageEntry } from 'vite';
 
 interface Props {
   name: string;
@@ -56,7 +54,7 @@ function makeSimple() {
   }
   saveState.currentEnv.expression.set(
     props.name,
-    EnvExpr(state.simpleNode.toString())
+    EnvExpr(state.simpleNode.toString(), saveState.currentEnv)
   );
   syncGraphState();
 }
@@ -66,7 +64,7 @@ function updateExpr() {
   if (!defined(node)) {
     return;
   }
-  saveState.currentEnv.expression.set(props.name, EnvExpr(node.toString()));
+  saveState.currentEnv.expression.set(props.name, EnvExpr(node.toString(), saveState.currentEnv));
   state.selected = 'none';
   state.replaced = undefined
   syncGraphState();
@@ -102,7 +100,7 @@ function acceptReplacement() {
 
   saveState.currentEnv.expression.set(
     props.name,
-    EnvExpr(state.replaced.toString())
+    EnvExpr(state.replaced.toString(), saveState.currentEnv)
   );
   syncGraphState();
 }

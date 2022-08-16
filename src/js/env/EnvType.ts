@@ -20,7 +20,7 @@ export interface EnvType<V> {
   getState: (key: string) => EnvItem & { value: V };
   getDependencies: (v: V) => ISet<string>;
   toTex: (key: string, v: V) => string;
-  onDependencyChange: (v: V, dependencyName: string) => void;
+  onDependencyChange: (v: V, dependencyName: string, newDependencyValue: unknown, oldDependencyValue: unknown) => void;
 }
 
 export function EnvType<V>({
@@ -36,7 +36,7 @@ export function EnvType<V>({
   toTex,
   onDependencyChange,
 }: {
-  onChange: (name: string, changeType: 'update' | 'insert' | 'delete') => void;
+  onChange: (name: string, changeType: 'update' | 'insert' | 'delete', newValue?: V, oldValue?: V) => void;
   tag: EnvTypeTag;
   data: Map<string, V>;
   getGraph: () => Graph;
@@ -46,7 +46,7 @@ export function EnvType<V>({
   getDatum: (v: V, item: EnvItem) => FunctionPlotDatum;
   getDependencies: (v: V) => ISet<string>;
   toTex: (v: V) => string;
-  onDependencyChange: (v: V, dependencyName: string) => void;
+  onDependencyChange: (v: V, dependencyName: string, newDependencyValue: unknown, oldDependencyValue: unknown) => void;
 }): EnvType<V> {
   const envType: EnvType<V> = {
     tag,
@@ -56,6 +56,7 @@ export function EnvType<V>({
     has: (key) => data.has(key),
     get: (key) => data.get(key),
     set: (key, value, props = {}) => {
+      const oldValue = data.get(key);
       data.set(key, value);
       mathEnv[key] = getMathValue(value);
       if (!items.has(key)) {
@@ -75,16 +76,17 @@ export function EnvType<V>({
       items.set(key, {...item, ...props});
       envType.showGraph(key, item.showGraph);
       if (key != 'time') {
-        onChange(key, 'update');
+        onChange(key, 'update', value, oldValue);
       }
       return value;
     },
     delete: (key) => {
+      const oldValue = data.get(key);
       data.delete(key);
       delete mathEnv[key];
       // leave envItem so it can be reused by another item with the same name
       if (key != 'time') {
-        onChange(key, 'delete');
+        onChange(key, 'delete', undefined, oldValue);
       }
     },
     toRecord: () => Object.fromEntries(data.entries()),

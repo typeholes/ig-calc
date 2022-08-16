@@ -2,7 +2,13 @@ import { MathNode } from 'mathjs';
 import { Errorable } from '../Either';
 import { parseNode, getNodeName } from '../expressions';
 import { EvalFn } from '../function-plot/FunctionPlotDatum';
-import { defined } from '../util';
+import {
+  defined,
+  hasProp,
+  hasPropIs,
+  isBoolean,
+  isString,
+} from '../util';
 import { Set as ISet } from 'immutable';
 import {
   getDependencies,
@@ -26,9 +32,20 @@ export interface EnvExpr {
   name: string;
 }
 
+export function isEnvExpr(x: unknown): x is EnvExpr {
+  return (
+    defined(x) &&
+    hasPropIs(x, 'expr', isString) &&
+    hasPropIs(x, 'name', isString) &&
+    hasProp(x, 'error') &&
+    hasProp(x, 'node') &&
+    hasProp(x, 'simpleNode') &&
+    hasPropIs(x, 'isSimplified', isBoolean)
+  );
+}
 
-export function EnvExpr(expr: string): EnvExpr {
-  const parsed = parseNode(expr);
+export function EnvExpr(expr: string, env: ExprEnv | undefined): EnvExpr {
+  const parsed = parseNode(expr, env?.getMathEnv() || {});
   const { node, error } = Errorable.on<
     Error,
     MathNode,
@@ -43,12 +60,20 @@ export function EnvExpr(expr: string): EnvExpr {
     const simpleNode = simplify(node, true);
     const isSimplified = node.toString() === simpleNode.toString();
     const vars = getDependencies(node);
-      const tex = node.toTex();
+    const tex = node.toTex();
     addTexElement('tex_' + name, tex);
     return { expr, error, node, vars, name, simpleNode, isSimplified };
   } else {
     const name = defined(node) ? getNodeName(node) : `ERROR: ${expr}`;
-    return { expr, error, node, vars: [], name, simpleNode: undefined, isSimplified: true };
+    return {
+      expr,
+      error,
+      node,
+      vars: [],
+      name,
+      simpleNode: undefined,
+      isSimplified: true,
+    };
   }
 }
 

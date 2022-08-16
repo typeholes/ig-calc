@@ -1,9 +1,14 @@
-import { isFunctionAssignmentNode, isNumber, MathNode } from 'mathjs';
+import {
+  isAssignmentNode,
+  isFunctionAssignmentNode,
+  isNumber,
+  MathNode,
+} from 'mathjs';
 import { defaultCall, getAssignmentBody } from '../expressions';
 import { Set as ISet, Map as IMap } from 'immutable';
 import { builtinConstants } from '../math/symbols';
 import { nextTick, reactive } from 'vue';
-import { Graph, mkGraph } from '../function-plot/d3util';
+import { mkGraph } from '../function-plot/d3util';
 import {
   Datum,
   DatumOptions,
@@ -13,7 +18,7 @@ import {
 import { EnvType, EnvTypeTag } from './EnvType';
 
 import { Animation } from './Animation';
-import { EnvExpr } from './EnvExpr';
+import { EnvExpr, isEnvExpr } from './EnvExpr';
 import { inline } from '../math/mathUtil';
 import { assert, defined } from '../util';
 import { libraries } from '../libraryValues';
@@ -89,7 +94,9 @@ export const mkExprEnv = (): ExprEnv => {
   let active = false;
   function onChange(
     name: string,
-    changeType: 'insert' | 'update' | 'delete' = 'update'
+    changeType: 'insert' | 'update' | 'delete' = 'update',
+    newValue?: unknown,
+    oldValue?: unknown
   ) {
     if (!active) {
       return;
@@ -101,7 +108,12 @@ export const mkExprEnv = (): ExprEnv => {
       const type = exprEnv.getType(valueName);
       const value = exprEnv[type].get(valueName);
       if (defined(value)) {
-        exprEnv[type].onDependencyChange(value as U2I<typeof value>, name);
+        exprEnv[type].onDependencyChange(
+          value as U2I<typeof value>,
+          name,
+          newValue,
+          oldValue
+        );
       }
     });
 
@@ -168,10 +180,25 @@ export const mkExprEnv = (): ExprEnv => {
         datumGetter(item, EnvExpr.toEvalFn(item.name, v, exprEnv)),
       getDependencies: EnvExpr.getDependencies,
       toTex: EnvExpr.toTex,
-      onDependencyChange: (expr, name) => {
-        if (expr.vars.includes(name)) {
+      onDependencyChange: (
+        expr: EnvExpr,
+        dependencyName: string,
+        newDependencyValue: unknown,
+        oldDependencyValue: unknown
+      ) => {
+        if (expr.vars.includes(dependencyName)) {
           const showGraph = exprEnv.items.get(expr.name)?.showGraph ?? false;
           exprEnv.expression.showGraph(expr.name, showGraph);
+          if (
+            isEnvExpr(newDependencyValue) &&
+            isEnvExpr(oldDependencyValue) &&
+            ((isAssignmentNode(newDependencyValue.node) &&
+              isFunctionAssignmentNode(oldDependencyValue.node)) ||
+              (isAssignmentNode(oldDependencyValue.node) &&
+                isFunctionAssignmentNode(newDependencyValue.node)))
+          ) {
+            exprEnv.expression.set(expr.name, EnvExpr(expr.expr, exprEnv));
+          }
         }
       },
     }),

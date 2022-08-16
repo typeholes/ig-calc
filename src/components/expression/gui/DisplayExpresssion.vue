@@ -29,7 +29,7 @@ const state = reactive({
 
 function updateExpr(event: Event) {
   if (event.target instanceof HTMLInputElement) {
-    const expr = EnvExpr(event.target.value);
+    const expr = EnvExpr(event.target.value, saveState.currentEnv);
     if (defined(expr.node)) {
       state.vars = expr.vars;
       saveState.currentEnv.expression.set(props.name, expr);

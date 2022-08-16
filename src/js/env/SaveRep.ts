@@ -60,7 +60,7 @@ export function fromSaveRep(saveRep: SaveRep): ExprEnv {
       env.animated.showGraph(name, item.showGraph);
     }
     if (defined(item.expression)) {
-      env.expression.set(name, EnvExpr(item.expression));
+      env.expression.set(name, EnvExpr(item.expression, env));
       env.expression.colorGraph(name, item.color);
       env.expression.showGraph(name, item.showGraph);
     }
