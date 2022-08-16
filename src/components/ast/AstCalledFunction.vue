@@ -8,5 +8,5 @@ const props = defineProps<Props>();
 </script>
 
 <template>
-  <div>{{ props.node.label }} : TODO symbol ast interface</div>
+  <div class="text-white">{{ props.node.label }} : TODO symbol ast interface</div>
 </template>

@@ -56,7 +56,7 @@ function showDetail() {
 
 <template>
   <div class="col">
-    <q-dialog v-model="state.showDetail">
+    <q-dialog v-model="state.showDetail" seamless >
       <expression-detail :name="props.name" :sync-expr-pane="syncGraphState" />
     </q-dialog>
 

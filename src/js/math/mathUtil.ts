@@ -279,7 +279,7 @@ export function nodeToTree(n: MathNode): Tree<MathNode> {
 
 export type MathNodeObject = {
   mathNode: MathNode;
-  id: number;
+  id: string;
   type: MathNode['type'];
   label: string;
   children?: MathNodeObject[];
@@ -295,7 +295,7 @@ export function nodeToObject(
 ): MathNodeObject {
   return {
     mathNode: n,
-    id: nodeObjectCnt++,
+    id: (nodeObjectCnt++).toString(),
     type: n.type,
     label: nodeToLabel(n),
     parent,

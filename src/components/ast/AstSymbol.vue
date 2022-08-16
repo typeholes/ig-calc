@@ -25,7 +25,7 @@ const value = bound
 </script>
 
 <template>
-  <div class="col">
+  <div class="col text-white">
     <q-expansion-item v-if="bound" :label="symbol.name + ': bound'">
       <q-tab-panels :model-value="type" class="col q-pa-xs">
         <q-tab-panel name="free" class="q-pa-none"> free </q-tab-panel>
@@ -33,7 +33,7 @@ const value = bound
           {{ value }}
         </q-tab-panel>
         <q-tab-panel name="expression" class="q-pa-none">
-          <div class="tex q-py-md">
+          <div class="tex q-py-md text-white">
             <tex-span :expr="(value as EnvExpr).node"> </tex-span>
             <!-- cast ok, as it handles the undefined result when value is not an EnvExpr -->
           </div>
