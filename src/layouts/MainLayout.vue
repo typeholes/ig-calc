@@ -1,11 +1,15 @@
 <template>
   <q-layout view="hHh lpR lFr">
+    <FakeCursor />
     <q-header elevated class="bg-transparent text-primary" height-hint="98">
       <q-toolbar class="bg-transparent">
         <q-btn dense flat round icon="menu" @click="toggleLeftDrawer" />
 
         <q-toolbar-title class="bg-transparent">
           <q-tabs align="center" v-model="panel">
+            <span id="docTopic" v-if="saveState.docTopic">{{
+              saveState.docTopic
+            }}</span>
             <q-tab name="graph" label="Graph" />
             <q-tab name="grid" label="Grid" />
             <q-tab name="help" label="Help" />
@@ -37,15 +41,11 @@
       elevated
       overlay
     >
-    <div class="column">
-      <SaveWidget />
-            <q-btn
-              @click="toggleOptions();"
-              class="q-ml-auto"
-              :icon="matSettings"
-            />
+      <div class="column">
+        <SaveWidget />
+        <q-btn @click="toggleOptions()" class="q-ml-auto" :icon="matSettings" />
         <general-options />
-        </div>
+      </div>
     </q-drawer>
 
     <q-page-container>
@@ -85,10 +85,10 @@ import DisplayData from 'src/components/DisplayData.vue';
 import ExpressionPane from 'src/components/ExpressionPane.vue';
 import SaveWidget from 'src/components/SaveWidget.vue';
 import { state as saveState } from 'src/components/SaveWidget';
-import ABtn from 'src/components/qDefaulted/ABtn.vue';
 import { state as appState } from 'src/components/uiUtil';
 import GeneralOptions from 'src/components/GeneralOptions.vue';
 import { matSettings } from '@quasar/extras/material-icons';
+import FakeCursor from 'src/components/FakeCursor.vue';
 
 const leftDrawerOpen = ref(false);
 const leftDrawerMini = ref(false);

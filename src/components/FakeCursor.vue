@@ -12,7 +12,7 @@
 
 <style scoped>
    .cursor {
-      z-index: 99;
+      z-index: 99999999;
       background: none;
       color: antiquewhite;
       font-size: 5ch;

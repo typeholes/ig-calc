@@ -34,6 +34,7 @@ function moveFab(ev) {
       @show="focusExpr"
     >
       <q-fab-action
+      id="NewExprBtn"
       @click="(e: Event) => e.stopPropagation()"
       >
         <template #default>

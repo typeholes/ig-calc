@@ -30,8 +30,8 @@ import { computed, nextTick, reactive } from 'vue';
 
 import { Map as IMap } from 'immutable';
 import { MMap } from './MMap';
-import { Interval } from 'src/js/function-plot/types';
-import { tick as actionsTick, getActions } from '../js/actions';
+import { tick as actionsTick } from '../js/actions';
+import { initReceiver } from 'src/js/docs/receiver';
 
 interface State {
   currentSave: SaveId;
@@ -48,6 +48,7 @@ interface State {
   saveMetaData: SaveMetaData;
   tickTime: number;
   runTimer: boolean;
+  docTopic?: string | undefined;
 }
 
 export const state: State = reactive({
@@ -98,7 +99,7 @@ export function share(id: SaveId): string {
   const shareStr = JSON.stringify({ name: id.name, description, save });
 
   const compressed = compressToEncodedURIComponent(shareStr);
-  const uncompressed = decompressFromEncodedURIComponent(compressed);
+  //  const uncompressed = decompressFromEncodedURIComponent(compressed);
   state.shareString = baseUrl() + '?shared=' + compressed;
   void navigator.clipboard.writeText(state.shareString);
 
@@ -306,18 +307,16 @@ export function unselectSave() {
 }
 
 export function initSaveWidget() {
-  const search = window.location.search.slice(1);
+  const search = window.location.search;//.slice(1);
   const params = new URLSearchParams(search);
 
   const storageKey = params.get('StorageKey') ?? '';
-  if (params.has('actions')) {
-    const actionsKey = params.get('actions');
-    const actionCount = params.has('actionCnt')
-      ? parseInt(params.get('actionCnt')!)
-      : undefined;
-    if (defined(actionsKey)) {
-      getActions(actionsKey, actionCount);
-    }
+  if (params.has('docDriven') && params.get('docDriven') === 'true') {
+    initReceiver({
+      setTopic: (topic) => {
+        state.docTopic = topic;
+      },
+    });
   }
   if (params.has('StorageKey')) {
     state.saveMetaData = setStorageKey(storageKey);

@@ -14,8 +14,8 @@ export function goToElement(el: HTMLElement | undefined) {
    if (!defined(el)) {
       return;
    }
-   const appEl = document.getElementById('app');
-   appEl?.scrollIntoView(true);
+  //  const appEl = document.getElementById('app');
+  //  appEl?.scrollIntoView(true);
 
    el.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
 
