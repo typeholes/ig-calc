@@ -10,16 +10,18 @@ export const cursorState = reactive({
    animate: false,
 });
 
-export function goToElement(el: HTMLElement | undefined) {
-   if (!defined(el)) {
+export function goToElement( selected:  [HTMLElement, DOMRect] | undefined ) {
+   if (!defined(selected)) {
       return;
    }
+
+   const [el, rect] = selected;
   //  const appEl = document.getElementById('app');
   //  appEl?.scrollIntoView(true);
 
    el.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
 
-   let bounds = el.getBoundingClientRect();
+   let bounds = rect;
    if (window.innerHeight - bounds.top < 80) {
       window.scrollBy(0, 160);
       bounds = el.getBoundingClientRect();

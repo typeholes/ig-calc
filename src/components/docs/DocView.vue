@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { sendAction } from 'src/js/actions';
 import { createDocChannel } from 'src/js/docs/receiver';
-import { defined } from 'src/js/util';
+import { defined, unique } from 'src/js/util';
 import { computed, ref } from 'vue';
 
 const docChannel = createDocChannel();
@@ -11,7 +11,7 @@ let childWindow: Window | undefined = undefined;
 function open() {
   childWindow =
     window.open(
-      window.location.origin + '?docDriven=true',
+      window.location.origin + window.location.pathname + '?docDriven=true',
       'DocTarget',
       'left=400'
     ) ?? undefined;
@@ -26,9 +26,10 @@ function getTgtIds() {
     return [];
   }
 
-  tgtIds.value = Array.from(childWindow.document.querySelectorAll('[id]')).map(
+  const ids = Array.from(childWindow.document.querySelectorAll('[id]')).map(
     (el) => el.id
   );
+  tgtIds.value = unique(ids);
 }
 
 const tgtId = ref('');

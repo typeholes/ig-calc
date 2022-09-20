@@ -32,9 +32,9 @@ function moveFab(ev) {
       glassy
       direction="up"
       @show="focusExpr"
+      id="NewExprBtn"
     >
       <q-fab-action
-      id="NewExprBtn"
       @click="(e: Event) => e.stopPropagation()"
       >
         <template #default>

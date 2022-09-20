@@ -1,4 +1,4 @@
-import { defined, hasProp } from './util';
+import { defined, hasProp, tuple } from './util';
 import { cursorState, goToElement } from '../components/FakeCursor';
 
 export const actionNames = [
@@ -30,7 +30,7 @@ export function isAction(x: unknown): x is Action {
   );
 }
 
-let selectedElement: HTMLElement | undefined = undefined;
+let selectedElement: undefined | [HTMLElement, DOMRect] = undefined;
 type ActionHandler = ({ elementId, value }: ActionArgs['args']) => void;
 
 const actionHandlers: Record<ActionName, ActionHandler> = {
@@ -67,7 +67,7 @@ const actionHandlers: Record<ActionName, ActionHandler> = {
   },
   select: ({ elementId }) => {
     if (defined(elementId)) {
-      selectedElement = document.getElementById(elementId) ?? undefined;
+      selectedElement = getVisibleElement(elementId) ?? undefined;
     }
   },
   goto: ({ elementId }) => {
@@ -76,9 +76,11 @@ const actionHandlers: Record<ActionName, ActionHandler> = {
   },
   click: ({ elementId }) => {
     actionHandlers.select({ elementId });
-    selectedElement?.classList.add('fakeActive');
-    setTimeout(() => selectedElement?.classList.remove('fakeActive'), 500);
-    selectedElement?.click();
+    if (!defined(selectedElement)) { return; }
+    const [el] = selectedElement;
+    el.classList.add('fakeActive');
+    setTimeout(() => el.classList.remove('fakeActive'), 500);
+    el.click();
   },
   set: ({ value, elementId }) => {
     actionHandlers.select({ elementId });
@@ -196,4 +198,15 @@ export function tick(elapsedTime: number) {
     holdPointerEvents = undefined;
     bodyEl.style.overflow = '';
   }
+}
+
+function getVisibleElement(id: string) {
+  return Array.from(document.querySelectorAll('#' + id.replaceAll(':', '\\:')))
+    .map((x) => tuple(x, x.getBoundingClientRect()))
+    .filter(
+      ([el, rect]) =>
+        el instanceof HTMLElement &&
+        rect.top != rect.bottom &&
+        rect.left != rect.right
+    )[0] as [HTMLElement, DOMRect];
 }
