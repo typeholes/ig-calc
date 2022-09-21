@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { reactive, computed } from 'vue';
 import { EnvTypeTag } from '../js/env/EnvType';
-import { state as appState } from './uiUtil';
 import { EnvExpr } from '../js/env/EnvExpr';
 import { Animation } from '../js/env/Animation';
 import AInput from './qDefaulted/AInput.vue';
 import ABtn from './qDefaulted/ABtn.vue';
 import { state as saveState, rickRoll } from './SaveWidget';
+import DisplayWrapper from './expression/gui/DisplayWrapper.vue';
 const state = reactive({
   name: '',
   skipValidation: false,
@@ -37,8 +37,10 @@ function validateName(name: string) {
     return true;
   }
 
-  return saveState.currentEnv.items.has(name) ? 'Name already exists' : true;
+  return state.name.match(/^\w*$/) ?? false
 }
+
+const nameExists = computed(() => saveState.currentEnv.order.includes(state.name));
 
 const disableAdd = computed(
   () =>
@@ -52,7 +54,6 @@ function addExpr(type: EnvTypeTag) {
     return;
   }
   const newName = state.name;
-  state.name = '';
   if (type === 'constant') {
     saveState.currentEnv.constant.set(newName, 0);
     return;
@@ -60,7 +61,7 @@ function addExpr(type: EnvTypeTag) {
   if (type === 'expression') {
     saveState.currentEnv.expression.set(
       newName,
-      EnvExpr(`${newName} = sin(x)`)
+      EnvExpr(`${newName} = sin(x)`, saveState.currentEnv)
     );
     return;
   }
@@ -70,10 +71,10 @@ function addExpr(type: EnvTypeTag) {
   }
 }
 
-function focusExpr() {
-  const el = document.getElementById('newExprInput');
-  el?.focus();
-}
+// function focusExpr() {
+//   const el = document.getElementById('newExprInput');
+//   el?.focus();
+// }
 
 const buttonTypeText: Record<EnvTypeTag, (s: string) => string> = {
   constant: (name: string) => `${name} = 0`,
@@ -89,20 +90,19 @@ function buttonText(name: string, type: EnvTypeTag) {
 </script>
 
 <template>
-  <div class="rows NewExpr">
-    <div
+  <div class="col NewExpr q-gutter-xs q-ma-xs " style="width: 22em">
+    <a-input
       label-class="textCentered"
-      label="New expression name"
-      @click="(e: Event) => { e.stopPropagation(); focusExpr(); }"
-    >
-      <a-input
-        id="newExprInput"
-        v-model="state.name"
-        outlined
-        :rules="[validateName]"
-      />
+      label="Expression Name"
+      id="newExprInput"
+      v-model="state.name"
+      outlined
+      :rules="[validateName]"
+    />
+    <div v-if="nameExists" >
+    <display-wrapper :name="state.name"/>
     </div>
-    <div class="cols">
+    <div v-else class="row" >
       <template :key="type" v-for="(_, type) in buttonTypeText">
         <a-btn
           :disable="disableAdd"
@@ -114,9 +114,9 @@ function buttonText(name: string, type: EnvTypeTag) {
           push
         />
       </template>
-      <div></div>
     </div>
   </div>
+
 </template>
 
 <style>

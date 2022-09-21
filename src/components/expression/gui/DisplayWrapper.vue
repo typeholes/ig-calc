@@ -27,9 +27,12 @@ import { SaveId, saveTypes as allSaveTypes } from 'src/js/SaveManager';
 
 interface Props {
   name: string;
+  hideMini?: boolean
 }
 
 const props = defineProps<Props>();
+props.hideMini ?? false;
+
 const type = saveState.currentEnv.getType(props.name);
 
 const saveTypes = allSaveTypes.filter((x) => x !== 'library');
@@ -61,7 +64,7 @@ function copyToSave(id: SaveId) {
     );
   } else if (type === 'expression') {
     const value: EnvExpr = saveState.currentEnv.expression.get(props.name)!;
-    tgt.expression.set(props.name, EnvExpr(value.expr));
+    tgt.expression.set(props.name, EnvExpr(value.expr, saveState.currentEnv));
   }
 
   const tgtState = tgt[type].getState(props.name);
@@ -76,7 +79,7 @@ function copyToSave(id: SaveId) {
     ).showGraph;
     tgtState.showValue = saveState.currentEnv[type].getState(
       props.name
-    ).showValue;
+).showValue;
   }
 }
 
@@ -95,7 +98,7 @@ function borderColor(color: string) {
 <template>
   <div class="col" v-if="show">
     <div class="">
-      <div class="q-mini-drawer-only">
+      <div v-if="props.hideMini" class="q-mini-drawer-only">
         <a-toggle
           class="graphColored"
           v-model="saveState.currentEnv[type].getState(props.name).showGraph"
