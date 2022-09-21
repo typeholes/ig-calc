@@ -1,5 +1,10 @@
 import { defined, hasProp, tuple } from './util';
-import { cursorState, goToElement } from '../components/FakeCursor';
+import {
+  cursorState,
+  goToElement,
+  scrollToElement,
+} from '../components/FakeCursor';
+import { nextTick } from 'vue';
 
 export const actionNames = [
   'wait',
@@ -7,6 +12,8 @@ export const actionNames = [
   'showCursor',
   'select',
   'goto',
+  'scrollTo',
+  'gotoNoScroll',
   'click',
   'set',
   'append',
@@ -70,13 +77,23 @@ const actionHandlers: Record<ActionName, ActionHandler> = {
       selectedElement = getVisibleElement(elementId) ?? undefined;
     }
   },
-  goto: ({ elementId }) => {
+  scrollTo: ({ elementId }) => {
+    actionHandlers.select({ elementId });
+    scrollToElement(selectedElement);
+  },
+  gotoNoScroll: ({ elementId }) => {
     actionHandlers.select({ elementId });
     goToElement(selectedElement);
   },
+  goto: ({ elementId }) => {
+    prependAction('gotoNoScroll', { delay: 0.3, args: { elementId } });
+    prependAction('scrollTo', { delay: 0, args: { elementId } });
+  },
   click: ({ elementId }) => {
     actionHandlers.select({ elementId });
-    if (!defined(selectedElement)) { return; }
+    if (!defined(selectedElement)) {
+      return;
+    }
     const [el] = selectedElement;
     el.classList.add('fakeActive');
     setTimeout(() => el.classList.remove('fakeActive'), 500);
@@ -153,10 +170,13 @@ export const actions: Action[] = [];
 const bodyEl = document.getElementsByTagName('body')[0];
 let previousElapsedTime = 0;
 let time = 0;
-let nextTime = 0.5;
+let nextTime = 0.3;
 let holdPointerEvents: string | undefined = undefined;
 export function tick(elapsedTime: number) {
   const deltaSeconds = (elapsedTime - previousElapsedTime) / 1000;
+  if (deltaSeconds < nextTime) {
+    return;
+  }
   previousElapsedTime = elapsedTime;
   time += deltaSeconds;
   // if (defined(actions) && actions.length > 0) {
@@ -167,9 +187,6 @@ export function tick(elapsedTime: number) {
   //       now: new Date().getSeconds(),
   //    });
   // }
-  if (nextTime > time) {
-    return;
-  }
 
   if (defined(actions) && actions.length > 0) {
     if (!defined(holdPointerEvents)) {
@@ -177,14 +194,14 @@ export function tick(elapsedTime: number) {
       bodyEl.style.pointerEvents = 'none';
       bodyEl.style.overflow = 'hidden';
     }
-    const action = actions.shift()!;
-    const name = action[0];
-    if (name === 'wait') {
-      nextTime += action[1].delay;
+    if (actions.length > 0 && actions[0][1].delay > 0) {
+      nextTime += actions[0][1].delay;
+      actions[0][1].delay = 0;
+      return;
     } else {
-      prependAction('wait', { delay: action[1].delay, args: {} });
-      nextTime += 0.1;
+      nextTime += 0.01;
     }
+    const action = actions.shift()!;
     // console.log('running action', {
     //    time,
     //    nextTime,
