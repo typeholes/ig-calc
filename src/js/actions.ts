@@ -109,19 +109,26 @@ const actionHandlers: Record<ActionName, ActionHandler> = {
   },
   append: ({ value, elementId }) => {
     actionHandlers.select({ elementId });
-    if (selectedElement instanceof HTMLInputElement) {
-      selectedElement.value += value;
-      selectedElement.dispatchEvent(new Event('input', { bubbles: true }));
+    if (
+      defined(selectedElement) &&
+      selectedElement[0] instanceof HTMLInputElement
+    ) {
+      const el = selectedElement[0];
+      el.value += value;
+      el.dispatchEvent(new Event('input', { bubbles: true }));
     }
   },
   type: ({ value, elementId }) => {
     actionHandlers.select({ elementId });
-    if (selectedElement instanceof HTMLInputElement) {
+    if (
+      defined(selectedElement) &&
+      selectedElement[0] instanceof HTMLInputElement
+    ) {
       actions?.unshift(
         ...(value ?? '')
           .split('')
           .map((char: string) =>
-            mkAction('append', { delay: 0.2, args: { value: char, elementId } })
+            mkAction('append', { delay: 0.0, args: { value: char, elementId } })
           )
       );
     }
@@ -199,7 +206,7 @@ export function tick(elapsedTime: number) {
       actions[0][1].delay = 0;
       return;
     } else {
-      nextTime += 0.01;
+      nextTime += 0.0; // why so slow with .01?
     }
     const action = actions.shift()!;
     // console.log('running action', {

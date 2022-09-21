@@ -1,8 +1,7 @@
 <script setup lang="ts">
-import { sendAction } from 'src/js/actions';
+import { mkAction, sendAction } from 'src/js/actions';
 import { createDocChannel } from 'src/js/docs/receiver';
-import { defined, unique } from 'src/js/util';
-import { computed, ref } from 'vue';
+import { defined } from 'src/js/util';
 
 const docChannel = createDocChannel();
 
@@ -19,37 +18,48 @@ function open() {
   sendTopic();
 }
 
-const tgtIds = ref([] as string[]);
-
-function getTgtIds() {
-  if (!defined(childWindow)) {
-    return [];
-  }
-
-  const ids = Array.from(childWindow.document.querySelectorAll('[id]')).map(
-    (el) => el.id
-  );
-  tgtIds.value = unique(ids);
-}
-
-const tgtId = ref('');
+const steps = [
+  {
+    text: 'goto new expression button',
+    action: mkAction('goto', { delay: 0, args: { elementId: 'NewExprBtn' } }),
+  },
+  {
+    text: 'click it',
+    action: mkAction('click', { delay: 0, args: { elementId: 'NewExprBtn' } }),
+  },
+  {
+    text: 'goto new expression name input',
+    action: mkAction('goto', { delay: 0, args: { elementId: 'newExprInput' } }),
+  },
+  {
+    text: 'enter a name',
+    action: mkAction('type', { delay: 0, args: { elementId: 'newExprInput', value: 'RickRoll' } }),
+  },
+  {
+    text: 'type a few more characters',
+    action: mkAction('type', { delay: 0, args: { elementId: 'newExprInput', value: 'abcdef' } }),
+  },
+];
 
 function sendTopic() {
   docChannel.postMessage({ topic: 'test topic' });
 }
 
-function goto() {
-  sendAction(docChannel, 'goto', {
-    delay: 0,
-    args: { elementId: tgtId.value },
-  });
-}
+function doSteps(until: number) {
+  sendTopic();
+  const stopAt = Math.min(until, steps.length);
+  const isOpen = defined(childWindow);
+  if (!isOpen) {
+    open();
+    if (defined(childWindow)) {
+      childWindow.onload = () => doSteps(until);
+      return;
+    }
+  }
 
-function sendClick() {
-  sendAction(docChannel, 'click', {
-    delay: 0,
-    args: { elementId: tgtId.value },
-  });
+  for (let i = 0; i <= stopAt; i++) {
+    sendAction(docChannel, ...steps[i].action);
+  }
 }
 </script>
 
@@ -57,9 +67,15 @@ function sendClick() {
   <div>
     <h1>docs here</h1>
     <q-btn label="open" @click="open" />
-    <q-btn label="set topic" @click="sendTopic" />
-    <q-select v-model="tgtId" :options="tgtIds" @update:model-value="goto" />
-    <q-btn label="get ids" @click="getTgtIds" />
-    <q-btn label="click" @click="sendClick" />
+    <div class="col">
+      <div v-for="(step, idx) of steps" :key="idx">
+        <div class="row items-start">
+          <div>{{ step.text }}</div>
+          <div>
+          <q-btn dense label="showMe" @click="doSteps(idx)" />
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>

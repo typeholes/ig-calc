@@ -94,7 +94,7 @@ function buttonText(name: string, type: EnvTypeTag) {
     <a-input
       label-class="textCentered"
       label="Expression Name"
-      id="newExprInput"
+      for="newExprInput"
       v-model="state.name"
       outlined
       :rules="[validateName]"
