@@ -234,3 +234,5 @@ function getVisibleElement(id: string) {
         rect.left != rect.right
     )[0] as [HTMLElement, DOMRect];
 }
+
+

@@ -1,30 +1,30 @@
-import {  hasProp, tagged } from "./util";
+import { hasProp, tagged } from './util';
 
 export interface Left<L> {
-  _tag: "Left";
+  _tag: 'Left';
   value: L;
 }
 export const Left = <L>(value: L): Left<L> => ({
-  _tag: "Left",
+  _tag: 'Left',
   value,
 });
 
 export interface Right<R> {
-  _tag: "Right";
+  _tag: 'Right';
   value: R;
 }
 export const Right = <R>(value: R): Right<R> => ({
-  _tag: "Right",
+  _tag: 'Right',
   value,
 });
 
 export type Either<L, R> = Left<L> | Right<R>;
 
 export const isLeft = (x: unknown): x is Left<unknown> =>
-  tagged(x, "Left") && hasProp(x, "value");
+  tagged(x, 'Left') && hasProp(x, 'value');
 
 export const isRight = (x: unknown): x is Right<unknown> =>
-  tagged(x, "Right") && hasProp(x, "value");
+  tagged(x, 'Right') && hasProp(x, 'value');
 
 export const isEither = (x: unknown): x is Either<unknown, unknown> =>
   isLeft(x) || isRight(x);

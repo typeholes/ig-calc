@@ -1,12 +1,7 @@
 <script setup lang="ts">
-import {
-  saveTypes,
-  SaveId,
-} from '../js/SaveManager';
+import { saveTypes, SaveId } from '../js/SaveManager';
 import { defined } from '../js/util';
 import SaveEntry from './SaveEntry.vue';
-
-
 
 import AExpansion from './qDefaulted/AExpansion.vue';
 import {
@@ -51,7 +46,7 @@ function leftIcon(id: SaveId) {
     };
 }
 */
- </script>
+</script>
 
 <template>
   <!-- eslint-disable vue/no-unused-vars -->
@@ -62,11 +57,11 @@ function leftIcon(id: SaveId) {
       <q-list
         separator
         padding
-        class="bg-secondary "
+        class="bg-secondary"
         :key="saveType"
         v-for="saveType in saveTypes"
       >
-        <a-expansion header-class="col" :label="saveType" >
+        <a-expansion header-class="col" :label="saveType">
           <template
             :key="id.name + '/' + id.name"
             v-for="[id, { description, deleted }] of saveList(saveType)"
