@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { mkAction, sendAction } from 'src/js/actions';
+import { mkAction, sendActions } from 'src/js/actions';
 import { createDocChannel } from 'src/js/docs/receiver';
 import { defined } from 'src/js/util';
 
@@ -33,11 +33,17 @@ const steps = [
   },
   {
     text: 'enter a name',
-    action: mkAction('type', { delay: 0, args: { elementId: 'newExprInput', value: 'RickRoll' } }),
+    action: mkAction('type', {
+      delay: 0,
+      args: { elementId: 'newExprInput', value: 'RickRoll' },
+    }),
   },
   {
     text: 'type a few more characters',
-    action: mkAction('type', { delay: 0, args: { elementId: 'newExprInput', value: 'abcdef' } }),
+    action: mkAction('type', {
+      delay: 0,
+      args: { elementId: 'newExprInput', value: 'abcdef' },
+    }),
   },
 ];
 
@@ -57,9 +63,7 @@ function doSteps(until: number) {
     }
   }
 
-  for (let i = 0; i <= stopAt; i++) {
-    sendAction(docChannel, ...steps[i].action);
-  }
+  sendActions(docChannel, steps.slice(0, stopAt));
 }
 </script>
 
@@ -72,7 +76,7 @@ function doSteps(until: number) {
         <div class="row items-start">
           <div>{{ step.text }}</div>
           <div>
-          <q-btn dense label="showMe" @click="doSteps(idx)" />
+            <q-btn dense label="showMe" @click="doSteps(idx)" />
           </div>
         </div>
       </div>

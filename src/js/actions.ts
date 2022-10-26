@@ -149,6 +149,13 @@ export function addAction(
   actions?.push([name, { delay, args }]);
 }
 
+export function sendActions(
+  channel: BroadcastChannel,
+  actions: { action: Action }[]
+) {
+  channel.postMessage(actions);
+}
+
 export function sendAction(
   channel: BroadcastChannel,
   name: keyof typeof actionHandlers,
@@ -234,5 +241,3 @@ function getVisibleElement(id: string) {
         rect.left != rect.right
     )[0] as [HTMLElement, DOMRect];
 }
-
-
