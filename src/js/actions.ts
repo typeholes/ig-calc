@@ -128,7 +128,7 @@ const actionHandlers: Record<ActionName, ActionHandler> = {
         ...(value ?? '')
           .split('')
           .map((char: string) =>
-            mkAction('append', { delay: 0.0, args: { value: char, elementId } })
+            mkAction('append', { delay: 0.2, args: { value: char, elementId } })
           )
       );
     }
@@ -149,9 +149,9 @@ export function addAction(
   actions?.push([name, { delay, args }]);
 }
 
-export function sendActions(
+export function sendActions<T extends { action: Action }>(
   channel: BroadcastChannel,
-  actions: { action: Action }[]
+  actions: T[]
 ) {
   channel.postMessage(actions);
 }
@@ -183,8 +183,7 @@ export const actions: Action[] = [];
 
 const bodyEl = document.getElementsByTagName('body')[0];
 let previousElapsedTime = 0;
-let time = 0;
-let nextTime = 0.3;
+let nextTime = 0.01;
 let holdPointerEvents: string | undefined = undefined;
 export function tick(elapsedTime: number) {
   const deltaSeconds = (elapsedTime - previousElapsedTime) / 1000;
@@ -192,7 +191,6 @@ export function tick(elapsedTime: number) {
     return;
   }
   previousElapsedTime = elapsedTime;
-  time += deltaSeconds;
   // if (defined(actions) && actions.length > 0) {
   //    console.log({
   //       deltaSeconds,
@@ -209,19 +207,16 @@ export function tick(elapsedTime: number) {
       bodyEl.style.overflow = 'hidden';
     }
     if (actions.length > 0 && actions[0][1].delay > 0) {
-      nextTime += actions[0][1].delay;
+      nextTime = actions[0][1].delay;
       actions[0][1].delay = 0;
       return;
     } else {
-      nextTime += 0.0; // why so slow with .01?
+      nextTime = 0.5;
     }
     const action = actions.shift()!;
     // console.log('running action', {
-    //    time,
-    //    nextTime,
-    //    name: name,
-    //    ...action[1],
-    //    selected: selectedElement?.id,
+    //   nextTime,
+    //   action: action,
     // });
     runAction(action);
   } else if (defined(holdPointerEvents)) {

@@ -21,28 +21,34 @@ function open() {
 const steps = [
   {
     text: 'goto new expression button',
-    action: mkAction('goto', { delay: 0, args: { elementId: 'NewExprBtn' } }),
+    action: mkAction('goto', { delay: 0.3, args: { elementId: 'NewExprBtn' } }),
   },
   {
     text: 'click it',
-    action: mkAction('click', { delay: 0, args: { elementId: 'NewExprBtn' } }),
+    action: mkAction('click', {
+      delay: 0.5,
+      args: { elementId: 'NewExprBtn' },
+    }),
   },
   {
     text: 'goto new expression name input',
-    action: mkAction('goto', { delay: 0, args: { elementId: 'newExprInput' } }),
+    action: mkAction('goto', {
+      delay: 0.5,
+      args: { elementId: 'newExprInput' },
+    }),
   },
   {
     text: 'enter a name',
     action: mkAction('type', {
-      delay: 0,
+      delay: 0.5,
       args: { elementId: 'newExprInput', value: 'RickRoll' },
     }),
   },
   {
     text: 'type a few more characters',
     action: mkAction('type', {
-      delay: 0,
-      args: { elementId: 'newExprInput', value: 'abcdef' },
+      delay: 0.5,
+      args: { elementId: 'newExprInput', value: 'abcdefghilmnop' },
     }),
   },
 ];
@@ -52,18 +58,19 @@ function sendTopic() {
 }
 
 function doSteps(until: number) {
-  sendTopic();
   const stopAt = Math.min(until, steps.length);
   const isOpen = defined(childWindow);
-  if (!isOpen) {
-    open();
-    if (defined(childWindow)) {
-      childWindow.onload = () => doSteps(until);
-      return;
-    }
+  if (isOpen) {
+    childWindow.close();
   }
-
-  sendActions(docChannel, steps.slice(0, stopAt));
+  open();
+  if (defined(childWindow)) {
+    childWindow.onload = () => {
+      sendTopic();
+      sendActions(docChannel, steps.slice(0, stopAt + 1));
+    };
+    return;
+  }
 }
 </script>
 
