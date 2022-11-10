@@ -1,14 +1,8 @@
 import { MathNode } from 'mathjs';
 import { Errorable } from '../Either';
 import { parseNode, getNodeName } from '../expressions';
-import { EvalFn } from '../function-plot/FunctionPlotDatum';
-import {
-  defined,
-  hasProp,
-  hasPropIs,
-  isBoolean,
-  isString,
-} from '../util';
+
+import { defined, hasProp, hasPropIs, isBoolean, isString } from '../util';
 import { Set as ISet } from 'immutable';
 import {
   getDependencies,
@@ -17,6 +11,7 @@ import {
 import { ExprEnv, nodeToEvalFn, flattenDependencyTree } from './exprEnv';
 import { addTexElement } from '../typeset';
 import { simplify } from '../math/simplify';
+import { EvalFn } from './EnvType';
 
 export interface EnvExprVar {
   name: string;

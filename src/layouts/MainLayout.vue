@@ -61,6 +61,7 @@
           <q-tab-panel name="help">
             <div>help here</div>
           </q-tab-panel>
+          <q-tab-panel name="test"> </q-tab-panel>
         </q-tab-panels>
       </q-page>
     </q-page-container>
@@ -93,7 +94,7 @@ import FakeCursor from 'src/components/FakeCursor.vue';
 const leftDrawerOpen = ref(false);
 const leftDrawerMini = ref(false);
 const rightDrawerOpen = ref(false);
-const panel = ref('graph');
+const panel = ref('grid');
 
 const width = Math.max(window.innerWidth * 0.25, 300);
 

@@ -4,7 +4,6 @@ import {
   goToElement,
   scrollToElement,
 } from '../components/FakeCursor';
-import { nextTick } from 'vue';
 
 export const actionNames = [
   'wait',

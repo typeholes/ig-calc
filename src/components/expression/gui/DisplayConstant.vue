@@ -6,8 +6,7 @@ import {
   state as saveState,
   currentSaveIsLibrary,
 } from 'src/components/SaveWidget.js';
-import { isValidNumber } from 'src/js/function-plot/utils';
-import { defined, isNumber } from 'src/js/util';
+import { defined, isNumber, isValidNumber } from 'src/js/util';
 
 interface Props {
   name: string;
@@ -47,14 +46,14 @@ function increment(amt: number) {
   return () => {
     state.value += amt;
     updateValue(state.value);
-  }
+  };
 }
 
 function decrement(amt: number) {
   return () => {
     state.value -= amt;
     updateValue(state.value);
-  }
+  };
 }
 
 function formatShort(n: number) {
@@ -99,7 +98,7 @@ const active = ref('a');
         />
 
         <q-btn
-          v-touch-repeat:0:500.mouse.enter.space="decrement(.1)"
+          v-touch-repeat:0:500.mouse.enter.space="decrement(0.1)"
           color="secondary"
           push
           round
@@ -112,7 +111,7 @@ const active = ref('a');
         </span>
 
         <q-btn
-          v-touch-repeat:0:500.mouse.enter.space="increment(.1)"
+          v-touch-repeat:0:500.mouse.enter.space="increment(0.1)"
           color="secondary"
           push
           round

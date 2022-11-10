@@ -307,7 +307,7 @@ export function unselectSave() {
 }
 
 export function initSaveWidget() {
-  const search = window.location.search;//.slice(1);
+  const search = window.location.search; //.slice(1);
   const params = new URLSearchParams(search);
 
   const storageKey = params.get('StorageKey') ?? '';
@@ -367,7 +367,6 @@ export function gameLoop(elapsedTime: number) {
       state.currentEnv.constant.set('time', time, { hidden: true });
       Object.values(onTicks).forEach((x) => x(delta));
     }
-    state.currentEnv.drawLines();
   }
   window.requestAnimationFrame(gameLoop);
 }

@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import { reactive } from 'vue';
-import { isValidNumber } from 'src/js/function-plot/utils';
+
 import AInput from 'src/components/qDefaulted/AInput.vue';
 import ASelect from 'src/components/qDefaulted/ASelect.vue';
 import {
   state as saveState,
   currentSaveIsLibrary,
 } from 'src/components/SaveWidget';
+import { isValidNumber } from 'src/js/util';
 
 interface Props {
   name: string;

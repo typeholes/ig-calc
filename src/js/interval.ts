@@ -1,4 +1,3 @@
-
 export type Point = [x: number, y: number];
 export type Points = Point[];
 
@@ -13,6 +12,10 @@ export function Interval(...args: number[]) {
 }
 
 Interval.span = (i: Interval) => i.hi - i.lo;
+Interval.offset = (i: Interval, by: number): Interval => ({
+  lo: i.lo + by,
+  hi: i.hi + by,
+});
 
 // should use a tuple arg here but too many things return arrays instead of tuples
 Interval.update = (i: Interval, vals: number[]): Interval => {
@@ -36,3 +39,11 @@ export function reverseInterval(i: Interval): Interval {
 export function offsetInterval(i: Interval, by: number): Interval {
   return { lo: i.lo + by, hi: i.hi + by };
 }
+
+Interval.scale = (i: Interval, by: number) => {
+  const mid = Interval.midpoint(i);
+  const r = (by * Interval.span(i)) / 2;
+  return Interval(mid - r, mid + r);
+};
+
+Interval.at = (i: Interval, pct: number) => i.lo + Interval.span(i) * pct;

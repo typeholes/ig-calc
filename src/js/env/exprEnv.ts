@@ -7,26 +7,17 @@ import {
 import { defaultCall, getAssignmentBody } from '../expressions';
 import { Set as ISet, Map as IMap } from 'immutable';
 import { builtinConstants } from '../math/symbols';
-import { nextTick, reactive } from 'vue';
-import { mkGraph } from '../function-plot/d3util';
-import {
-  Datum,
-  DatumOptions,
-  EvalFn,
-} from '../function-plot/FunctionPlotDatum';
+import { reactive } from 'vue';
 
-import { EnvType, EnvTypeTag } from './EnvType';
+import { EnvType, EnvTypeTag, EvalFn } from './EnvType';
 
 import { Animation } from './Animation';
 import { EnvExpr, isEnvExpr } from './EnvExpr';
 import { inline } from '../math/mathUtil';
 import { assert, defined } from '../util';
 import { libraries } from '../libraryValues';
-import {
-  defaultFunctionPlotOptionsAxis,
-  FunctionPlotOptions,
-} from '../function-plot/FunctionPlotOptions';
-import { Interval } from '../function-plot/types';
+
+import { Datum } from './EnvType';
 
 export type MathEnv = Record<string, MathNode | number>;
 
@@ -73,19 +64,22 @@ export interface ExprEnv extends ExprEnvIndexable {
   order: string[];
   getType: (key: string) => EnvTypeTag;
   activate: () => void;
-  drawLines: () => void;
 }
 
 const datumGetter = (
   item: EnvItem,
   evalFn: EvalFn,
-  options: Partial<DatumOptions> = {}
-) => Datum(evalFn, { show: item.showGraph, color: item.color, ...options });
+  options = { nSamples: 100 }
+) => ({
+  evalFn,
+  show: item.showGraph,
+  color: item.color,
+  nSamples: options.nSamples,
+});
 
 // eslint-disable-next-line no-var
 export const mkExprEnv = (): ExprEnv => {
   const items = reactive(new Map<string, EnvItem>());
-  const graph = initGraph();
   const mathEnv: MathEnv = {};
   const constants = new Map<string, number>();
   const animations = new Map<string, Animation>();
@@ -126,7 +120,6 @@ export const mkExprEnv = (): ExprEnv => {
       if (!order.includes(name)) {
         order.push(name);
       }
-      graph.drawLines();
     }
   }
   const exprEnv: ExprEnv = reactive({
@@ -136,7 +129,6 @@ export const mkExprEnv = (): ExprEnv => {
       onChange,
       tag: 'constant',
       data: constants,
-      getGraph: () => graph,
       mathEnv,
       getMathValue: (x) => x,
       items,
@@ -149,7 +141,6 @@ export const mkExprEnv = (): ExprEnv => {
       onChange,
       tag: 'animated',
       data: animations,
-      getGraph: () => graph,
       mathEnv,
       getMathValue: (x) => Animation.toMathNode(x),
       items,
@@ -172,7 +163,6 @@ export const mkExprEnv = (): ExprEnv => {
       onChange,
       tag: 'expression',
       data: expressions,
-      getGraph: () => graph,
       mathEnv,
       getMathValue: (v) => v.node ?? 0, // TODO
       items,
@@ -213,17 +203,6 @@ export const mkExprEnv = (): ExprEnv => {
     getType: (key: string) => items.get(key)?.typeTag ?? 'constant',
     activate: () => {
       active = true;
-      nextTick(() => {
-        graph.injectIntoTarget();
-        graph.resetZoom(Interval(-10, 10), 0);
-        graph.drawLines();
-        graph.drawLines();
-      });
-    },
-    drawLines: () => {
-      if (active) {
-        graph.drawLines();
-      }
     },
   } as const);
   return exprEnv;
@@ -241,11 +220,7 @@ type DependencyTree = IMap<
   { bound: boolean; transitive: DependencyTree }
 >;
 
-function getDatum(
-  key: string,
-  env: ExprEnv,
-  items: Map<string, EnvItem>
-): Datum | undefined {
+function getDatum(key: string, env: ExprEnv, items: Map<string, EnvItem>) {
   if (!items.has(key)) {
     return undefined;
   }
@@ -297,7 +272,7 @@ export const nodeToEvalFn = (
   node: MathNode,
   env: ExprEnv,
   freeVar = '__unused'
-): EvalFn => {
+) => {
   const body = isFunctionAssignmentNode(node)
     ? defaultCall(node, new Set(env.order))
     : getAssignmentBody(node);
@@ -328,20 +303,3 @@ export const nodeToEvalFn = (
   };
   return ret;
 };
-
-function initGraph() {
-  const graph = mkGraph(graphOptions('#graph')); // + elementId));
-  return graph;
-}
-
-function graphOptions(target: string): FunctionPlotOptions {
-  return {
-    target,
-    data: {},
-    width: Math.max(window.innerWidth, 400),
-    height: Math.max(window.innerHeight, 400),
-    xDomain: reactive(Interval(0, 1)),
-    xAxis: { ...defaultFunctionPlotOptionsAxis(), type: 'linear' },
-    yDomain: reactive(Interval(0, 1)),
-  };
-}

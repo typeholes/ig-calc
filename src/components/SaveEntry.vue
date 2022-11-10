@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, defineProps } from 'vue';
+import { defineProps } from 'vue';
 import { SaveId } from '../js/SaveManager';
 
 import AExpansion from 'src/components/qDefaulted/AExpansion.vue';
@@ -49,12 +49,6 @@ const deleted = () => defined(state.deletedSaves[props.id.type][props.id.name]);
 
 const props = defineProps<Props>();
 
-function only(action: () => void) {
-  return (e: Event) => {
-    e.stopPropagation;
-    action();
-  };
-}
 </script>
 
 <template>

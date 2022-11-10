@@ -1,11 +1,16 @@
-import { Datum, FunctionPlotDatum } from '../function-plot/FunctionPlotDatum';
 import { Set as ISet } from 'immutable';
 import { EnvItem, MathEnv } from './exprEnv';
-import { Graph } from '../function-plot/d3util';
 import { assert } from '../util';
 import { reactive, watch } from 'vue';
 
 export type EnvTypeTag = 'constant' | 'animated' | 'expression';
+
+export type EvalFn = (x: number) => number;
+
+export type Datum = {
+  evalFn: EvalFn;
+  color: string;
+};
 
 export interface EnvType<V> {
   tag: EnvTypeTag;
@@ -20,14 +25,18 @@ export interface EnvType<V> {
   getState: (key: string) => EnvItem & { value: V };
   getDependencies: (v: V) => ISet<string>;
   toTex: (key: string, v: V) => string;
-  onDependencyChange: (v: V, dependencyName: string, newDependencyValue: unknown, oldDependencyValue: unknown) => void;
+  onDependencyChange: (
+    v: V,
+    dependencyName: string,
+    newDependencyValue: unknown,
+    oldDependencyValue: unknown
+  ) => void;
 }
 
 export function EnvType<V>({
   onChange,
   tag,
   data,
-  getGraph,
   mathEnv,
   getMathValue,
   items,
@@ -36,17 +45,26 @@ export function EnvType<V>({
   toTex,
   onDependencyChange,
 }: {
-  onChange: (name: string, changeType: 'update' | 'insert' | 'delete', newValue?: V, oldValue?: V) => void;
+  onChange: (
+    name: string,
+    changeType: 'update' | 'insert' | 'delete',
+    newValue?: V,
+    oldValue?: V
+  ) => void;
   tag: EnvTypeTag;
   data: Map<string, V>;
-  getGraph: () => Graph;
   mathEnv: MathEnv;
   getMathValue: (v: V) => MathEnv[string];
   items: Map<string, EnvItem>;
-  getDatum: (v: V, item: EnvItem) => FunctionPlotDatum;
+  getDatum: (v: V, item: EnvItem) => Datum;
   getDependencies: (v: V) => ISet<string>;
   toTex: (v: V) => string;
-  onDependencyChange: (v: V, dependencyName: string, newDependencyValue: unknown, oldDependencyValue: unknown) => void;
+  onDependencyChange: (
+    v: V,
+    dependencyName: string,
+    newDependencyValue: unknown,
+    oldDependencyValue: unknown
+  ) => void;
 }): EnvType<V> {
   const envType: EnvType<V> = {
     tag,
@@ -73,7 +91,7 @@ export function EnvType<V>({
       }
       const item = items.get(key);
       assert.defined(item);
-      items.set(key, {...item, ...props});
+      items.set(key, { ...item, ...props });
       envType.showGraph(key, item.showGraph);
       if (key != 'time') {
         onChange(key, 'update', value, oldValue);
@@ -93,15 +111,7 @@ export function EnvType<V>({
     showGraph: (key: string, showGraph: boolean) => {
       const item = items.get(key);
       assert.defined(item);
-      const graph = getGraph();
       item.showGraph = showGraph;
-      if (showGraph) {
-        const value = data.get(key);
-        assert.defined(value);
-        graph.options.data[key] = getDatum(value, item);
-      } else {
-        delete graph.options.data[key];
-      }
       if (key != 'time') {
         onChange(key, 'update');
       }
@@ -109,14 +119,10 @@ export function EnvType<V>({
     colorGraph: (key: string, color: `#${string}`) => {
       const item = items.get(key);
       assert.defined(item);
-      const graph = getGraph();
       if (color === item.color) {
         return;
       }
       item.color = color;
-      if (key in graph.options.data) {
-        graph.options.data[key].color = color;
-      }
       if (key != 'time') {
         onChange(key, 'update');
       }

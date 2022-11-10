@@ -3,9 +3,12 @@ import { Errorable, errorable } from '../js/Either';
 import { EnvItem } from '../js/env/exprEnv';
 import { defined, isString } from '../js/util';
 import { Map as IMap } from 'immutable';
-import { computed, } from 'vue';
+import { computed } from 'vue';
 import { state as saveState } from 'src/components/SaveWidget';
-import { arrayRange } from 'src/js/function-plot/utils';
+
+function arrayRange(from: number, to: number): number[] {
+  return [...Array(to - from + 1).keys()].map((n) => n + from);
+}
 
 const currentEnv = saveState.currentEnv;
 
@@ -14,7 +17,11 @@ function getNames() {
   return names;
 }
 
-const names = computed(() => getNames().filter((item) => item.showGraph).sortBy( (item) => currentEnv.order.indexOf(item.name)));
+const names = computed(() =>
+  getNames()
+    .filter((item) => item.showGraph)
+    .sortBy((item) => currentEnv.order.indexOf(item.name))
+);
 
 function formatNumber(n: number | string | undefined /*row: number*/) {
   if (isString(n)) {
@@ -78,7 +85,6 @@ function rows(freeValues: number[]) {
     });
     return ret;
   });
-
 }
 
 // eslint-disable-next-line @typescript-eslint/no-loss-of-precision
@@ -89,16 +95,16 @@ const freeValues = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 987654321.0123456789].concat(
 
 <template>
   <div class="fixed-center">
-     <q-scroll-area id="data-grid-scroll-area" style="width: 75vw; height: 80vh">
-    <q-table
-      :rows="rows(freeValues)"
-      :columns="columns"
-      row-key="free"
-      virtual-scroll
-      virtual-scroll-target="#data-grid-scroll-area > .scroll"
-      dense
-      class="data-table"
-    />
+    <q-scroll-area id="data-grid-scroll-area" style="width: 75vw; height: 80vh">
+      <q-table
+        :rows="rows(freeValues)"
+        :columns="columns"
+        row-key="free"
+        virtual-scroll
+        virtual-scroll-target="#data-grid-scroll-area > .scroll"
+        dense
+        class="data-table"
+      />
     </q-scroll-area>
   </div>
 </template>

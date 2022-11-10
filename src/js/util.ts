@@ -1,6 +1,3 @@
-import { isValidNumber } from './function-plot/utils';
-import { isNumber as _isNumber } from 'mathjs';
-
 export function removeValuefromArray<T>(arr: T[], value: T): void {
   const idx = arr.indexOf(value);
   if (idx === -1) {
@@ -165,7 +162,11 @@ export function notBlank(s: string | null | undefined): s is string {
 }
 
 export function isNumber(x: unknown): x is number {
-  return _isNumber(x) && isValidNumber(x);
+  return typeof x === 'number' && isValidNumber(x);
+}
+
+export function isValidNumber(x: unknown): x is number {
+  return isNumber(x) && !isNaN(x);
 }
 
 export function mayBe<T>(
