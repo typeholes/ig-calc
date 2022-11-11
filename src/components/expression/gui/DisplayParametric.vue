@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive } from 'vue';
+import { computed, reactive } from 'vue';
 
 import ASelect from 'src/components/qDefaulted/ASelect.vue';
 import { state as saveState, currentSaveIsLibrary } from '../../SaveWidget';
@@ -12,6 +12,10 @@ interface Props {
 const props = defineProps<Props>();
 
 const graphState = saveState.currentEnv.parametric.getState(props.name);
+
+const options = computed(() =>
+  saveState.currentEnv.order.filter((x: string) => x !== props.name)
+);
 
 const state = reactive({
   xName: graphState.value.xName,
@@ -35,13 +39,13 @@ function updateParametric() {
     <a-select
       v-model="state.xName"
       @update:model-value="updateParametric"
-      :options="saveState.currentEnv.order"
+      :options="options"
       :disable="currentSaveIsLibrary"
     />
     <a-select
       v-model="state.yName"
       @update:model-value="updateParametric"
-      :options="saveState.currentEnv.order"
+      :options="options"
       :disable="currentSaveIsLibrary"
     />
   </div>
