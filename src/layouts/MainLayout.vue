@@ -94,7 +94,7 @@ import FakeCursor from 'src/components/FakeCursor.vue';
 const leftDrawerOpen = ref(false);
 const leftDrawerMini = ref(false);
 const rightDrawerOpen = ref(false);
-const panel = ref('grid');
+const panel = ref('graph');
 
 const width = Math.max(window.innerWidth * 0.25, 300);
 

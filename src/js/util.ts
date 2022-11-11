@@ -43,10 +43,10 @@ type Choose<A, B> = A extends B ? A : B;
 
 export const overObj =
   <From, To>(t: Transform<From, To>) =>
-  <Input extends Record<string, From>>(obj: Input) =>
-    Object.fromEntries(
-      Object.entries(obj).map(([key, val], i, arr) => [key, t(val, i, arr)])
-    ) as Choose<Input, Record<keyof Input, To>>;
+    <Input extends Record<string, From>>(obj: Input) =>
+      Object.fromEntries(
+        Object.entries(obj).map(([key, val], i, arr) => [key, t(val, i, arr)])
+      ) as Choose<Input, Record<keyof Input, To>>;
 
 export function objMap<ObjT extends Record<string, From>, From, To>(
   obj: ObjT,
@@ -162,7 +162,7 @@ export function notBlank(s: string | null | undefined): s is string {
 }
 
 export function isNumber(x: unknown): x is number {
-  return typeof x === 'number' && isValidNumber(x);
+  return typeof x === 'number';
 }
 
 export function isValidNumber(x: unknown): x is number {
