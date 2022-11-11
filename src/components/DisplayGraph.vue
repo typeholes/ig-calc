@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { isNaN } from 'mathjs';
+import { defined } from 'src/js/util';
 import { computed, reactive } from 'vue';
 import { Interval, offsetInterval } from '../js/interval';
 import { state } from './SaveWidget';
@@ -43,6 +45,7 @@ function testPoints(fn: (x: number) => number) {
   for (let i = 0; i < samples; i++) {
     const x = Interval.at(graph.x, i / samples);
     const y = fn(x);
+    if (isNaN(y)) continue;
     const gx = (x - offsetX) * scaleX + graph.width * 0.5;
     const gy = (y + offsetY) * scaleY + graph.height * 0.5;
     points = `${points} ${gx},${gy}`;
@@ -52,10 +55,18 @@ function testPoints(fn: (x: number) => number) {
 
 const lines = computed(() => {
   const arr = Array.from(state.currentEnv.items.keys());
-  return arr.map((name) => {
-    const datum = state.currentEnv.getDatum(name);
-    return { id: name, fn: datum.evalFn, color: datum.color };
-  });
+  return arr
+    .filter((name) => {
+      const item = state.currentEnv.items.get(name);
+      return defined(item) && item.showGraph && !item.hidden; // TODO: option to show hidden
+    })
+    .map((name) => {
+      const datum = state.currentEnv.getDatum(name) ?? {
+        evalFn: (x) => x,
+        color: 'white',
+      };
+      return { id: name, fn: datum.evalFn, color: datum.color };
+    });
 });
 //viewBox="0 0 800 800"
 </script>
