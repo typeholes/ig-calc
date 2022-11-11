@@ -6,7 +6,7 @@ import { Interval, offsetInterval, Point } from '../js/interval';
 import { state } from './SaveWidget';
 
 const graph = reactive({
-  x: Interval(10, -10),
+  x: Interval(-10, 10),
   y: Interval(10, -10),
   scale: 0,
   width: 1,
