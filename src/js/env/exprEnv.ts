@@ -18,6 +18,7 @@ import { assert, defined } from '../util';
 import { libraries } from '../libraryValues';
 
 import { Datum } from './EnvType';
+import { Parametric } from './Parametric';
 
 export type MathEnv = Record<string, MathNode | number>;
 
@@ -55,6 +56,7 @@ export interface ExprEnv extends ExprEnvIndexable {
   constant: EnvType<number>;
   animated: EnvType<Animation>;
   expression: EnvType<EnvExpr>;
+  parametric: EnvType<Parametric>;
   getMathEnv: (includeConstants?: boolean) => MathEnv;
   getDependencies: (key: string) => DependencyTree;
   items: Map<string, EnvItem>;
@@ -84,6 +86,8 @@ export const mkExprEnv = (): ExprEnv => {
   const constants = new Map<string, number>();
   const animations = new Map<string, Animation>();
   const expressions = new Map<string, EnvExpr>();
+  const parametrics = new Map<string, Parametric>();
+
   const order: string[] = reactive([]);
   let active = false;
   function onChange(
@@ -135,7 +139,7 @@ export const mkExprEnv = (): ExprEnv => {
       getDatum: (v, item) => datumGetter(item, () => v, { nSamples: 2 }),
       getDependencies: () => ISet(),
       toTex: (v) => v.toString(),
-      onDependencyChange: () => {},
+      onDependencyChange: () => { },
     }),
     animated: EnvType({
       onChange,
@@ -157,7 +161,7 @@ export const mkExprEnv = (): ExprEnv => {
       },
       getDependencies: () => ISet(['time']),
       toTex: Animation.toTex,
-      onDependencyChange: () => {},
+      onDependencyChange: () => { },
     }),
     expression: EnvType({
       onChange,
@@ -190,6 +194,32 @@ export const mkExprEnv = (): ExprEnv => {
             exprEnv.expression.set(expr.name, EnvExpr(expr.expr, exprEnv));
           }
         }
+      },
+    }),
+    parametric: EnvType({
+      onChange,
+      tag: 'parametric',
+      data: parametrics,
+      mathEnv,
+      getMathValue: (_v) => 0, // TODO
+      items,
+      getDatum: (v, item) =>
+        datumGetter(item, Parametric.toEvalFn(item.name, v, exprEnv)),
+      getDependencies: (v) =>
+        ISet(
+          exprEnv
+            .getDependencies(v.xName)
+            .merge(exprEnv.getDependencies(v.yName))
+            .keySeq()
+        ),
+      toTex: Parametric.toTex,
+      onDependencyChange: (
+        _expr: Parametric,
+        _dependencyName: string,
+        _newDependencyValue: unknown,
+        _oldDependencyValue: unknown
+      ) => {
+        // TODO: do we need this
       },
     }),
     items,

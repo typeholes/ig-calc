@@ -2,7 +2,7 @@
 import { isNaN } from 'mathjs';
 import { defined } from 'src/js/util';
 import { computed, reactive } from 'vue';
-import { Interval, offsetInterval } from '../js/interval';
+import { Interval, offsetInterval, Point } from '../js/interval';
 import { state } from './SaveWidget';
 
 const graph = reactive({
@@ -36,16 +36,25 @@ function handleWheel(e: WheelEvent) {
 }
 
 const samples = 2000;
-function testPoints(fn: (x: number) => number) {
+function sample(fn: (x: number) => number | Point) {
   const scaleX = graph.width / Interval.span(graph.x);
   const scaleY = graph.height / Interval.span(graph.y);
   const offsetX = Interval.midpoint(graph.x);
   const offsetY = Interval.midpoint(graph.y);
   let points = '';
   for (let i = 0; i < samples; i++) {
-    const x = Interval.at(graph.x, i / samples);
-    const y = fn(x);
-    if (isNaN(y)) continue;
+    const s = Interval.at(graph.x, i / samples);
+    const t = fn(s);
+    let x = 0;
+    let y = 0;
+    if (Array.isArray(t)) {
+      x = t[0];
+      y = t[1];
+    } else {
+      x = s;
+      y = t;
+    }
+    if (isNaN(x) || isNaN(y)) continue;
     const gx = (x - offsetX) * scaleX + graph.width * 0.5;
     const gy = (y + offsetY) * scaleY + graph.height * 0.5;
     points = `${points} ${gx},${gy}`;
@@ -120,7 +129,7 @@ const lines = computed(() => {
       </g>
       <template :key="line.id" v-for="line in lines">
         <polyline
-          :points="testPoints(line.fn)"
+          :points="sample(line.fn)"
           :stroke="line.color"
           fill="transparent"
         />

@@ -5,6 +5,7 @@ import { state as appState } from 'components/uiUtil';
 import { defined } from '../../../js/util';
 import AToggle from 'src/components/qDefaulted/AToggle.vue';
 import DisplayAnimation from './DisplayAnimation.vue';
+import DisplayParametric from './DisplayParametric.vue';
 import DisplayConstant from './DisplayConstant.vue';
 import DisplayExpression from './DisplayExpresssion.vue';
 import AColor from 'src/components/qDefaulted/AColor.vue';
@@ -24,10 +25,11 @@ import {
 
 import { saveList, load, state as saveState } from 'src/components/SaveWidget';
 import { SaveId, saveTypes as allSaveTypes } from 'src/js/SaveManager';
+import { Parametric } from 'src/js/env/Parametric';
 
 interface Props {
   name: string;
-  hideMini?: boolean
+  hideMini?: boolean;
 }
 
 const props = defineProps<Props>();
@@ -62,6 +64,12 @@ function copyToSave(id: SaveId) {
       props.name,
       Animation(value.fnName, value.from, value.to, value.period)
     );
+  } else if (type === 'parametric') {
+    const value: Parametric = saveState.currentEnv.parametric.get(props.name)!;
+    tgt.parametric.set(
+      props.name,
+      Parametric(value.fnName, value.xName, value.yName)
+    );
   } else if (type === 'expression') {
     const value: EnvExpr = saveState.currentEnv.expression.get(props.name)!;
     tgt.expression.set(props.name, EnvExpr(value.expr, saveState.currentEnv));
@@ -79,7 +87,7 @@ function copyToSave(id: SaveId) {
     ).showGraph;
     tgtState.showValue = saveState.currentEnv[type].getState(
       props.name
-).showValue;
+    ).showValue;
   }
 }
 
@@ -89,10 +97,9 @@ function borderColor(color: string) {
     return qcolor.lighten(color, -50);
   }
 
-  const { h, } = qcolor.rgbToHsv(qcolor.textToRgb(color));
+  const { h } = qcolor.rgbToHsv(qcolor.textToRgb(color));
   return qcolor.rgbToHex(qcolor.hsvToRgb({ h, s: 100, v: 100 }));
 }
-
 </script>
 
 <template>
@@ -207,13 +214,16 @@ function borderColor(color: string) {
             class="q-mini-drawer-hide col q-pa-xs"
           >
             <q-tab-panel name="constant" class="q-pa-none">
-              <display-constant :name="props.name"  />
+              <display-constant :name="props.name" />
             </q-tab-panel>
             <q-tab-panel name="expression" class="q-pa-none">
-              <display-expression :name="props.name"  />
+              <display-expression :name="props.name" />
             </q-tab-panel>
             <q-tab-panel name="animated" class="q-pt-none">
-              <display-animation :name="props.name"  />
+              <display-animation :name="props.name" />
+            </q-tab-panel>
+            <q-tab-panel name="parametric" class="q-pt-none">
+              <display-parametric :name="props.name" />
             </q-tab-panel>
           </q-tab-panels>
         </div>

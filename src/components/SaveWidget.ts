@@ -168,6 +168,7 @@ export function loadSave(id: SaveId): ExprEnv | undefined {
         if (isLeft(saveRep)) {
           // old save.  delete it and reload
           // debugger;
+          throw saveRep.value;
           removeSave(id);
           window.location.reload();
           return undefined;
@@ -200,8 +201,8 @@ export function saveList(type: SaveType): IMap<SaveId, SaveListItem> {
   );
   const map = state.showDeletedSaves
     ? IMap(state.deletedSaves[type])
-        .map((v) => [v, true] as const)
-        .concat(saveMap)
+      .map((v) => [v, true] as const)
+      .concat(saveMap)
     : saveMap;
 
   const ret = map

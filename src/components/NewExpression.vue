@@ -3,6 +3,7 @@ import { reactive, computed } from 'vue';
 import { EnvTypeTag } from '../js/env/EnvType';
 import { EnvExpr } from '../js/env/EnvExpr';
 import { Animation } from '../js/env/Animation';
+import { Parametric } from '../js/env/Parametric';
 import AInput from './qDefaulted/AInput.vue';
 import ABtn from './qDefaulted/ABtn.vue';
 import { state as saveState, rickRoll } from './SaveWidget';
@@ -37,10 +38,12 @@ function validateName(name: string) {
     return true;
   }
 
-  return state.name.match(/^\w*$/) ?? false
+  return state.name.match(/^\w*$/) ?? false;
 }
 
-const nameExists = computed(() => saveState.currentEnv.order.includes(state.name));
+const nameExists = computed(() =>
+  saveState.currentEnv.order.includes(state.name)
+);
 
 const disableAdd = computed(
   () =>
@@ -69,6 +72,10 @@ function addExpr(type: EnvTypeTag) {
     saveState.currentEnv.animated.set(newName, Animation('zigZag', 0, 5, 3));
     return;
   }
+  if (type === 'parametric') {
+    saveState.currentEnv.parametric.set(newName, Parametric(newName, 'x', 'y'));
+    return;
+  }
 }
 
 // function focusExpr() {
@@ -80,6 +87,7 @@ const buttonTypeText: Record<EnvTypeTag, (s: string) => string> = {
   constant: (name: string) => `${name} = 0`,
   animated: (name: string) => `${name}(time)`,
   expression: (name: string) => `${name} = x`,
+  parametric: (name: string) => `${name}(t) = [x(t),y(t)]`,
 } as const;
 
 function buttonText(name: string, type: EnvTypeTag) {
@@ -90,7 +98,7 @@ function buttonText(name: string, type: EnvTypeTag) {
 </script>
 
 <template>
-  <div class="col NewExpr q-gutter-xs q-ma-xs " style="width: 22em">
+  <div class="col NewExpr q-gutter-xs q-ma-xs" style="width: 22em">
     <a-input
       label-class="textCentered"
       label="Expression Name"
@@ -99,10 +107,10 @@ function buttonText(name: string, type: EnvTypeTag) {
       outlined
       :rules="[validateName]"
     />
-    <div v-if="nameExists" >
-    <display-wrapper :name="state.name"/>
+    <div v-if="nameExists">
+      <display-wrapper :name="state.name" />
     </div>
-    <div v-else class="row" >
+    <div v-else class="row">
       <template :key="type" v-for="(_, type) in buttonTypeText">
         <a-btn
           :disable="disableAdd"
@@ -116,7 +124,6 @@ function buttonText(name: string, type: EnvTypeTag) {
       </template>
     </div>
   </div>
-
 </template>
 
 <style>

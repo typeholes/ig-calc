@@ -2,10 +2,11 @@ import { Set as ISet } from 'immutable';
 import { EnvItem, MathEnv } from './exprEnv';
 import { assert } from '../util';
 import { reactive, watch } from 'vue';
+import { Point } from '../interval';
 
-export type EnvTypeTag = 'constant' | 'animated' | 'expression';
+export type EnvTypeTag = 'constant' | 'animated' | 'expression' | 'parametric';
 
-export type EvalFn = (x: number) => number;
+export type EvalFn = (x: number) => number | Point;
 
 export type Datum = {
   evalFn: EvalFn;

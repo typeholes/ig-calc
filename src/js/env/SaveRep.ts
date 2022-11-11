@@ -16,6 +16,7 @@ import { errorable } from '../Either';
 import { isObject } from '@vue/shared';
 import { EnvTypeTag } from './EnvType';
 import { reactive } from 'vue';
+import { Parametric } from './Parametric';
 
 export const SaveRep: { savable: Savable<'ExprEnv', SaveRep> } = {
   savable: {
@@ -30,6 +31,7 @@ export type SaveRepValue = EnvItem & {
   constant: undefined | number;
   animated: undefined | Animation;
   expression: undefined | string;
+  parametric: undefined | [string, string];
   order: undefined | number;
 };
 
@@ -40,6 +42,10 @@ export function toSaveRep(env: ExprEnv): SaveRep {
     animated: env.animated.get(name),
     expression: env.expression.get(name)?.expr,
     order: env.order.indexOf(name),
+    parametric: (() => {
+      const p = env.parametric.get(name);
+      return defined(p) ? [p.xName, p.yName] : undefined;
+    })(),
   }));
   return saveRep;
 }
@@ -59,6 +65,16 @@ export function fromSaveRep(saveRep: SaveRep): ExprEnv {
       env.animated.colorGraph(name, item.color);
       env.animated.showGraph(name, item.showGraph);
     }
+
+    if (defined(item.parametric)) {
+      env.parametric.set(
+        name,
+        Parametric(name, item.parametric[0], item.parametric[1])
+      );
+      env.parametric.colorGraph(name, item.color);
+      env.parametric.showGraph(name, item.showGraph);
+    }
+
     if (defined(item.expression)) {
       env.expression.set(name, EnvExpr(item.expression, env));
       env.expression.colorGraph(name, item.color);
@@ -78,6 +94,16 @@ export function fromSaveRep(saveRep: SaveRep): ExprEnv {
   return env;
 }
 
+function isParametricRep(x: unknown): x is [string, string] {
+  return (
+    defined(x) &&
+    Array.isArray(x) &&
+    x.length === 2 &&
+    isString(x[0]) &&
+    isString(x[1])
+  );
+}
+
 function parse(s: string): SaveRep {
   const obj: unknown = JSON.parse(s);
   assert.is(obj, isObject);
@@ -85,6 +111,7 @@ function parse(s: string): SaveRep {
   const map: SaveRep = unknownMap.map((value) => {
     assert.propMayBe(value, 'constant', isNumber);
     assert.propMayBe(value, 'animated', isAnimation);
+    assert.propMayBe(value, 'parametric', isParametricRep);
     assert.propMayBe(value, 'expression', isString);
     assert.propMayBe(value, 'order', isNumber);
     assert.is(value, isEnvItem);
@@ -133,4 +160,8 @@ const isColor = (x: unknown): x is `#${string}` =>
   isString(x) && x.startsWith('#');
 
 const isEnvTypeTag = (x: unknown): x is EnvTypeTag =>
-  isString(x) && (x === 'constant' || x === 'animated' || x === 'expression');
+  isString(x) &&
+  (x === 'constant' ||
+    x === 'animated' ||
+    x === 'expression' ||
+    x === 'parametric');
