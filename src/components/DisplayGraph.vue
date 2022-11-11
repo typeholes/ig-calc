@@ -6,12 +6,38 @@ import { Interval, offsetInterval, Point } from '../js/interval';
 import { state } from './SaveWidget';
 
 const graph = reactive({
-  x: Interval(-5, 15),
+  x: Interval(10, -10),
   y: Interval(10, -10),
   scale: 0,
-  width: window.innerWidth,
-  height: window.innerHeight,
+  width: 1,
+  height: 1,
 });
+
+function resize() {
+  const newWidth = window.innerWidth;
+  const newHeight = window.innerHeight;
+
+  // undo previous scaling
+  if (graph.width > graph.height) {
+    graph.x = Interval.scale(graph.x, graph.height / graph.width);
+  } else {
+    graph.y = Interval.scale(graph.y, graph.width / graph.height);
+  }
+
+  // do new scaling
+  if (newWidth > newHeight) {
+    graph.x = Interval.scale(graph.x, newWidth / newHeight);
+  } else {
+    graph.y = Interval.scale(graph.y, newHeight / newWidth);
+  }
+
+  graph.width = newWidth;
+  graph.height = newHeight;
+}
+
+resize();
+
+window.addEventListener('resize', resize);
 
 const xTick = computed(() => Interval.span(graph.x) / 10);
 const yTick = computed(() => Interval.span(graph.y) / 10);
